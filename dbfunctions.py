@@ -1,3 +1,4 @@
+import sqlite3
 
 def initTables(cursor):
     cursor.execute("""CREATE TABLE IF NOT EXISTS
@@ -18,3 +19,7 @@ def getNumUsers(cursor):
 def tryLogin(cursor, uname, pword):
     cursor.execute("SELECT * FROM users WHERE uname=? AND pword=?", [uname, pword])
     return cursor.fetchone()
+
+def readUsers(cursor):
+    cursor.execute("Select * from users")
+    return cursor.fetchall()
