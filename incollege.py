@@ -12,6 +12,7 @@ mainMenu = 2
 createAccount = 3
 selectSkill = 4
 quit = 5
+findUser = 6
 
 state = loggedOut
 
@@ -60,12 +61,60 @@ def enterInitialMenu():
         elif response == '4':
             state = selectSkill
         elif response == '5':
-            print("Under Construction")
+            state = findUser
         elif response == '6':
             state = quit
         else:
             print("Invalid Option, enter the number option you want and press enter")
             continue
+
+def findUser(dbCursor):
+    global state
+    
+    while(state == findUser):
+        print("Enter the name of a person you know: ")
+        name = input()
+        name = name.split(" ")
+        if len(name) != 2:
+            print("Name must be in the form (firstname lastname)")
+            continue
+
+        first = name[0]
+        last = name[1]
+        result = db.getUserByFullName(dbCursor, first, last)
+
+        if result != None:
+            while(state == findUser):
+                print("They are a part of the InCollege system!")
+                print("Would you like to join InCollege?")
+                print("Options:")
+                print("1. Log in with existing account")
+                print("2. Create account")
+                print("3. Return to previous menu")
+                response = input()
+                if(response == '1'):
+                    state = login
+                elif(response == '2'):
+                    state = createAccount
+                elif(response == '3'):
+                    state = loggedOut
+                else:
+                    print("Invalid input")
+
+        else:
+            while(state == findUser):
+                print("They are not yet a part of the InCollege system yet.")
+                print("Options:\n")
+                print("1. Search for another user")
+                print("2. Return to previous menu")
+                response = input()
+                if(response == '1'):
+                    break
+                elif(response == '2'):
+                    state = loggedOut
+                else:
+                    print("Invalid input")
+
 
 
 def loginUser(dbCursor):
@@ -198,6 +247,9 @@ def main(dbCursor):
 
         if state == selectSkill:
             enterSkillMenu()
+
+        if state == findUser:
+            findUser(dbCursor)
 
     print("Ending Program")
 

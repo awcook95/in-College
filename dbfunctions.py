@@ -21,10 +21,11 @@ def initTables(cursor):
         )""")
 
 def getUserByFullName(cursor, first, last):
-    pass
+    cursor.execute("SELECT * FROM users WHERE firstname=? AND lastname=?", [first, last])
+    return cursor.fetchone()
 
 def insertJob(cursor, title, desc, emp, loc, sal, author):
-    pass
+    cursor.execute("INSERT INTO jobs VALUES (?, ?, ?, ?, ?, ?)", [title, desc, emp, loc, sal, author])
 
 
 def insertUser(cursor, uname, pword, fname, lname):
