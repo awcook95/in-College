@@ -1,6 +1,30 @@
 def initTables(cursor):
     cursor.execute("""CREATE TABLE IF NOT EXISTS
-    users(uname TEXT PRIMARY KEY, pword TEXT)""")
+    users(
+        uname TEXT PRIMARY KEY,
+        pword TEXT NOT NULL,
+        firstname TEXT,
+        lastname TEXT,
+        UNIQUE(firstname, lastname)
+        )""")
+
+    cursor.execute("""CREATE TABLE IF NOT EXISTS
+    jobs(
+        jobID INTEGER PRIMARY KEY,
+        title TEXT,
+        description TEXT,
+        employer TEXT,
+        location TEXT,
+        salary INTEGER,
+        author TEXT,
+        FOREIGN KEY(author) REFERENCES users(uname)
+        )""")
+
+def getUserByFullName(cursor, first, last):
+    pass
+
+def insertJob(cursor, title, desc, emp, loc, sal, author):
+    pass
 
 
 def insertUser(cursor, uname, pword):
