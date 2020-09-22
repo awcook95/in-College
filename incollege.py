@@ -12,6 +12,7 @@ mainMenu = 2
 createAccount = 3
 selectSkill = 4
 quit = 5
+findUser = 6
 
 state = loggedOut
 
@@ -43,13 +44,20 @@ def enterInitialMenu():
     global state
 
     while state == loggedOut:
+        print("Nathan Cooper had always dreamed about getting a software engineering job after graduating from college.\n"
+              "However, with no work history and no connections, he feared that finding a company to hire him after graduation\n"
+              "would be difficult. After using inCollege, Nathan was able to connect with other students in the same major to\n"
+              "discuss school, jobs, salaries, offers, and projects. He was also able to learn new skills that would increase\n"
+              "his experience and improve the look of his resume.\n")
+        
         print("Select Option:")
         print("1. Log in with existing account")
         print("2. Create new account")
         print("3. Search for a job")
         print("4. Learn a new skill")
         print("5. Find someone you know")
-        print("6. Quit")
+        print("6. Play a video")
+        print("7. Quit")
         response = input()
         if response == '1':
             state = login
@@ -60,12 +68,62 @@ def enterInitialMenu():
         elif response == '4':
             state = selectSkill
         elif response == '5':
-            print("Under Construction")
+            state = findUser
         elif response == '6':
+            print("Video is now playing\n")
+        elif response == '7':
             state = quit
         else:
             print("Invalid Option, enter the number option you want and press enter")
             continue
+
+def findUser(dbCursor):
+    global state
+    
+    while(state == findUser):
+        print("Enter the name of a person you know: ")
+        name = input()
+        name = name.split(" ")
+        if len(name) != 2:
+            print("Name must be in the form (firstname lastname)")
+            continue
+
+        first = name[0]
+        last = name[1]
+        result = db.getUserByFullName(dbCursor, first, last)
+
+        if result != None:
+            while(state == findUser):
+                print("They are a part of the InCollege system!")
+                print("Would you like to join InCollege?")
+                print("Options:")
+                print("1. Log in with existing account")
+                print("2. Create account")
+                print("3. Return to previous menu")
+                response = input()
+                if(response == '1'):
+                    state = login
+                elif(response == '2'):
+                    state = createAccount
+                elif(response == '3'):
+                    state = loggedOut
+                else:
+                    print("Invalid input")
+
+        else:
+            while(state == findUser):
+                print("They are not yet a part of the InCollege system yet.")
+                print("Options:\n")
+                print("1. Search for another user")
+                print("2. Return to previous menu")
+                response = input()
+                if(response == '1'):
+                    break
+                elif(response == '2'):
+                    state = loggedOut
+                else:
+                    print("Invalid input")
+
 
 
 def loginUser(dbCursor):
@@ -111,7 +169,10 @@ def createUser(dbCursor):
         print("Invalid password. Must be length 8-12 characters, contain one digit, one uppercase character, and one non-alphanumeric")
         pword = input("Enter your desired password: ")
 
-    db.insertUser(dbCursor, uname, pword)
+    fname = input("Enter your first name: ")
+    lname = input("Enter your last name: ")
+
+    db.insertUser(dbCursor, uname, pword, fname, lname)
     print("Account has been created")
     state = loggedOut
     signedIn = False
@@ -195,6 +256,9 @@ def main(dbCursor):
 
         if state == selectSkill:
             enterSkillMenu()
+
+        if state == findUser:
+            findUser(dbCursor)
 
     print("Ending Program")
 
