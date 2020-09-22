@@ -111,7 +111,10 @@ def createUser(dbCursor):
         print("Invalid password. Must be length 8-12 characters, contain one digit, one uppercase character, and one non-alphanumeric")
         pword = input("Enter your desired password: ")
 
-    db.insertUser(dbCursor, uname, pword)
+    fname = input("Enter your first name: ")
+    lname = input("Enter your last name: ")
+
+    db.insertUser(dbCursor, uname, pword, fname, lname)
     print("Account has been created")
     state = loggedOut
     signedIn = False

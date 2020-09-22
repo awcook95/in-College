@@ -3,8 +3,8 @@ def initTables(cursor):
     users(
         uname TEXT PRIMARY KEY,
         pword TEXT NOT NULL,
-        firstname TEXT,
-        lastname TEXT,
+        firstname TEXT NOT NULL,
+        lastname TEXT NOT NULL,
         UNIQUE(firstname, lastname)
         )""")
 
@@ -27,8 +27,8 @@ def insertJob(cursor, title, desc, emp, loc, sal, author):
     pass
 
 
-def insertUser(cursor, uname, pword):
-    cursor.execute("INSERT INTO users VALUES (?, ?)", [uname, pword])
+def insertUser(cursor, uname, pword, fname, lname):
+    cursor.execute("INSERT INTO users VALUES (?, ?, ?, ?)", [uname, pword, fname, lname])
 
 
 def getUserByName(cursor, uname):
