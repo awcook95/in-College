@@ -44,6 +44,7 @@ def enterInitialMenu():
     global state
 
     while state == loggedOut:
+        # success story
         print("Nathan Cooper had always dreamed about getting a software engineering job after graduating from college.\n"
               "However, with no work history and no connections, he feared that finding a company to hire him after graduation\n"
               "would be difficult. After using inCollege, Nathan was able to connect with other students in the same major to\n"
@@ -53,25 +54,20 @@ def enterInitialMenu():
         print("Select Option:")
         print("1. Log in with existing account")
         print("2. Create new account")
-        print("3. Search for a job")
-        print("4. Learn a new skill")
-        print("5. Find someone you know")
-        print("6. Play a video")
-        print("7. Quit")
+        print("3. Find someone you know")
+        print("4. Play a video")
+        print("5. Quit")
+        
         response = input()
         if response == '1':
             state = login
         elif response == '2':
             state = createAccount
         elif response == '3':
-            print("Under Construction")
+            state = finduser
         elif response == '4':
-            state = selectSkill
+            print("Video is now playing\n)
         elif response == '5':
-            state = findUser
-        elif response == '6':
-            print("Video is now playing\n")
-        elif response == '7':
             state = quit
         else:
             print("Invalid Option, enter the number option you want and press enter")
