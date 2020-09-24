@@ -145,6 +145,15 @@ def loginUser(dbCursor):
     signedInUname = uname
     state = mainMenu
 
+def logOutUser(signedIn):
+    if(signedIn):
+        print("Logging Out")
+        state = loggedOut
+        signedIn = False
+        return True
+    else:
+        return False
+
 
 def createUser(dbCursor):
     global signedIn
@@ -156,7 +165,7 @@ def createUser(dbCursor):
         print("All permitted accounts have been created, please come back later")
         state = loggedOut
         signedIn = False
-        return
+        return 
 
     uname = input("Enter your desired username: ")
     # added below if statement to return back to main menu if username is taken
@@ -179,7 +188,7 @@ def createUser(dbCursor):
     signedIn = False
 
 
-def enterMainMenu():
+def enterMainMenu(dbCursor):
     global signedIn
     global signedInUname
     global state
@@ -195,16 +204,15 @@ def enterMainMenu():
         if response == '1':
             print("Under Construction")
         elif response == '2':
-            state = createJob
+            postJob(dbCursor)
         elif response == '3':
-            print("Under Construction")
+            findUser(dbCursor)
         elif response == '4':
             state = selectSkill
         elif response == '5':
             print("Logging Out")
-            state = loggedOut
-            signedIn = False
-            signedInUname = None
+            global signedIn
+            logOutUser(signedIn)
         else:
             print("Invalid Option, enter the number option you want and press enter")
             continue
@@ -212,6 +220,7 @@ def enterMainMenu():
 
 def postJob(dbCursor):
     global state
+    state = createJob  
                   
     if db.getNumJobs(dbCursor) >= 5:  # checks if number of jobs in database is at max limit
         print("All permitted jobs have been created, please come back later")
@@ -283,7 +292,7 @@ def main(dbCursor):
             createUser(dbCursor)
 
         if state == mainMenu:
-            enterMainMenu()
+            enterMainMenu(dbCursor)
 
         if state == selectSkill:
             enterSkillMenu()
