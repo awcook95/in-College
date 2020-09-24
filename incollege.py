@@ -12,8 +12,8 @@ mainMenu = 2
 createAccount = 3
 selectSkill = 4
 quit = 5
-findUser = 6
-postJob = 7
+userSearch = 6
+createJob = 7
 
 state = loggedOut
 
@@ -65,7 +65,7 @@ def enterInitialMenu():
         elif response == '2':
             state = createAccount
         elif response == '3':
-            state = finduser
+            state = userSearch
         elif response == '4':
             print("Video is now playing\n")
         elif response == '5':
@@ -77,7 +77,7 @@ def enterInitialMenu():
 def findUser(dbCursor):
     global state
     
-    while(state == findUser):
+    while(state == userSearch):
         print("Enter the name of a person you know: ")
         name = input()
         name = name.split(" ")
@@ -90,7 +90,7 @@ def findUser(dbCursor):
         result = db.getUserByFullName(dbCursor, first, last)
 
         if result != None:
-            while(state == findUser):
+            while(state == userSearch):
                 print("They are a part of the InCollege system!")
                 print("Would you like to join InCollege?")
                 print("Options:")
@@ -108,7 +108,7 @@ def findUser(dbCursor):
                     print("Invalid input")
 
         else:
-            while(state == findUser):
+            while(state == userSearch):
                 print("They are not yet a part of the InCollege system yet.")
                 print("Options:\n")
                 print("1. Search for another user")
@@ -190,7 +190,7 @@ def enterMainMenu():
         if response == '1':
             print("Under Construction")
         elif response == '2':
-            state = postJob
+            state = createJob
         elif response == '3':
             print("Under Construction")
         elif response == '4':
@@ -216,7 +216,7 @@ def postJob(dbCursor):
     last = input("Enter last name: ")              
     author = db.getUserByFullName(dbCursor, first, last)
                   
-    if author == None:
+    while author == None:
        print("There are no accounts with that name, please enter a valid first and last name\n")
        continue
                   
@@ -284,10 +284,10 @@ def main(dbCursor):
         if state == selectSkill:
             enterSkillMenu()
 
-        if state == findUser:
+        if state == userSearch:
             findUser(dbCursor)
                   
-        if state == postJob:
+        if state == createJob:
             postJob(dbCursor)
 
     print("Ending Program")
