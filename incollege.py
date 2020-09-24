@@ -76,41 +76,24 @@ def enterInitialMenu():
             print("Invalid Option, enter the number option you want and press enter")
             continue
 
-<<<<<<< HEAD
-def findUser(dbCursor):
-    global state
-    
-    while(state == userSearch):
-        print("Enter the name of a person you know: ")
-        name = input()
-        name = name.split(" ")
-        if len(name) != 2:
-            print("Name must be in the form (firstname lastname)")
-            continue
-
-        first = name[0]
-        last = name[1]
-=======
 def findUser(dbCursor, first, last):
         global state
->>>>>>> Altered findUser function to take in user and call menu function. Added tests for valid/invalid function calls
         result = db.getUserByFullName(dbCursor, first, last)
 
         if result != None:
-            while(state == userSearch):
-                print("They are a part of the InCollege system!")
-                if(signedIn):
-                    enterMainMenu(dbCursor)
-                    return True
-                else:
-                    enterInitialMenu()
-                    return True
+            print("They are a part of the InCollege system!")
+            if(signedIn):
+                enterMainMenu(dbCursor)
+                return True
+            else:
+                enterInitialMenu()
+                return True
         else:
             while(state == userSearch):
                 print("They are not yet a part of the InCollege system yet.")
                 print("Options:\n")
                 print("1. Search for another user")
-                print(au")
+                print("2. Return to previous menu")
                 response = input()
                 if(response == '1'):
                     break
@@ -183,6 +166,7 @@ def createUser(dbCursor):
     print("Account has been created")
     state = loggedOut
     signedIn = False
+    connection.commit()
 
 
 def enterMainMenu(dbCursor):
@@ -255,19 +239,25 @@ def enterSkillMenu():
         response = input()
         if response == '1':
             print("Under Construction")
+            return True  # Searched for skill successfully
         elif response == '2':
             print("Under Construction")
+            return True  # Searched for skill successfully
         elif response == '3':
             print("Under Construction")
+            return True  # Searched for skill successfully
         elif response == '4':
             print("Under Construction")
+            return True  # Searched for skill successfully
         elif response == '5':
             print("Under Construction")
+            return True # Searched for skill successfully
         elif response == '6':
             if not signedIn:
                 state = loggedOut
             else:
                 state = mainMenu
+            return False # Dont learn skill
         else:
             print("Invalid Option, enter the number option you want and press enter")
             continue
@@ -294,12 +284,12 @@ def main(dbCursor):
         if state == selectSkill:
             enterSkillMenu()
 
+
         if state == userSearch:
             findUser(dbCursor)
                   
         if state == createJob:
             postJob(dbCursor)
-
     print("Ending Program")
 
     # This needs to happen for changes to be committed to db

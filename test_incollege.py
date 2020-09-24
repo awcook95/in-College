@@ -128,26 +128,16 @@ def testInvalidFriendSearch(monkeypatch):
     out = incollege.findUser(cursor, "notFirst", "last")
     assert not out
 
-
-
-def testSkillSearch(monkeypatch, capfd):
-    monkeypatch.setattr("sys.stdin", StringIO("1\n6\n"))
+def testValidSkillSearch(monkeypatch):
+    monkeypatch.setattr("sys.stdin", StringIO("1\n"))
     incollege.state = incollege.selectSkill
-    incollege.enterSkillMenu()
-    out, err = capfd.readouterr()
-    assert out == "What skill would you like to learn?:\n" \
-                  "1. Python\n" \
-                  "2. How to make a resume\n"\
-                  "3. Scrum\n" \
-                  "4. Jira\n" \
-                  "5. Software Engineering\n" \
-                  "6. None - return to menu\n" \
-                  "Under Construction\n" \
-                  "What skill would you like to learn?:\n" \
-                  "1. Python\n" \
-                  "2. How to make a resume\n" \
-                  "3. Scrum\n" \
-                  "4. Jira\n" \
-                  "5. Software Engineering\n" \
-                  "6. None - return to menu\n"
-    assert incollege.state == incollege.loggedOut
+    out = incollege.enterSkillMenu()
+    assert out
+
+def testInvalidSkillSearch(monkeypatch):
+    monkeypatch.setattr("sys.stdin", StringIO("6\n"))
+    incollege.state = incollege.selectSkill
+    out = incollege.enterSkillMenu()
+    assert not out
+
+
