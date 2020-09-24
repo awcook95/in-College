@@ -109,26 +109,25 @@ def testJobSearch(monkeypatch, capfd):
                   "6. Quit\n"
 
 
-def testFriendSearch(monkeypatch, capfd):
-    monkeypatch.setattr("sys.stdin", StringIO("5\n6\n"))
-    incollege.state = incollege.loggedOut  # fix
-    incollege.enterInitialMenu()
-    out, err = capfd.readouterr()
-    assert out == "Select Option:\n" \
-                  "1. Log in with existing account\n" \
-                  "2. Create new account\n" \
-                  "3. Search for a job\n" \
-                  "4. Learn a new skill\n" \
-                  "5. Find someone you know\n" \
-                  "6. Quit\n" \
-                  "Under Construction\n" \
-                  "Select Option:\n" \
-                  "1. Log in with existing account\n" \
-                  "2. Create new account\n" \
-                  "3. Search for a job\n" \
-                  "4. Learn a new skill\n" \
-                  "5. Find someone you know\n" \
-                  "6. Quit\n"
+def testValidFriendSearch():
+    incollege.state = incollege.findUser
+    connection = sqlite3.connect("incollege_test.db")
+    cursor = connection.cursor()
+    db.initTables(cursor)
+    db.insertUser(cursor, "username1", "password", "first", "last")
+    out = incollege.findUser(cursor, "first", "last")
+    assert out
+
+def testInvalidFriendSearch(monkeypatch):
+    monkeypatch.setattr("sys.stdin", StringIO("2\n"))
+    incollege.state = incollege.findUser
+    connection = sqlite3.connect("incollege_test.db")
+    cursor = connection.cursor()
+    db.initTables(cursor)
+    db.insertUser(cursor, "username1", "password", "first", "last")
+    out = incollege.findUser(cursor, "notFirst", "last")
+    assert not out
+
 
 
 def testSkillSearch(monkeypatch, capfd):

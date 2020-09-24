@@ -76,6 +76,7 @@ def enterInitialMenu():
             print("Invalid Option, enter the number option you want and press enter")
             continue
 
+<<<<<<< HEAD
 def findUser(dbCursor):
     global state
     
@@ -89,37 +90,33 @@ def findUser(dbCursor):
 
         first = name[0]
         last = name[1]
+=======
+def findUser(dbCursor, first, last):
+        global state
+>>>>>>> Altered findUser function to take in user and call menu function. Added tests for valid/invalid function calls
         result = db.getUserByFullName(dbCursor, first, last)
 
         if result != None:
             while(state == userSearch):
                 print("They are a part of the InCollege system!")
-                print("Would you like to join InCollege?")
-                print("Options:")
-                print("1. Log in with existing account")
-                print("2. Create account")
-                print("3. Return to previous menu")
-                response = input()
-                if(response == '1'):
-                    state = login
-                elif(response == '2'):
-                    state = createAccount
-                elif(response == '3'):
-                    state = loggedOut
+                if(signedIn):
+                    enterMainMenu(dbCursor)
+                    return True
                 else:
-                    print("Invalid input")
-
+                    enterInitialMenu()
+                    return True
         else:
             while(state == userSearch):
                 print("They are not yet a part of the InCollege system yet.")
                 print("Options:\n")
                 print("1. Search for another user")
-                print("2. Return to previous menu")
+                print(au")
                 response = input()
                 if(response == '1'):
                     break
                 elif(response == '2'):
                     state = loggedOut
+                    return False # Didn't find user
                 else:
                     print("Invalid input")
 
