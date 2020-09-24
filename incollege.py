@@ -67,7 +67,7 @@ def enterInitialMenu():
         elif response == '3':
             state = finduser
         elif response == '4':
-            print("Video is now playing\n)
+            print("Video is now playing\n")
         elif response == '5':
             state = quit
         else:
