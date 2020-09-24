@@ -13,6 +13,7 @@ createAccount = 3
 selectSkill = 4
 quit = 5
 findUser = 6
+postJob = 7
 
 state = loggedOut
 
@@ -181,17 +182,20 @@ def enterMainMenu():
     while state == mainMenu:
         print("Options:\n"
               "1. Search for a job/internship\n"
-              "2. Find someone you know\n"
-              "3. Learn a new skill\n"
-              "4. Logout")
+              "2. Post a job\n"
+              "3. Find someone you know\n"
+              "4. Learn a new skill\n"
+              "5. Logout")
         response = input()
         if response == '1':
             print("Under Construction")
         elif response == '2':
-            print("Under Construction")
+            state = postJob
         elif response == '3':
-            state = selectSkill
+            print("Under Construction")
         elif response == '4':
+            state = selectSkill
+        elif response == '5':
             print("Logging Out")
             state = loggedOut
             signedIn = False
@@ -200,6 +204,33 @@ def enterMainMenu():
             continue
 
 
+def postJob(dbCursor):
+    global state
+                  
+    if db.getNumJobs(dbCursor) >= 5:  # checks if number of jobs in database is at max limit
+        print("All permitted jobs have been created, please come back later")
+        state = mainMenu
+        return
+    
+    first = input("Enter first name: ")
+    last = input("Enter last name: ")              
+    author = db.getUserByFullName(dbCursor, first, last)
+                  
+    if author == None:
+       print("There are no accounts with that name, please enter a valid first and last name\n")
+       continue
+                  
+    title = input("Enter job title: ")
+    desc = input("Enter job description: ")
+    emp = input("Enter employer name: ")
+    loc = input("Enter job location: ")
+    sal = input("Enter salary: ")
+    
+    db.insertJob(dbCursor, title, desc, emp, loc, sal, author)
+    print("Job has been posted\n")
+    state = mainMenu
+                  
+                  
 def enterSkillMenu():
     global state
 
@@ -255,6 +286,9 @@ def main(dbCursor):
 
         if state == findUser:
             findUser(dbCursor)
+                  
+        if state == postJob:
+            postJob(dbCursor)
 
     print("Ending Program")
 
