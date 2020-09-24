@@ -68,50 +68,31 @@ def enterInitialMenu():
             print("Invalid Option, enter the number option you want and press enter")
             continue
 
-def findUser(dbCursor):
-    global state
-    
-    while(state == findUser):
-        print("Enter the name of a person you know: ")
-        name = input()
-        name = name.split(" ")
-        if len(name) != 2:
-            print("Name must be in the form (firstname lastname)")
-            continue
-
-        first = name[0]
-        last = name[1]
+def findUser(dbCursor, first, last):
+        global state
         result = db.getUserByFullName(dbCursor, first, last)
 
         if result != None:
             while(state == findUser):
                 print("They are a part of the InCollege system!")
-                print("Would you like to join InCollege?")
-                print("Options:")
-                print("1. Log in with existing account")
-                print("2. Create account")
-                print("3. Return to previous menu")
-                response = input()
-                if(response == '1'):
-                    state = login
-                elif(response == '2'):
-                    state = createAccount
-                elif(response == '3'):
-                    state = loggedOut
+                if(signedIn):
+                    enterMainMenu(dbCursor)
+                    return True
                 else:
-                    print("Invalid input")
-
+                    enterInitialMenu()
+                    return True
         else:
             while(state == findUser):
                 print("They are not yet a part of the InCollege system yet.")
                 print("Options:\n")
                 print("1. Search for another user")
-                print("2. Return to previous menu")
+                print(au")
                 response = input()
                 if(response == '1'):
                     break
                 elif(response == '2'):
                     state = loggedOut
+                    return False # Didn't find user
                 else:
                     print("Invalid input")
 
@@ -192,7 +173,19 @@ def enterMainMenu(dbCursor):
         if response == '1':
             print("Under Construction")
         elif response == '2':
-            findUser(dbCursor)
+            state = findUser
+            while (state == findUser):
+                print("Enter the name of a person you know: ")
+                name = input()
+                name = name.split(" ")
+                if len(name) != 2:
+                    print("Name must be in the form (firstname lastname)")
+                    continue
+
+                first = name[0]
+                last = name[1]
+            findUser(dbCursor, first, last)
+            state = mainMenu
         elif response == '3':
             state = selectSkill
         elif response == '4':
