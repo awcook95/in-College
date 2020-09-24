@@ -135,6 +135,15 @@ def loginUser(dbCursor):
     signedIn = True  # added
     state = mainMenu
 
+def logOutUser(signedIn):
+    if(signedIn):
+        print("Logging Out")
+        state = loggedOut
+        signedIn = False
+        return True
+    else:
+        return False
+
 
 def createUser(dbCursor):
     global signedIn
@@ -146,7 +155,7 @@ def createUser(dbCursor):
         print("All permitted accounts have been created, please come back later")
         state = loggedOut
         signedIn = False
-        return
+        return 
 
     uname = input("Enter your desired username: ")
     # added below if statement to return back to main menu if username is taken
@@ -169,7 +178,7 @@ def createUser(dbCursor):
     signedIn = False
 
 
-def enterMainMenu():
+def enterMainMenu(dbCursor):
     global signedIn
     global state
 
@@ -183,13 +192,12 @@ def enterMainMenu():
         if response == '1':
             print("Under Construction")
         elif response == '2':
-            print("Under Construction")
+            findUser(dbCursor)
         elif response == '3':
             state = selectSkill
         elif response == '4':
-            print("Logging Out")
-            state = loggedOut
-            signedIn = False
+            global signedIn
+            logOutUser(signedIn)
         else:
             print("Invalid Option, enter the number option you want and press enter")
             continue
@@ -243,7 +251,7 @@ def main(dbCursor):
             createUser(dbCursor)
 
         if state == mainMenu:
-            enterMainMenu()
+            enterMainMenu(dbCursor)
 
         if state == selectSkill:
             enterSkillMenu()

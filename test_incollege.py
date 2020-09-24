@@ -80,39 +80,11 @@ def testInvalidUserLogin(monkeypatch, capfd):
     assert not incollege.signedIn
 
 
-def testValidUserLogout(monkeypatch, capfd):
-    connection = sqlite3.connect("incollege_test.db")
-    cursor = connection.cursor()
-    db.initTables(cursor)
-    db.insertUser(cursor, "username1", "password")
-    monkeypatch.setattr("sys.stdin", StringIO("1\nusername1\npassword\n4\n6\n"))
-    incollege.main(cursor)
-    out, err = capfd.readouterr()
-    assert out == "Welcome to inCollege!\n" \
-                  "Select Option:\n" \
-                  "1. Log in with existing account\n" \
-                  "2. Create new account\n" \
-                  "3. Search for a job\n" \
-                  "4. Learn a new skill\n" \
-                  "5. Find someone you know\n" \
-                  "6. Quit\n" \
-                  "Enter your username: " \
-                  "Enter your password: " \
-                  "You have successfully logged in.\n" \
-                  "Options:\n" \
-                  "1. Search for a job/internship\n" \
-                  "2. Find someone you know\n" \
-                  "3. Learn a new skill\n" \
-                  "4. Logout\n" \
-                  "Logging Out\n" \
-                  "Select Option:\n" \
-                  "1. Log in with existing account\n" \
-                  "2. Create new account\n" \
-                  "3. Search for a job\n" \
-                  "4. Learn a new skill\n" \
-                  "5. Find someone you know\n" \
-                  "6. Quit\n" \
-                  "Ending Program\n"
+def testValidUserLogout():
+    signedIn = True
+    out = incollege.logOutUser(signedIn)
+    assert out
+
 
 
 def testJobSearch(monkeypatch, capfd):
