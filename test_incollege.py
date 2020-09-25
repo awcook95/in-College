@@ -45,11 +45,11 @@ def testCreateSixUsers(monkeypatch, capfd):
 
 
 def testUserAlreadyExists(monkeypatch, capfd):
+    monkeypatch.setattr("sys.stdin", StringIO("username1\n"))
     connection = sqlite3.connect("incollege_test.db")
     cursor = connection.cursor()
     db.initTables(cursor)
     db.insertUser(cursor, "username1", "password", "first", "last")
-    monkeypatch.setattr("sys.stdin", StringIO("username1\n"))
     incollege.createUser(cursor)
     out, err = capfd.readouterr()
     assert out == "Enter your desired username: Sorry, that username has already been taken\n"
@@ -81,8 +81,8 @@ def testInvalidUserLogin(monkeypatch, capfd):
 
 
 def testValidUserLogout():
-    signedIn = True
-    out = incollege.logOutUser(signedIn)
+    incollege.signedIn = True
+    out = incollege.logOutUser()
     assert out
 
 
@@ -109,7 +109,8 @@ def testJobSearch(monkeypatch, capfd):
                   "6. Quit\n"
 
 
-def testValidFriendSearch():
+def testValidFriendSearch(monkeypatch):
+    monkeypatch.setattr("sys.stdin", StringIO("5\n"))
     incollege.state = incollege.findUser
     connection = sqlite3.connect("incollege_test.db")
     cursor = connection.cursor()

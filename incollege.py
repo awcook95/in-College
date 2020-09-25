@@ -145,7 +145,6 @@ def createUser(dbCursor):
     global state
 
     # todo: add exit option in case user wants to cancel account creation
-
     if db.getNumUsers(dbCursor) >= 5:  # checks if number of accounts in database is at max limit
         print("All permitted accounts have been created, please come back later")
         state = loggedOut
@@ -158,6 +157,8 @@ def createUser(dbCursor):
         print("Sorry, that username has already been taken\n")
         uname = input("Enter your desired username: ")
         continue
+
+    userExists = False
 
     pword = input("Enter your desired password: ")
     while not validatePassword(pword):
@@ -172,6 +173,16 @@ def createUser(dbCursor):
     state = loggedOut
     signedIn = False
     connection.commit()
+
+def logOutUser():
+    global signedIn
+    if(signedIn):
+        print("Logging Out")
+        state = loggedOut
+        signedInUname = None
+        return True
+    else:
+        return False
 
 
 def enterMainMenu(dbCursor):
@@ -214,6 +225,9 @@ def enterMainMenu(dbCursor):
             global signedIn
             if(logOutUser(signedIn)):
                 enterInitialMenu()
+                enterSkillMenu()
+        elif response == '5':
+            logoutUser()
         else:
             print("Invalid Option, enter the number option you want and press enter")
             continue
