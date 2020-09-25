@@ -152,10 +152,10 @@ def createUser(dbCursor):
 
     uname = input("Enter your desired username: ")
     # added below if statement to return back to main menu if username is taken
-    if db.getUserByName(dbCursor, uname):
-        print("Sorry, that username has already been taken")
-        state = loggedOut
-        return
+    while db.getUserByName(dbCursor, uname):
+        print("Sorry, that username has already been taken\n")
+        uname = input("Enter your desired username: ")
+        continue
 
     pword = input("Enter your desired password: ")
     while not validatePassword(pword):
