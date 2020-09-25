@@ -117,10 +117,11 @@ def loginUser(dbCursor):
     uname = input("Enter your username: ")
     pword = input("Enter your password: ")
 
-    if not db.tryLogin(dbCursor, uname, pword):
-        print("Incorrect username / password, please try again")
-        state = loggedOut
-        return
+    while not db.tryLogin(dbCursor, uname, pword):
+        print("Incorrect username / password, please try again\n")
+        uname = input("Enter your username: ")
+        pword = input("Enter your password: ")
+        continue
 
     print("You have successfully logged in.")
     signedIn = True  # added
