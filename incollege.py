@@ -45,7 +45,7 @@ def validatePassword(password):
 
 def enterInitialMenu():
     global state
-
+    
     while state == loggedOut:
         # success story
         print("Nathan Cooper had always dreamed about getting a software engineering job after graduating from college.\n"
@@ -130,6 +130,7 @@ def loginUser(dbCursor):
 def logOutUser(signedIn):
     if(signedIn):
         print("Logging Out")
+        global state 
         state = loggedOut
         signedIn = False
         return True
@@ -207,9 +208,10 @@ def enterMainMenu(dbCursor):
         elif response == '4':
             state = selectSkill
         elif response == '5':
-            print("Logging Out")
             global signedIn
-            logOutUser(signedIn)
+            if(logOutUser(signedIn)):
+                print("here")
+                enterInitialMenu()
         else:
             print("Invalid Option, enter the number option you want and press enter")
             continue
