@@ -20,13 +20,15 @@ def initTables(cursor):
         FOREIGN KEY(author) REFERENCES users(uname)
         )""")
 
+
 def getUserByFullName(cursor, first, last):
-    cursor.execute("SELECT * FROM users WHERE firstname=? AND lastname=?", [first, last])
+    cursor.execute("SELECT * FROM users WHERE firstname=? AND lastname=? LIMIT 1", [first, last])
     return cursor.fetchone()
 
-def insertJob(cursor, title, desc, emp, loc, sal, author):
-    cursor.execute("INSERT INTO jobs VALUES (?, ?, ?, ?, ?, ?)", [title, desc, emp, loc, sal, author])
 
+def insertJob(cursor, title, desc, emp, loc, sal, author):
+    cursor.execute("INSERT INTO jobs VALUES (?, ?, ?, ?, ?, ?, ?)", [None, title, desc, emp, loc, sal, author])
+    
 
 def insertUser(cursor, uname, pword, fname, lname):
     cursor.execute("INSERT INTO users VALUES (?, ?, ?, ?)", [uname, pword, fname, lname])
@@ -40,6 +42,11 @@ def getUserByName(cursor, uname):
 def getNumUsers(cursor):
     cursor.execute("SELECT COUNT(uname) FROM users")
     #fetchone returns a list like fetchall, so get the first element
+    return cursor.fetchone()[0]
+
+
+def getNumJobs(cursor):
+    cursor.execute("SELECT COUNT(jobID) FROM jobs")
     return cursor.fetchone()[0]
 
 

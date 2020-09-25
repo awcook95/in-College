@@ -1,9 +1,11 @@
 import sqlite3
+from collections import namedtuple
 
 import dbfunctions as db
 
 # session state variable 
 signedIn = False
+signedInUname = None
 
 # program state variables
 loggedOut = 0
@@ -12,7 +14,8 @@ mainMenu = 2
 createAccount = 3
 selectSkill = 4
 quit = 5
-findUser = 6
+userSearch = 6
+createJob = 7
 
 state = loggedOut
 
@@ -44,25 +47,30 @@ def enterInitialMenu():
     global state
 
     while state == loggedOut:
+        # success story
+        print("Nathan Cooper had always dreamed about getting a software engineering job after graduating from college.\n"
+              "However, with no work history and no connections, he feared that finding a company to hire him after graduation\n"
+              "would be difficult. After using inCollege, Nathan was able to connect with other students in the same major to\n"
+              "discuss school, jobs, salaries, offers, and projects. He was also able to learn new skills that would increase\n"
+              "his experience and improve the look of his resume.\n")
+        
         print("Select Option:")
         print("1. Log in with existing account")
         print("2. Create new account")
-        print("3. Search for a job")
-        print("4. Learn a new skill")
-        print("5. Find someone you know")
-        print("6. Quit")
+        print("3. Find someone you know")
+        print("4. Play a video")
+        print("5. Quit")
+        
         response = input()
         if response == '1':
             state = login
         elif response == '2':
             state = createAccount
         elif response == '3':
-            print("Under Construction")
+            state = userSearch
         elif response == '4':
-            state = selectSkill
+            print("Video is now playing\n")
         elif response == '5':
-            state = findUser
-        elif response == '6':
             state = quit
         else:
             print("Invalid Option, enter the number option you want and press enter")
@@ -71,7 +79,7 @@ def enterInitialMenu():
 def findUser(dbCursor):
     global state
     
-    while(state == findUser):
+    while(state == userSearch):
         print("Enter the name of a person you know: ")
         name = input()
         name = name.split(" ")
@@ -84,7 +92,7 @@ def findUser(dbCursor):
         result = db.getUserByFullName(dbCursor, first, last)
 
         if result != None:
-            while(state == findUser):
+            while(state == userSearch):
                 print("They are a part of the InCollege system!")
                 print("Would you like to join InCollege?")
                 print("Options:")
@@ -102,7 +110,7 @@ def findUser(dbCursor):
                     print("Invalid input")
 
         else:
-            while(state == findUser):
+            while(state == userSearch):
                 print("They are not yet a part of the InCollege system yet.")
                 print("Options:\n")
                 print("1. Search for another user")
@@ -120,6 +128,7 @@ def findUser(dbCursor):
 def loginUser(dbCursor):
     global state
     global signedIn  # added
+    global signedInUname # store logged in username
 
     # todo: add exit option in case user wants to cancel account login
 
@@ -133,6 +142,7 @@ def loginUser(dbCursor):
 
     print("You have successfully logged in.")
     signedIn = True  # added
+    signedInUname = uname
     state = mainMenu
 
 
@@ -171,30 +181,60 @@ def createUser(dbCursor):
 
 def enterMainMenu():
     global signedIn
+    global signedInUname
     global state
 
     while state == mainMenu:
         print("Options:\n"
               "1. Search for a job/internship\n"
-              "2. Find someone you know\n"
-              "3. Learn a new skill\n"
-              "4. Logout")
+              "2. Post a job\n"
+              "3. Find someone you know\n"
+              "4. Learn a new skill\n"
+              "5. Logout")
         response = input()
         if response == '1':
             print("Under Construction")
         elif response == '2':
-            print("Under Construction")
+            state = createJob
         elif response == '3':
-            state = selectSkill
+            print("Under Construction")
         elif response == '4':
+            state = selectSkill
+        elif response == '5':
             print("Logging Out")
             state = loggedOut
             signedIn = False
+            signedInUname = None
         else:
             print("Invalid Option, enter the number option you want and press enter")
             continue
 
 
+def postJob(dbCursor):
+    global state
+                  
+    if db.getNumJobs(dbCursor) >= 5:  # checks if number of jobs in database is at max limit
+        print("All permitted jobs have been created, please come back later")
+        state = mainMenu
+        return
+    
+    User = namedtuple('User', 'uname pword firstname lastname')
+    currentUser = User._make(db.getUserByName(dbCursor, signedInUname))
+
+    first = currentUser.firstname
+    last = currentUser.lastname
+    author = first + " " + last
+    title = input("Enter job title: ")
+    desc = input("Enter job description: ")
+    emp = input("Enter employer name: ")
+    loc = input("Enter job location: ")
+    sal = input("Enter salary: ")
+    
+    db.insertJob(dbCursor, title, desc, emp, loc, sal, author)
+    print("Job has been posted\n")
+    state = mainMenu
+                  
+                  
 def enterSkillMenu():
     global state
 
@@ -248,8 +288,11 @@ def main(dbCursor):
         if state == selectSkill:
             enterSkillMenu()
 
-        if state == findUser:
+        if state == userSearch:
             findUser(dbCursor)
+                  
+        if state == createJob:
+            postJob(dbCursor)
 
     print("Ending Program")
 
