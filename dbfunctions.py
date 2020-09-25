@@ -20,12 +20,14 @@ def initTables(cursor):
         FOREIGN KEY(author) REFERENCES users(uname)
         )""")
 
+
 def getUserByFullName(cursor, first, last):
-    cursor.execute("SELECT * FROM users WHERE firstname=? AND lastname=?", [first, last])
+    cursor.execute("SELECT * FROM users WHERE firstname=? AND lastname=? LIMIT 1", [first, last])
     return cursor.fetchone()
 
+
 def insertJob(cursor, title, desc, emp, loc, sal, author):
-    cursor.execute("INSERT INTO jobs VALUES (?, ?, ?, ?, ?, ?)", [title, desc, emp, loc, sal, author])
+    cursor.execute("INSERT INTO jobs VALUES (?, ?, ?, ?, ?, ?, ?)", [None, title, desc, emp, loc, sal, author])
     
 
 def insertUser(cursor, uname, pword, fname, lname):

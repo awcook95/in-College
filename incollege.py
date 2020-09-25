@@ -1,9 +1,11 @@
 import sqlite3
+from collections import namedtuple
 
 import dbfunctions as db
 
 # session state variable 
 signedIn = False
+signedInUname = None
 
 # program state variables
 loggedOut = 0
@@ -126,6 +128,7 @@ def findUser(dbCursor):
 def loginUser(dbCursor):
     global state
     global signedIn  # added
+    global signedInUname # store logged in username
 
     # todo: add exit option in case user wants to cancel account login
 
@@ -139,6 +142,7 @@ def loginUser(dbCursor):
 
     print("You have successfully logged in.")
     signedIn = True  # added
+    signedInUname = uname
     state = mainMenu
 
 
@@ -177,6 +181,7 @@ def createUser(dbCursor):
 
 def enterMainMenu():
     global signedIn
+    global signedInUname
     global state
 
     while state == mainMenu:
@@ -199,6 +204,7 @@ def enterMainMenu():
             print("Logging Out")
             state = loggedOut
             signedIn = False
+            signedInUname = None
         else:
             print("Invalid Option, enter the number option you want and press enter")
             continue
@@ -212,14 +218,12 @@ def postJob(dbCursor):
         state = mainMenu
         return
     
-    first = input("Enter first name: ")
-    last = input("Enter last name: ")              
-    author = db.getUserByFullName(dbCursor, first, last)
-                  
-    while author == None:
-       print("There are no accounts with that name, please enter a valid first and last name\n")
-       continue
-                  
+    User = namedtuple('User', 'uname pword firstname lastname')
+    currentUser = User._make(db.getUserByName(dbCursor, signedInUname))
+
+    first = currentUser.firstname
+    last = currentUser.lastname
+    author = first + " " + last
     title = input("Enter job title: ")
     desc = input("Enter job description: ")
     emp = input("Enter employer name: ")
