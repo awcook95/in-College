@@ -79,6 +79,7 @@ def enterInitialMenu():
 def findUser(dbCursor, first, last):
         global state
         state == userSearch
+
         result = db.getUserByFullName(dbCursor, first, last)
 
         if result != None:
@@ -208,10 +209,10 @@ def enterMainMenu(dbCursor):
             findUser(dbCursor, first, last)
         elif response == '4':
             state = selectSkill
+            enterSkillMenu()
         elif response == '5':
             global signedIn
             if(logOutUser(signedIn)):
-                print("here")
                 enterInitialMenu()
         else:
             print("Invalid Option, enter the number option you want and press enter")
@@ -302,7 +303,7 @@ def main(dbCursor):
 
         if state == selectSkill:
             enterSkillMenu()
-
+            
         if state == userSearch:
             correctName = False
             while(not correctName):
@@ -322,6 +323,7 @@ def main(dbCursor):
                   
         if state == createJob:
             postJob(dbCursor)
+
     print("Ending Program")
 
     # This needs to happen for changes to be committed to db
