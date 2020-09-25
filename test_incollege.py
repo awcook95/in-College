@@ -140,4 +140,14 @@ def testInvalidSkillSearch(monkeypatch):
     out = incollege.enterSkillMenu()
     assert not out
 
-
+def testValidJobPost(monkeypatch):
+    monkeypatch.setattr("sys.stdin", StringIO("Title\nDescription\nEmpName\nLocation\n1"))
+    connection = sqlite3.connect("incollege_test.db")
+    cursor = connection.cursor()
+    db.initTables(cursor)
+    db.insertUser(cursor, "username1", "password", "first", "last")
+    incollege.signedInUname = "username1"
+    
+    incollege.postJob(cursor)
+    out = db.getJobByTitle(cursor, "Title")
+    assert out != None
