@@ -104,7 +104,6 @@ def findUser(dbCursor, first, last):
                     print("Invalid input")
 
 
-
 def loginUser(dbCursor):
     global state
     global signedIn  # added
@@ -187,7 +186,21 @@ def enterMainMenu(dbCursor):
         elif response == '2':
             postJob(dbCursor)
         elif response == '3':
-            findUser(dbCursor)
+            correctName = False
+            while(not correctName):
+                print("Enter the name of a person you know: ")
+                name = input()
+                name = name.split(" ")
+                if len(name) != 2:
+                    print("Name must be in the form (firstname lastname)")
+                    continue
+                else: 
+                    correctName = True
+                    
+            first = name[0]
+            last = name[1]
+
+            findUser(dbCursor, first, last)
         elif response == '4':
             state = selectSkill
         elif response == '5':
@@ -284,9 +297,22 @@ def main(dbCursor):
         if state == selectSkill:
             enterSkillMenu()
 
-
         if state == userSearch:
-            findUser(dbCursor)
+            correctName = False
+            while(not correctName):
+                print("Enter the name of a person you know: ")
+                name = input()
+                name = name.split(" ")
+                if len(name) != 2:
+                    print("Name must be in the form (firstname lastname)")
+                    continue
+                else: 
+                    correctName = True
+                    
+            first = name[0]
+            last = name[1]
+
+            findUser(dbCursor, first, last)
                   
         if state == createJob:
             postJob(dbCursor)
