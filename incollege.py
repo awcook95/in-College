@@ -45,7 +45,7 @@ def validatePassword(password):
 
 def enterInitialMenu():
     global state
-
+    
     while state == loggedOut:
         # success story
         print("Nathan Cooper had always dreamed about getting a software engineering job after graduating from college.\n"
@@ -76,39 +76,22 @@ def enterInitialMenu():
             print("Invalid Option, enter the number option you want and press enter")
             continue
 
-def findUser(dbCursor):
-    global state
-    
-    while(state == userSearch):
-        print("Enter the name of a person you know: ")
-        name = input()
-        name = name.split(" ")
-        if len(name) != 2:
-            print("Name must be in the form (firstname lastname)")
-            continue
+def findUser(dbCursor, first, last):
+        global state
+        state == userSearch
 
-        first = name[0]
-        last = name[1]
         result = db.getUserByFullName(dbCursor, first, last)
 
         if result != None:
-            while(state == userSearch):
-                print("They are a part of the InCollege system!")
-                print("Would you like to join InCollege?")
-                print("Options:")
-                print("1. Log in with existing account")
-                print("2. Create account")
-                print("3. Return to previous menu")
-                response = input()
-                if(response == '1'):
-                    state = login
-                elif(response == '2'):
-                    state = createAccount
-                elif(response == '3'):
-                    state = loggedOut
-                else:
-                    print("Invalid input")
-
+            print("They are a part of the InCollege system!")
+            if(signedIn):
+                state = mainMenu
+                enterMainMenu(dbCursor)
+                return True
+            else:
+                state = loggedOut
+                enterInitialMenu()
+                return True
         else:
             while(state == userSearch):
                 print("They are not yet a part of the InCollege system yet.")
@@ -120,9 +103,9 @@ def findUser(dbCursor):
                     break
                 elif(response == '2'):
                     state = loggedOut
+                    return False # Didn't find user
                 else:
                     print("Invalid input")
-
 
 
 def loginUser(dbCursor):
@@ -135,15 +118,26 @@ def loginUser(dbCursor):
     uname = input("Enter your username: ")
     pword = input("Enter your password: ")
 
-    if not db.tryLogin(dbCursor, uname, pword):
-        print("Incorrect username / password, please try again")
-        state = loggedOut
-        return
+    while not db.tryLogin(dbCursor, uname, pword):
+        print("Incorrect username / password, please try again\n")
+        uname = input("Enter your username: ")
+        pword = input("Enter your password: ")
+        continue
 
     print("You have successfully logged in.")
     signedIn = True  # added
     signedInUname = uname
     state = mainMenu
+
+def logOutUser(signedIn):
+    if(signedIn):
+        print("Logging Out")
+        global state 
+        state = loggedOut
+        signedIn = False
+        return True
+    else:
+        return False
 
 
 def createUser(dbCursor):
@@ -156,14 +150,14 @@ def createUser(dbCursor):
         print("All permitted accounts have been created, please come back later")
         state = loggedOut
         signedIn = False
-        return
+        return 
 
     uname = input("Enter your desired username: ")
     # added below if statement to return back to main menu if username is taken
-    if db.getUserByName(dbCursor, uname):
-        print("Sorry, that username has already been taken")
-        state = loggedOut
-        return
+    while db.getUserByName(dbCursor, uname):
+        print("Sorry, that username has already been taken\n")
+        uname = input("Enter your desired username: ")
+        continue
 
     pword = input("Enter your desired password: ")
     while not validatePassword(pword):
@@ -177,9 +171,10 @@ def createUser(dbCursor):
     print("Account has been created")
     state = loggedOut
     signedIn = False
+    connection.commit()
 
 
-def enterMainMenu():
+def enterMainMenu(dbCursor):
     global signedIn
     global signedInUname
     global state
@@ -195,16 +190,30 @@ def enterMainMenu():
         if response == '1':
             print("Under Construction")
         elif response == '2':
-            state = createJob
+            postJob(dbCursor)
         elif response == '3':
-            print("Under Construction")
+            correctName = False
+            while(not correctName):
+                print("Enter the name of a person you know: ")
+                name = input()
+                name = name.split(" ")
+                if len(name) != 2:
+                    print("Name must be in the form (firstname lastname)")
+                    continue
+                else: 
+                    correctName = True
+                    
+            first = name[0]
+            last = name[1]
+
+            findUser(dbCursor, first, last)
         elif response == '4':
             state = selectSkill
+            enterSkillMenu()
         elif response == '5':
-            print("Logging Out")
-            state = loggedOut
-            signedIn = False
-            signedInUname = None
+            global signedIn
+            if(logOutUser(signedIn)):
+                enterInitialMenu()
         else:
             print("Invalid Option, enter the number option you want and press enter")
             continue
@@ -212,6 +221,7 @@ def enterMainMenu():
 
 def postJob(dbCursor):
     global state
+    state = createJob  
                   
     if db.getNumJobs(dbCursor) >= 5:  # checks if number of jobs in database is at max limit
         print("All permitted jobs have been created, please come back later")
@@ -249,19 +259,25 @@ def enterSkillMenu():
         response = input()
         if response == '1':
             print("Under Construction")
+            return True  # Searched for skill successfully
         elif response == '2':
             print("Under Construction")
+            return True  # Searched for skill successfully
         elif response == '3':
             print("Under Construction")
+            return True  # Searched for skill successfully
         elif response == '4':
             print("Under Construction")
+            return True  # Searched for skill successfully
         elif response == '5':
             print("Under Construction")
+            return True # Searched for skill successfully
         elif response == '6':
             if not signedIn:
                 state = loggedOut
             else:
                 state = mainMenu
+            return False # Dont learn skill
         else:
             print("Invalid Option, enter the number option you want and press enter")
             continue
@@ -283,13 +299,27 @@ def main(dbCursor):
             createUser(dbCursor)
 
         if state == mainMenu:
-            enterMainMenu()
+            enterMainMenu(dbCursor)
 
         if state == selectSkill:
             enterSkillMenu()
-
+            
         if state == userSearch:
-            findUser(dbCursor)
+            correctName = False
+            while(not correctName):
+                print("Enter the name of a person you know: ")
+                name = input()
+                name = name.split(" ")
+                if len(name) != 2:
+                    print("Name must be in the form (firstname lastname)")
+                    continue
+                else: 
+                    correctName = True
+                    
+            first = name[0]
+            last = name[1]
+
+            findUser(dbCursor, first, last)
                   
         if state == createJob:
             postJob(dbCursor)
