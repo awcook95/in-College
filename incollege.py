@@ -78,14 +78,17 @@ def enterInitialMenu():
 
 def findUser(dbCursor, first, last):
         global state
+        state == userSearch
         result = db.getUserByFullName(dbCursor, first, last)
 
         if result != None:
             print("They are a part of the InCollege system!")
             if(signedIn):
+                state = mainMenu
                 enterMainMenu(dbCursor)
                 return True
             else:
+                state = loggedOut
                 enterInitialMenu()
                 return True
         else:
