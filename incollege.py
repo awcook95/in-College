@@ -81,7 +81,7 @@ def findUser(dbCursor, first, last):
         state == userSearch
 
         result = db.getUserByFullName(dbCursor, first, last)
-
+        # If the desired user is found successfully return their data and jump to appropriate menu
         if result != None:
             print("They are a part of the InCollege system!")
             if(signedIn):
@@ -145,7 +145,6 @@ def createUser(dbCursor):
     global state
 
     # todo: add exit option in case user wants to cancel account creation
-
     if db.getNumUsers(dbCursor) >= 5:  # checks if number of accounts in database is at max limit
         print("All permitted accounts have been created, please come back later")
         state = loggedOut
@@ -158,6 +157,8 @@ def createUser(dbCursor):
         print("Sorry, that username has already been taken\n")
         uname = input("Enter your desired username: ")
         continue
+
+    userExists = False
 
     pword = input("Enter your desired password: ")
     while not validatePassword(pword):
@@ -173,12 +174,23 @@ def createUser(dbCursor):
     signedIn = False
     connection.commit()
 
+def logOutUser():
+    global signedIn
+    global state
+    if(signedIn):
+        print("Logging Out")
+        state = loggedOut
+        signedInUname = None
+        return True
+    else:
+        return False
+
 
 def enterMainMenu(dbCursor):
     global signedIn
     global signedInUname
     global state
-
+    # Present the user with an introductory menu
     while state == mainMenu:
         print("Options:\n"
               "1. Search for a job/internship\n"
@@ -211,9 +223,9 @@ def enterMainMenu(dbCursor):
             state = selectSkill
             enterSkillMenu()
         elif response == '5':
-            global signedIn
-            if(logOutUser(signedIn)):
+            if(logOutUser()):
                 enterInitialMenu()
+                
         else:
             print("Invalid Option, enter the number option you want and press enter")
             continue
@@ -228,6 +240,7 @@ def postJob(dbCursor):
         state = mainMenu
         return
     
+    # Take input from user and create job in DB
     User = namedtuple('User', 'uname pword firstname lastname')
     currentUser = User._make(db.getUserByName(dbCursor, signedInUname))
 
@@ -248,6 +261,7 @@ def postJob(dbCursor):
 def enterSkillMenu():
     global state
 
+    # Skills menu will display under construction menus and return status
     while state == selectSkill:
         print("What skill would you like to learn?:\n"
               "1. Python\n"
@@ -287,6 +301,7 @@ def main(dbCursor):
     global signedIn
     global state
 
+    # This menu will run all main functionality 
     print("Welcome to inCollege!")
     while state != quit:
         if state == loggedOut:
