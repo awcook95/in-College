@@ -11,7 +11,7 @@ import incollege
 # capfd: used to capture text that was output to console
 
 
-def testValidatePasswordCorrect():
+def testValidatePasswordCorrect(): 
     assert incollege.validatePassword("Testing123!")
 
 
@@ -23,9 +23,10 @@ def testValidatePasswordIncorrect(password):
 def testCreateUser():  # todo: potentially change this test to utilize createUser function from main program instead
     connection = sqlite3.connect("incollege_test.db")
     cursor = connection.cursor()
+    # Initialize database and run insert function
     db.initTables(cursor)
     db.insertUser(cursor, "username", "password", "first", "last")
-    assert db.getUserByName(cursor, "username")
+    assert db.getUserByName(cursor, "username") # Check successful insert
     connection.close()
 
 
@@ -39,7 +40,7 @@ def testCreateSixUsers(monkeypatch, capfd):
     db.insertUser(cursor, "username4", "password", "first3", "last3")
     db.insertUser(cursor, "username5", "password", "first4", "last4")
     incollege.createUser(cursor)
-    out, err = capfd.readouterr()
+    out, err = capfd.readouterr() # Output should display max users created 
     assert out == "All permitted accounts have been created, please come back later\n"
     assert db.getNumUsers(cursor) == 5
 
@@ -61,9 +62,9 @@ def testValidUserLogin(monkeypatch, capfd):
     cursor = connection.cursor()
     db.initTables(cursor)
     db.insertUser(cursor, "username1", "password", "first", "last")
-    monkeypatch.setattr("sys.stdin", StringIO("username1\npassword\n"))
+    monkeypatch.setattr("sys.stdin", StringIO("username1\npassword\n")) # Patch in user input
     incollege.loginUser(cursor)
-    out, err = capfd.readouterr()
+    out, err = capfd.readouterr() # Output should display successfuly sign in and state change 
     assert out == "Enter your username: Enter your password: You have successfully logged in.\n"
     assert incollege.signedIn
 
@@ -83,7 +84,7 @@ def testInvalidUserLogin(monkeypatch, capfd):
 def testValidUserLogout():
     incollege.signedIn = True
     out = incollege.logOutUser()
-    assert out
+    assert out # Returns true on successful log out 
 
 
 
@@ -103,7 +104,7 @@ def testValidFriendSearch(monkeypatch):
     cursor = connection.cursor()
     db.initTables(cursor)
     db.insertUser(cursor, "username1", "password", "first", "last")
-    out = incollege.findUser(cursor, "first", "last")
+    out = incollege.findUser(cursor, "first", "last") # Returns true if user is found 
     assert out
 
 def testInvalidFriendSearch(monkeypatch):
@@ -113,7 +114,7 @@ def testInvalidFriendSearch(monkeypatch):
     cursor = connection.cursor()
     db.initTables(cursor)
     db.insertUser(cursor, "username1", "password", "first", "last")
-    out = incollege.findUser(cursor, "notFirst", "last")
+    out = incollege.findUser(cursor, "notFirst", "last") # Should return false as user doesn't exist 
     assert not out
 
 def testValidSkillSearch(monkeypatch):
@@ -125,8 +126,8 @@ def testValidSkillSearch(monkeypatch):
 def testInvalidSkillSearch(monkeypatch):
     monkeypatch.setattr("sys.stdin", StringIO("6\n"))
     incollege.state = incollege.selectSkill
-    out = incollege.enterSkillMenu()
-    assert not out
+    out = incollege.enterSkillMenu() 
+    assert not out # Skill menu returns false if exit option is chosen in menu 
 
 def testValidJobPost(monkeypatch):
     monkeypatch.setattr("sys.stdin", StringIO("Title\nDescription\nEmpName\nLocation\n1"))
@@ -137,5 +138,5 @@ def testValidJobPost(monkeypatch):
     incollege.signedInUname = "username1"
     
     incollege.postJob(cursor)
-    out = db.getJobByTitle(cursor, "Title")
+    out = db.getJobByTitle(cursor, "Title") # Confirms that job has been added into DB correctly 
     assert out != None

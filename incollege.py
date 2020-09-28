@@ -81,7 +81,7 @@ def findUser(dbCursor, first, last):
         state == userSearch
 
         result = db.getUserByFullName(dbCursor, first, last)
-
+        # If the desired user is found successfully return their data and jump to appropriate menu
         if result != None:
             print("They are a part of the InCollege system!")
             if(signedIn):
@@ -176,6 +176,7 @@ def createUser(dbCursor):
 
 def logOutUser():
     global signedIn
+    global state
     if(signedIn):
         print("Logging Out")
         state = loggedOut
@@ -189,7 +190,7 @@ def enterMainMenu(dbCursor):
     global signedIn
     global signedInUname
     global state
-
+    # Present the user with an introductory menu
     while state == mainMenu:
         print("Options:\n"
               "1. Search for a job/internship\n"
@@ -222,12 +223,9 @@ def enterMainMenu(dbCursor):
             state = selectSkill
             enterSkillMenu()
         elif response == '5':
-            global signedIn
-            if(logOutUser(signedIn)):
+            if(logOutUser()):
                 enterInitialMenu()
-                enterSkillMenu()
-        elif response == '5':
-            logoutUser()
+                
         else:
             print("Invalid Option, enter the number option you want and press enter")
             continue
@@ -242,6 +240,7 @@ def postJob(dbCursor):
         state = mainMenu
         return
     
+    # Take input from user and create job in DB
     User = namedtuple('User', 'uname pword firstname lastname')
     currentUser = User._make(db.getUserByName(dbCursor, signedInUname))
 
@@ -262,6 +261,7 @@ def postJob(dbCursor):
 def enterSkillMenu():
     global state
 
+    # Skills menu will display under construction menus and return status
     while state == selectSkill:
         print("What skill would you like to learn?:\n"
               "1. Python\n"
@@ -301,6 +301,7 @@ def main(dbCursor):
     global signedIn
     global state
 
+    # This menu will run all main functionality 
     print("Welcome to inCollege!")
     while state != quit:
         if state == loggedOut:
