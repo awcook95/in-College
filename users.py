@@ -11,7 +11,7 @@ def createUser(dbCursor, connection):
 
     if db.getNumUsers(dbCursor) >= 5:  # checks if number of accounts in database is at max limit
         print("All permitted accounts have been created, please come back later")
-        settings.currentState = states.loggedOut
+        settings.currentState = states.loggedOut  # returns to incollege.py's main() w/ currentState = loggedOut
         return
 
     uname = input("Enter your desired username: ")
@@ -19,7 +19,6 @@ def createUser(dbCursor, connection):
     while db.getUserByName(dbCursor, uname):
         print("Sorry, that username has already been taken\n")
         uname = input("Enter your desired username: ")
-        continue
 
     pword = input("Enter your desired password: ")
     while not utils.validatePassword(pword):
@@ -31,9 +30,8 @@ def createUser(dbCursor, connection):
 
     db.insertUser(dbCursor, uname, pword, fname, lname)
     print("Account has been created")
-    settings.currentState = states.loggedOut
-    settings.signedIn = False
-    connection.commit()
+    settings.currentState = states.loggedOut  # returns to incollege.py's main() w/ currentState = loggedOut
+    connection.commit()  # commits the new account to the database (ensures account is saved)
 
 
 def loginUser(dbCursor):
@@ -46,12 +44,11 @@ def loginUser(dbCursor):
         print("Incorrect username / password, please try again\n")
         uname = input("Enter your username: ")
         pword = input("Enter your password: ")
-        continue
 
     print("You have successfully logged in.")
-    settings.signedIn = True
-    settings.signedInUname = uname
-    settings.currentState = states.mainMenu
+    settings.signedIn = True                 # flags that a user is now signed in
+    settings.signedInUname = uname           # tracks the logged in user's username
+    settings.currentState = states.mainMenu  # returns to incollege.py's main() w/ currentState = mainMenu
 
 
 def logOutUser():
@@ -73,14 +70,14 @@ def findUser(dbCursor):
     last = name[1]
 
     result = db.getUserByFullName(dbCursor, first, last)
-    # If the desired user is found successfully return their data and jump to appropriate menu
+    # If the desired user is found successfully, return their data and jump to appropriate menu
     if result is not None:
         print("They are a part of the InCollege system!")
-        if settings.signedIn:
-            settings.currentState = states.mainMenu
+        if settings.signedIn:                         # if a user is signed in
+            settings.currentState = states.mainMenu   # returns to incollege.py's main() w/ currentState = mainMenu
             return True
-        else:
-            settings.currentState = states.loggedOut
+        else:                                         # else a user is not signed in
+            settings.currentState = states.loggedOut  # returns to incollege.py's main() w/ currentState = loggedOut
             return True
     else:
         while settings.currentState == states.userSearch:
@@ -92,7 +89,7 @@ def findUser(dbCursor):
             if response == '1':
                 break
             elif response == '2':
-                settings.currentState = states.loggedOut
+                settings.currentState = states.loggedOut  # returns to incollege.py's main() w/ currentState = loggedOut
                 return False  # Didn't find user
             else:
                 print("Invalid input")
@@ -122,4 +119,4 @@ def postJob(dbCursor):
 
     db.insertJob(dbCursor, title, desc, emp, loc, sal, author)
     print("Job has been posted\n")
-    settings.currentState = states.mainMenu
+    settings.currentState = states.mainMenu  # returns to incollege.py's main() w/ currentState = mainMenu

@@ -18,8 +18,8 @@ db.initTables(cursor)
 
 def main(dbCursor):
     # This menu will run all main functionality 
-    print("Welcome to inCollege!\n")
-    while settings.currentState != states.quit:
+    print("Welcome to inCollege!")
+    while settings.currentState != states.quit:  # this while loop handles every state and calls corresponding methods
         if settings.currentState == states.loggedOut:
             ui.enterInitialMenu()
 

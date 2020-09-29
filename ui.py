@@ -4,7 +4,7 @@ import users
 
 
 def enterInitialMenu():
-    while settings.currentState == states.loggedOut:
+    while settings.currentState == states.loggedOut:  # change from currentState = loggedOut will result in return to incollege.py's main()
         # success story
         print("\nNathan Cooper had always dreamed about getting a software engineering job after graduating from college.\n"
               "However, with no work history and no connections, he feared that finding a company to hire him after graduation\n"
@@ -24,14 +24,13 @@ def enterInitialMenu():
         print("7. Browse InCollege")
         print("8. Business Solutions")
         print("9. Directories")
-
         response = input()
         if response == '1':
-            settings.currentState = states.login
+            settings.currentState = states.login          # returns to incollege.py's main() w/ currentState = login
         elif response == '2':
-            settings.currentState = states.createAccount
+            settings.currentState = states.createAccount  # returns to incollege.py's main() w/ currentState = createAccount
         elif response == '3':
-            settings.currentState = states.userSearch
+            settings.currentState = states.userSearch     # returns to incollege.py's main() w/ currentState = userSearch
         elif response == '4':
             print("Video is now playing\n")
         elif response == '5':
@@ -46,12 +45,10 @@ def enterInitialMenu():
             settings.currentState = states.directories
         else:
             print("Invalid Option, enter the number option you want and press enter")
-            continue
 
 
-def enterMainMenu():
-    # Present the user with an introductory menu
-    while settings.currentState == states.mainMenu:
+def enterMainMenu():  # presents the user with an introductory menu
+    while settings.currentState == states.mainMenu:  # change from currentState = mainMenu will result in return to incollege.py's main()
         print("Options:\n"
               "1. Search for a job/internship\n"
               "2. Post a job\n"
@@ -69,11 +66,11 @@ def enterMainMenu():
         if response == '1':
             print("Under Construction")
         elif response == '2':
-            settings.currentState = states.createJob
+            settings.currentState = states.createJob    # returns to incollege.py's main() w/ currentState = createJob
         elif response == '3':
-            settings.currentState = states.userSearch
+            settings.currentState = states.userSearch   # returns to incollege.py's main() w/ currentState = userSearch
         elif response == '4':
-            settings.currentState = states.selectSkill
+            settings.currentState = states.selectSkill  # returns to incollege.py's main() w/ currentState = selectSkill
         elif response == '5':
             users.logOutUser()
         elif response == '6':
@@ -86,12 +83,11 @@ def enterMainMenu():
             settings.currentState = states.directories
         else:
             print("Invalid Option, enter the number option you want and press enter")
-            continue
 
 
 def enterSkillMenu():
     # Skills menu will display under construction menus and return status
-    while settings.currentState == states.selectSkill:
+    while settings.currentState == states.selectSkill:  # change from currentState = selectSkill will result in return to incollege.py's main()
         print("What skill would you like to learn?:\n"
               "1. Python\n"
               "2. How to make a resume\n"
@@ -116,10 +112,10 @@ def enterSkillMenu():
             print("Under Construction")
             return True  # Searched for skill successfully
         elif response == '6':
-            if not settings.signedIn:
-                settings.currentState = states.loggedOut
-            else:
-                settings.currentState = states.mainMenu
+            if not settings.signedIn:                     # if a user is not signed in
+                settings.currentState = states.loggedOut  # returns to incollege.py's main() w/ currentState = loggedOut
+            else:                                         # else a user is signed in
+                settings.currentState = states.mainMenu   # returns to incollege.py's main() w/ currentState = mainMenu
             return False  # Don't learn skill
         else:
             print("Invalid Option, enter the number option you want and press enter")
@@ -140,7 +136,7 @@ def generalMenu():
         response = input()
         
         if response == '1':
-            currentState == states.createAccount
+            settings.currentState == states.createAccount
             return True
         elif response == '2':
             print("We're here to help")
