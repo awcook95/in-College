@@ -28,6 +28,16 @@ def getUserByFullName(cursor, first, last):
 
 def insertJob(cursor, title, desc, emp, loc, sal, author):
     cursor.execute("INSERT INTO jobs VALUES (?, ?, ?, ?, ?, ?, ?)", [None, title, desc, emp, loc, sal, author])
+
+
+def getAllJobs(cursor):
+    cursor.execute("SELECT * FROM jobs")
+    return cursor.fetchall()
+
+
+def getJobByTitle(cursor, title):
+    cursor.execute("SELECT * FROM jobs WHERE Title like ?", [title])
+    return cursor.fetchone()
     
 
 def insertUser(cursor, uname, pword, fname, lname):
