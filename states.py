@@ -7,3 +7,7 @@ selectSkill = 4
 quit = 5
 userSearch = 6
 createJob = 7
+general = 8
+browseInCollege = 9
+businessSolutions = 10
+directories = 11
