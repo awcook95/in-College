@@ -40,6 +40,18 @@ def main(dbCursor):
                   
         if settings.currentState == states.createJob:
             users.postJob(dbCursor)
+            
+        if settings.currentState == states.general:
+            ui.generalMenu()
+            
+        if settings.currentState == states.browseInCollege:
+            print("Under Construction")
+            
+        if settings.currentState == states.businessSolutions:
+            print("Under Construction")
+            
+        if settings.currentState == states.directories:
+            print("Under Construction")
 
     print("Ending Program")
 
