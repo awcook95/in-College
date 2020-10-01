@@ -20,6 +20,16 @@ def initTables(cursor):
         FOREIGN KEY(author) REFERENCES users(uname)
         )""")
 
+    cursor.execute("""CREATE TABLE IF NOT EXISTS
+    user_settings(
+        uname TEXT PRIMARY KEY,
+        FOREIGN KEY(uname) REFERENCES users(uname),
+        emailnotif INTEGER,
+        smsnotif INTEGER,
+        targetadvert INTEGER,
+        languagepref TEXT
+        )""")
+
 
 def getUserByFullName(cursor, first, last):
     cursor.execute("SELECT * FROM users WHERE firstname=? AND lastname=? LIMIT 1", [first, last])
@@ -44,8 +54,17 @@ def insertUser(cursor, uname, pword, fname, lname):
     cursor.execute("INSERT INTO users VALUES (?, ?, ?, ?)", [uname, pword, fname, lname])
 
 
+def insertUserSettings(cursor, uname, email, sms, advert, language):
+    cursor.execute("INSERT INTO user_settings VALUES (?, ?, ?, ?, ?)", [uname, email, sms, advert, language])
+
+
 def getUserByName(cursor, uname):
     cursor.execute("SELECT * FROM users WHERE uname=?", [uname])
+    return cursor.fetchone()
+
+
+def getUserSettingsByName(cursor, uname):
+    cursor.execute("SELECT * FROM user_settings WHERE uname=?", [uname])
     return cursor.fetchone()
 
 

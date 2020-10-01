@@ -29,9 +29,12 @@ def createUser(dbCursor, connection):
     lname = input("Enter your last name: ")
 
     db.insertUser(dbCursor, uname, pword, fname, lname)
-    print("Account has been created")
+    db.insertUserSettings(dbCursor, uname, settings.emailNotif, settings.smsNotif, settings.targetAdvert, settings.language)
+    connection.commit()  # commits the new account and settings to the database (ensures account and settings are saved)
+
     settings.currentState = states.loggedOut  # returns to incollege.py's main() w/ currentState = loggedOut
-    connection.commit()  # commits the new account to the database (ensures account is saved)
+
+    print("Account has been created")
 
 
 def loginUser(dbCursor):
@@ -45,10 +48,20 @@ def loginUser(dbCursor):
         uname = input("Enter your username: ")
         pword = input("Enter your password: ")
 
-    print("You have successfully logged in.")
+    # read in user settings on login
+    User = namedtuple('User', 'uname emailnotif smsnotif targetadvert languagepref')
+    currentUser = User._make(db.getUserSettingsByName(dbCursor, settings.signedInUname))
+
+    settings.emailNotif = currentUser.emailnotif
+    settings.smsNotif = currentUser.smsnotif
+    settings.targetAdvert = currentUser.targetadvert
+    settings.language = currentUser.languagepref
+
     settings.signedIn = True                 # flags that a user is now signed in
     settings.signedInUname = uname           # tracks the logged in user's username
     settings.currentState = states.mainMenu  # returns to incollege.py's main() w/ currentState = mainMenu
+
+    print("You have successfully logged in.")
 
 
 def logOutUser():
