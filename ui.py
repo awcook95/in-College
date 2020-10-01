@@ -18,6 +18,12 @@ def enterInitialMenu():
         print("3. Find someone you know")
         print("4. Play a video")
         print("5. Quit")
+        print()
+        print("Useful Links:")
+        print("6. General")
+        print("7. Browse InCollege")
+        print("8. Business Solutions")
+        print("9. Directories")
 
         response = input()
         if response == '1':
@@ -30,6 +36,14 @@ def enterInitialMenu():
             print("Video is now playing\n")
         elif response == '5':
             settings.currentState = states.quit
+        elif response == '6':
+            settings.currentState = states.general
+        elif response == '7':
+            settings.currentState = states.browseInCollege
+        elif response == '8':
+            settings.currentState = states.businessSolutions
+        elif response == '9':
+            settings.currentState = states.directories
         else:
             print("Invalid Option, enter the number option you want and press enter")
             continue
@@ -44,6 +58,13 @@ def enterMainMenu():
               "3. Find someone you know\n"
               "4. Learn a new skill\n"
               "5. Logout")
+        print()
+        print("Useful Links:")
+        print("6. General")
+        print("7. Browse InCollege")
+        print("8. Business Solutions")
+        print("9. Directories")
+        
         response = input()
         if response == '1':
             print("Under Construction")
@@ -55,6 +76,14 @@ def enterMainMenu():
             settings.currentState = states.selectSkill
         elif response == '5':
             users.logOutUser()
+        elif response == '6':
+            settings.currentState = states.general
+        elif response == '7':
+            settings.currentState = states.browseInCollege
+        elif response == '8':
+            settings.currentState = states.businessSolutions
+        elif response == '9':
+            settings.currentState = states.directories
         else:
             print("Invalid Option, enter the number option you want and press enter")
             continue
@@ -95,3 +124,81 @@ def enterSkillMenu():
         else:
             print("Invalid Option, enter the number option you want and press enter")
             continue
+
+            
+def generalMenu():
+    while settings.currentState == states.general:
+        print("Links:")
+        print("1. Sign Up")
+        print("2. Help Center")
+        print("3. About")
+        print("4. Press")
+        print("5. Blog")
+        print("6. Careers")
+        print("7. Developers")
+        print("8. Return to Previous Page")
+        response = input()
+        
+        if response == '1':
+            currentState == states.createAccount
+            return True
+        elif response == '2':
+            print("We're here to help")
+            return True
+        elif response == '3':
+            print("In College: Welcome to In College, the world's largest college student network with many users in many countries and territories worldwide")
+            return True
+        elif response == '4':
+            print("In College Pressroom: Stay on top of the latest news, updates, and reports")
+            return True
+        elif response == '5':
+            print("Under Construction")
+            return True
+        elif response == '6':
+            print("Under Construction")
+            return True
+        elif response == '7':
+            print("Under Construction")
+            return True
+        elif response == '8':
+            if not settings.signedIn:
+                settings.currentState = states.loggedOut
+            else:
+                settings.currentState = states.mainMenu
+            return False  # No links chosen
+        else:
+            print("Invalid Option, enter the number option you want and press enter")
+            continue
+
+            
+def browseMenu():
+    while settings.currentState == states.browseInCollege:
+        print("Under Construction")
+        if not settings.signedIn:
+            settings.currentState = states.loggedOut
+            return True
+        else:
+            settings.currentState = states.mainMenu
+            return True
+        
+        
+def solutionsMenu():
+    while settings.currentState == states.businessSolutions:
+        print("Under Construction")
+        if not settings.signedIn:
+            settings.currentState = states.loggedOut
+            return True
+        else:
+            settings.currentState = states.mainMenu
+            return True
+    
+    
+def directoriesMenu():
+    while settings.currentState == states.directories:
+        print("Under Construction")
+        if not settings.signedIn:
+            settings.currentState = states.loggedOut
+            return True
+        else:
+            settings.currentState = states.mainMenu
+            return True
