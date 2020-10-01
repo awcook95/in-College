@@ -13,74 +13,73 @@ def enterInitialMenu():
               "his experience and improve the look of his resume.\n")
 
         print("Select Option:")
-        print("1. Log in with existing account")
-        print("2. Create new account")
-        print("3. Find someone you know")
-        print("4. Play a video")
-        print("5. Quit")
+        print("A. Log in with existing account")
+        print("B. Create new account")
+        print("C. Find someone you know")
+        print("D. Play success story video")
         print()
         print("Useful Links:")
-        print("6. General")
-        print("7. Browse InCollege")
-        print("8. Business Solutions")
-        print("9. Directories")
+        print("E. General")
+        print("F. Browse InCollege")
+        print("G. Business Solutions")
+        print("H. Directories")
+        print("Z. Quit")
         response = input()
-        if response == '1':
+        if response.upper() == "A":
             settings.currentState = states.login          # returns to incollege.py's main() w/ currentState = login
-        elif response == '2':
+        elif response.upper() == "B":
             settings.currentState = states.createAccount  # returns to incollege.py's main() w/ currentState = createAccount
-        elif response == '3':
+        elif response.upper() == "C":
             settings.currentState = states.userSearch     # returns to incollege.py's main() w/ currentState = userSearch
-        elif response == '4':
-            print("Video is now playing\n")
-        elif response == '5':
-            settings.currentState = states.quit
-        elif response == '6':
+        elif response.upper() == "D":
+            print("Video is now playing")
+        elif response.upper() == 'E':
             settings.currentState = states.general
-        elif response == '7':
+        elif response.upper() == 'F':
             settings.currentState = states.browseInCollege
-        elif response == '8':
+        elif response.upper() == 'G':
             settings.currentState = states.businessSolutions
-        elif response == '9':
+        elif response.upper() == 'H':
             settings.currentState = states.directories
+        elif response.upper() == "Z":
+            settings.currentState = states.quit           # returns to incollege.py's main() w/ currentState = quit
         else:
-            print("Invalid Option, enter the number option you want and press enter")
+            print("Invalid Option, enter the letter option you want and press enter")
 
 
 def enterMainMenu():  # presents the user with an introductory menu
     while settings.currentState == states.mainMenu:  # change from currentState = mainMenu will result in return to incollege.py's main()
         print("Options:\n"
-              "1. Search for a job/internship\n"
-              "2. Post a job\n"
-              "3. Find someone you know\n"
-              "4. Learn a new skill\n"
-              "5. Logout")
+              "A. Search for a job/internship\n"
+              "B. Post a job\n"
+              "C. Find someone you know\n"
+              "D. Learn a new skill\n")
         print()
         print("Useful Links:")
-        print("6. General")
-        print("7. Browse InCollege")
-        print("8. Business Solutions")
-        print("9. Directories")
-        
+        print("E. General")
+        print("F. Browse InCollege")
+        print("G. Business Solutions")
+        print("H. Directories")
+        print("Z. Logout")
         response = input()
-        if response == '1':
+        if response.upper() == "A":
             print("Under Construction")
-        elif response == '2':
+        elif response.upper() == "B":
             settings.currentState = states.createJob    # returns to incollege.py's main() w/ currentState = createJob
-        elif response == '3':
+        elif response.upper() == "C":
             settings.currentState = states.userSearch   # returns to incollege.py's main() w/ currentState = userSearch
-        elif response == '4':
+        elif response.upper() == "D":
             settings.currentState = states.selectSkill  # returns to incollege.py's main() w/ currentState = selectSkill
-        elif response == '5':
-            users.logOutUser()
-        elif response == '6':
+        elif response.upper() == 'E':
             settings.currentState = states.general
-        elif response == '7':
+        elif response.upper() == 'F':
             settings.currentState = states.browseInCollege
-        elif response == '8':
+        elif response.upper() == 'G':
             settings.currentState = states.businessSolutions
-        elif response == '9':
+        elif response.upper() == 'H':
             settings.currentState = states.directories
+        elif response.upper() == "Z":
+            users.logOutUser()  # logs user out: currentState = loggedOut; signedInUname = None; signedIn = False
         else:
             print("Invalid Option, enter the number option you want and press enter")
 
@@ -89,29 +88,29 @@ def enterSkillMenu():
     # Skills menu will display under construction menus and return status
     while settings.currentState == states.selectSkill:  # change from currentState = selectSkill will result in return to incollege.py's main()
         print("What skill would you like to learn?:\n"
-              "1. Python\n"
-              "2. How to make a resume\n"
-              "3. Scrum\n"
-              "4. Jira\n"
-              "5. Software Engineering\n"
-              "6. None - return to menu")
+              "A. Python\n"
+              "B. How to make a resume\n"
+              "C. Scrum\n"
+              "D. Jira\n"
+              "E. Software Engineering\n"
+              "Z. None - return to menu")
         response = input()
-        if response == '1':
+        if response.upper() == "A":
             print("Under Construction")
             return True  # Searched for skill successfully
-        elif response == '2':
+        elif response.upper() == "B":
             print("Under Construction")
             return True  # Searched for skill successfully
-        elif response == '3':
+        elif response.upper() == "C":
             print("Under Construction")
             return True  # Searched for skill successfully
-        elif response == '4':
+        elif response.upper() == "D":
             print("Under Construction")
             return True  # Searched for skill successfully
-        elif response == '5':
+        elif response.upper() == "E":
             print("Under Construction")
             return True  # Searched for skill successfully
-        elif response == '6':
+        elif response.upper() == "Z":
             if not settings.signedIn:                     # if a user is not signed in
                 settings.currentState = states.loggedOut  # returns to incollege.py's main() w/ currentState = loggedOut
             else:                                         # else a user is signed in

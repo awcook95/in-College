@@ -83,12 +83,12 @@ def findUser(dbCursor):
         while settings.currentState == states.userSearch:
             print("They are not yet a part of the InCollege system yet.")
             print("Options:\n")
-            print("1. Search for another user")
-            print("2. Return to previous menu")
+            print("A. Search for another user")
+            print("B. Return to previous menu")
             response = input()
-            if response == '1':
+            if response.upper() == "A":
                 break
-            elif response == '2':
+            elif response.upper() == "B":
                 settings.currentState = states.loggedOut  # returns to incollege.py's main() w/ currentState = loggedOut
                 return False  # Didn't find user
             else:
