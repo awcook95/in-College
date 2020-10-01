@@ -137,7 +137,7 @@ def generalMenu():
         print("6. Careers")
         print("7. Developers")
         print("8. Return to Previous Page")
-        result = input()
+        response = input()
         
         if response == '1':
             currentState == states.createAccount
