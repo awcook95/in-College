@@ -169,3 +169,36 @@ def generalMenu():
         else:
             print("Invalid Option, enter the number option you want and press enter")
             continue
+
+            
+def browseMenu():
+    while settings.currentState == states.browseInCollege:
+        print("Under Construction")
+        if not settings.signedIn:
+            settings.currentState = states.loggedOut
+            return True
+        else:
+            settings.currentState = states.mainMenu
+            return True
+        
+        
+def solutionsMenu():
+    while settings.currentState == states.businessSolutions:
+        print("Under Construction")
+        if not settings.signedIn:
+            settings.currentState = states.loggedOut
+            return True
+        else:
+            settings.currentState = states.mainMenu
+            return True
+    
+    
+def directoriesMenu():
+    while settings.currentState == states.directories:
+        print("Under Construction")
+        if not settings.signedIn:
+            settings.currentState = states.loggedOut
+            return True
+        else:
+            settings.currentState = states.mainMenu
+            return True
