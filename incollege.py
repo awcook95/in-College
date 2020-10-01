@@ -45,13 +45,13 @@ def main(dbCursor):
             ui.generalMenu()
             
         if settings.currentState == states.browseInCollege:
-            print("Under Construction")
+            ui.browseMenu()
             
         if settings.currentState == states.businessSolutions:
-            print("Under Construction")
+            ui.solutionsMenu()
             
         if settings.currentState == states.directories:
-            print("Under Construction")
+            ui.directoriesMenu()
 
     print("Ending Program")
 
