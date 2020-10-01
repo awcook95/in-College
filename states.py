@@ -11,3 +11,5 @@ general = 8
 browseInCollege = 9
 businessSolutions = 10
 directories = 11
+importantLinks = 12
+modifyUserSettings = 13

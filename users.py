@@ -11,7 +11,7 @@ def createUser(dbCursor, connection):
 
     if db.getNumUsers(dbCursor) >= 5:  # checks if number of accounts in database is at max limit
         print("All permitted accounts have been created, please come back later")
-        settings.currentState = states.loggedOut
+        settings.currentState = states.loggedOut  # returns to incollege.py's main() w/ currentState = loggedOut
         return
 
     uname = input("Enter your desired username: ")
@@ -19,7 +19,6 @@ def createUser(dbCursor, connection):
     while db.getUserByName(dbCursor, uname):
         print("Sorry, that username has already been taken\n")
         uname = input("Enter your desired username: ")
-        continue
 
     pword = input("Enter your desired password: ")
     while not utils.validatePassword(pword):
@@ -30,10 +29,12 @@ def createUser(dbCursor, connection):
     lname = input("Enter your last name: ")
 
     db.insertUser(dbCursor, uname, pword, fname, lname)
+    db.insertUserSettings(dbCursor, uname, settings.emailNotif, settings.smsNotif, settings.targetAdvert, settings.language)
+    connection.commit()  # commits the new account and settings to the database (ensures account and settings are saved)
+
+    settings.currentState = states.loggedOut  # returns to incollege.py's main() w/ currentState = loggedOut
+
     print("Account has been created")
-    settings.currentState = states.loggedOut
-    settings.signedIn = False
-    connection.commit()
 
 
 def loginUser(dbCursor):
@@ -46,12 +47,21 @@ def loginUser(dbCursor):
         print("Incorrect username / password, please try again\n")
         uname = input("Enter your username: ")
         pword = input("Enter your password: ")
-        continue
+
+    # read in user settings on login
+    User = namedtuple('User', 'uname emailnotif smsnotif targetadvert languagepref')
+    currentUser = User._make(db.getUserSettingsByName(dbCursor, settings.signedInUname))
+
+    settings.emailNotif = currentUser.emailnotif
+    settings.smsNotif = currentUser.smsnotif
+    settings.targetAdvert = currentUser.targetadvert
+    settings.language = currentUser.languagepref
+
+    settings.signedIn = True                 # flags that a user is now signed in
+    settings.signedInUname = uname           # tracks the logged in user's username
+    settings.currentState = states.mainMenu  # returns to incollege.py's main() w/ currentState = mainMenu
 
     print("You have successfully logged in.")
-    settings.signedIn = True
-    settings.signedInUname = uname
-    settings.currentState = states.mainMenu
 
 
 def logOutUser():
@@ -73,35 +83,32 @@ def findUser(dbCursor):
     last = name[1]
 
     result = db.getUserByFullName(dbCursor, first, last)
-    # If the desired user is found successfully return their data and jump to appropriate menu
+    # If the desired user is found successfully, return their data and jump to appropriate menu
     if result is not None:
         print("They are a part of the InCollege system!")
-        if settings.signedIn:
-            settings.currentState = states.mainMenu
+        if settings.signedIn:                         # if a user is signed in
+            settings.currentState = states.mainMenu   # returns to incollege.py's main() w/ currentState = mainMenu
             return True
-        else:
-            settings.currentState = states.loggedOut
+        else:                                         # else a user is not signed in
+            settings.currentState = states.loggedOut  # returns to incollege.py's main() w/ currentState = loggedOut
             return True
     else:
         while settings.currentState == states.userSearch:
             print("They are not yet a part of the InCollege system yet.")
             print("Options:\n")
-            print("1. Search for another user")
-            print("2. Return to previous menu")
+            print("A. Search for another user")
+            print("B. Return to previous menu")
             response = input()
-            if response == '1':
+            if response.upper() == "A":
                 break
-            elif response == '2':
-                settings.currentState = states.loggedOut
+            elif response.upper() == "B":
+                settings.currentState = states.loggedOut  # returns to incollege.py's main() w/ currentState = loggedOut
                 return False  # Didn't find user
             else:
                 print("Invalid input")
 
 
 def postJob(dbCursor):
-    print(settings.currentState)
-    settings.currentState = states.createJob
-
     if db.getNumJobs(dbCursor) >= 5:  # checks if number of jobs in database is at max limit
         print("All permitted jobs have been created, please come back later")
         settings.currentState = states.mainMenu
@@ -122,4 +129,42 @@ def postJob(dbCursor):
 
     db.insertJob(dbCursor, title, desc, emp, loc, sal, author)
     print("Job has been posted\n")
-    settings.currentState = states.mainMenu
+    settings.currentState = states.mainMenu  # returns to incollege.py's main() w/ currentState = mainMenu
+
+
+def changeUserSettings(dbCursor, connection):
+    while settings.currentState == states.modifyUserSettings:
+        print("A. Email Notifications\n"
+              "B. SMS Notifications\n"
+              "C. Targeted Advertising\n"
+              "Z. Return to previous menu")
+        response = input("Select a setting to modify: ")
+        if response.upper() == "A":
+            option = input("Email Notifications - enter 1 to turn on or enter 0 to turn off: ")
+            if option == "1" or option == "0":
+                settings.emailNotif = option
+                print("Setting changed; return to previous menu if logged in or create an account to save changes.")
+            else:
+                print("Invalid input, try again.")
+        elif response.upper() == "B":
+            option = input("SMS Notifications - enter 1 to turn on or enter 0 to turn off: ")
+            if option == "1" or option == "0":
+                settings.smsNotif = option
+                print("Setting changed; return to previous menu if logged in or create an account to save changes.")
+            else:
+                print("Invalid input, try again.")
+        elif response.upper() == "C":
+            option = input("Targeted Advertising - enter 1 to turn on or enter 0 to turn off: ")
+            if option == "1" or option == "0":
+                settings.targetAdvert = option
+                print("Setting changed; return to previous menu if logged in or create an account to save changes.")
+            else:
+                print("Invalid input, try again.")
+        elif response.upper() == "Z":
+            if settings.signedIn:
+                db.updateUserSettings(dbCursor, settings.signedInUname, settings.emailNotif, settings.smsNotif, settings.targetAdvert)
+                connection.commit()
+                print("Settings successfully saved.")
+            settings.currentState = states.importantLinks
+        else:
+            print("Invalid Option, enter the letter option you want and press enter")
