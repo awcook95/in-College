@@ -23,11 +23,11 @@ def initTables(cursor):
     cursor.execute("""CREATE TABLE IF NOT EXISTS
     user_settings(
         uname TEXT PRIMARY KEY,
-        FOREIGN KEY(uname) REFERENCES users(uname),
         emailnotif INTEGER,
         smsnotif INTEGER,
         targetadvert INTEGER,
-        languagepref TEXT
+        languagepref TEXT,
+        FOREIGN KEY(uname) REFERENCES users(uname)
         )""")
 
 
@@ -56,6 +56,14 @@ def insertUser(cursor, uname, pword, fname, lname):
 
 def insertUserSettings(cursor, uname, email, sms, advert, language):
     cursor.execute("INSERT INTO user_settings VALUES (?, ?, ?, ?, ?)", [uname, email, sms, advert, language])
+
+
+def updateUserSettings(cursor, uname, email, sms, advert):
+    cursor.execute("UPDATE user_settings SET emailnotif=?, smsnotif=?, targetadvert=? WHERE uname=?", [email, sms, advert, uname])
+
+
+def updateUserLanguage(cursor, uname, language):
+    cursor.execute("UPDATE user_settings SET languagepref=? WHERE uname=?", [language, uname])
 
 
 def getUserByName(cursor, uname):

@@ -130,3 +130,41 @@ def postJob(dbCursor):
     db.insertJob(dbCursor, title, desc, emp, loc, sal, author)
     print("Job has been posted\n")
     settings.currentState = states.mainMenu  # returns to incollege.py's main() w/ currentState = mainMenu
+
+
+def changeUserSettings(dbCursor, connection):
+    while settings.currentState == states.modifyUserSettings:
+        print("A. Email Notifications\n"
+              "B. SMS Notifications\n"
+              "C. Targeted Advertising\n"
+              "Z. Return to previous menu")
+        response = input("Select a setting to modify: ")
+        if response.upper() == "A":
+            option = input("Email Notifications - enter 1 to turn on or enter 0 to turn off: ")
+            if option == "1" or option == "0":
+                settings.emailNotif = option
+                print("Setting changed; return to previous menu if logged in or create an account to save changes.")
+            else:
+                print("Invalid input, try again.")
+        elif response.upper() == "B":
+            option = input("SMS Notifications - enter 1 to turn on or enter 0 to turn off: ")
+            if option == "1" or option == "0":
+                settings.smsNotif = option
+                print("Setting changed; return to previous menu if logged in or create an account to save changes.")
+            else:
+                print("Invalid input, try again.")
+        elif response.upper() == "C":
+            option = input("Targeted Advertising - enter 1 to turn on or enter 0 to turn off: ")
+            if option == "1" or option == "0":
+                settings.targetAdvert = option
+                print("Setting changed; return to previous menu if logged in or create an account to save changes.")
+            else:
+                print("Invalid input, try again.")
+        elif response.upper() == "Z":
+            if settings.signedIn:
+                db.updateUserSettings(dbCursor, settings.signedInUname, settings.emailNotif, settings.smsNotif, settings.targetAdvert)
+                connection.commit()
+                print("Settings successfully saved.")
+            settings.currentState = states.importantLinks
+        else:
+            print("Invalid Option, enter the letter option you want and press enter")
