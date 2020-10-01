@@ -1,6 +1,7 @@
 import sqlite3
 from io import StringIO
 import pytest
+from collections import namedtuple
 
 import dbfunctions as db
 import incollege
@@ -148,3 +149,42 @@ def testValidJobPost(monkeypatch):
     users.postJob(cursor)
     out = db.getJobByTitle(cursor, "Title")  # Confirms that job has been added into DB correctly
     assert out is not None
+
+def testUsefulLinks(monkeypatch):
+    monkeypatch.setattr("sys.stdin", StringIO("e\n"))
+    incollege.enterMainMenu()
+    assert settings.currentState == states.general
+
+def testImportantLinks(monkeypatch):
+    monkeypatch.setattr("sys.stdin", StringIO("i\n"))
+    incollege.enterMainMenu()
+    assert settings.currentState == states.importantLinks
+
+def insertUserSettings():
+    connection = sqlite3.connect("incollege_test.db")
+    cursor = connection.cursor()
+    db.initTables(cursor)
+    db.insertUserSettings(cursor, "testname", 1, 1, 1, "testlanguage")
+    assert db.getUserSettingsByName(cursor, "testname") is not None
+
+def testUpdateUserSettings():
+    connection = sqlite3.connect("incollege_test.db")
+    cursor = connection.cursor()
+    db.initTables(cursor)
+    db.insertUserSettings(cursor, "testname", 1, 1, 1, "testlanguage")
+    db.updateUserSettings(cursor, "testname", 0, 0, 0)
+    userSetting = namedtuple('User', 'uname emailnotif smsnotif targetadvert languagepref')
+    currentUser = userSetting._make(db.getUserSettingsByName(cursor, "testname"))
+    assert currentUser.emailnotif == 0
+
+def testUpdateUserLanguage():
+    connection = sqlite3.connect("incollege_test.db")
+    cursor = connection.cursor()
+    db.initTables(cursor)
+    db.insertUserSettings(cursor, "testname", 1, 1, 1, "testlanguage")
+    db.updateUserLanguage(cursor, "testname", "testlanguage2")
+    userSetting = namedtuple('User', 'uname emailnotif smsnotif targetadvert languagepref')
+    currentUser = userSetting._make(db.getUserSettingsByName(cursor, "testname"))
+    assert currentUser.languagepref == "testlanguage2"
+
+
