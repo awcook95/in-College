@@ -108,7 +108,7 @@ def enterSkillMenu():
 
          
 def usefulLinksMenu():
-    while settings.currentState == states.usefulLinks
+    while settings.currentState == states.usefulLinks:
         print("Useful Links:")
         print("A. General")
         print("B. Browse InCollege")
