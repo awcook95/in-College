@@ -41,6 +41,9 @@ def main(dbCursor, dbConnection):
         if settings.currentState == states.createJob:
             users.postJob(dbCursor)
             
+        if settings.currentState == states.usefulLinks:
+            ui.usefulLinksMenu()
+        
         if settings.currentState == states.general:
             ui.generalMenu()
             
