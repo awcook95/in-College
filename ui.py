@@ -143,7 +143,7 @@ def generalMenu():
         response = input()
         
         if response == '1':
-            settings.currentState == states.createAccount
+            settings.currentState = states.createAccount
             return True
         elif response == '2':
             print("We're here to help")
