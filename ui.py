@@ -18,13 +18,8 @@ def enterInitialMenu():
         print("B. Create new account")
         print("C. Find someone you know")
         print("D. Play success story video")
-        print()
-        print("Useful Links:")
-        print("E. General")
-        print("F. Browse InCollege")
-        print("G. Business Solutions")
-        print("H. Directories")
-        print("I. InCollege Important Links")
+        print("E. InCollege Useful Links")
+        print("F. InCollege Important Links")
         print("Z. Quit")
         response = input()
         if response.upper() == "A":
@@ -36,14 +31,8 @@ def enterInitialMenu():
         elif response.upper() == "D":
             print("Video is now playing")
         elif response.upper() == 'E':
-            settings.currentState = states.general
-        elif response.upper() == 'F':
-            settings.currentState = states.browseInCollege
-        elif response.upper() == 'G':
-            settings.currentState = states.businessSolutions
-        elif response.upper() == 'H':
-            settings.currentState = states.directories
-        elif response.upper() == "I":
+            settings.currentState = states.usefulLinks
+        elif response.upper() == "F":
             settings.currentState = states.importantLinks
         elif response.upper() == "Z":
             settings.currentState = states.quit           # returns to incollege.py's main() w/ currentState = quit
@@ -58,13 +47,8 @@ def enterMainMenu():  # presents the user with an introductory menu
               "B. Post a job\n"
               "C. Find someone you know\n"
               "D. Learn a new skill\n")
-        print()
-        print("Useful Links:")
-        print("E. General")
-        print("F. Browse InCollege")
-        print("G. Business Solutions")
-        print("H. Directories")
-        print("I. InCollege Important Links")
+        print("E. InCollege Useful Links")
+        print("F. InCollege Important Links")
         print("Z. Logout")
 
         response = input()
@@ -77,14 +61,8 @@ def enterMainMenu():  # presents the user with an introductory menu
         elif response.upper() == "D":
             settings.currentState = states.selectSkill  # returns to incollege.py's main() w/ currentState = selectSkill
         elif response.upper() == 'E':
-            settings.currentState = states.general
-        elif response.upper() == 'F':
-            settings.currentState = states.browseInCollege
-        elif response.upper() == 'G':
-            settings.currentState = states.businessSolutions
-        elif response.upper() == 'H':
-            settings.currentState = states.directories
-        elif response.upper() == "I":
+            settings.currentState = states.usefulLinks
+        elif response.upper() == "F":
             settings.currentState = states.importantLinks
         elif response.upper() == "Z":
             users.logOutUser()  # logs user out: currentState = loggedOut; signedInUname = None; signedIn = False
@@ -128,83 +106,101 @@ def enterSkillMenu():
             print("Invalid Option, enter the number option you want and press enter")
             continue
 
-            
-def generalMenu():
-    while settings.currentState == states.general:
-        print("Links:")
-        print("1. Sign Up")
-        print("2. Help Center")
-        print("3. About")
-        print("4. Press")
-        print("5. Blog")
-        print("6. Careers")
-        print("7. Developers")
-        print("8. Return to Previous Page")
+         
+def usefulLinksMenu():
+    while settings.currentState == states.usefulLinks:
+        print("Useful Links:")
+        print("A. General")
+        print("B. Browse InCollege")
+        print("C. Business Solutions")
+        print("D. Directories")
+        print("Z. Return to Previous Menu")
         response = input()
         
-        if response == '1':
-            settings.currentState == states.createAccount
+        if response.upper() == 'A':
+            settings.currentState = states.general
             return True
-        elif response == '2':
-            print("We're here to help")
+        if response.upper() == 'B':
+            settings.currentState = states.browseInCollege
             return True
-        elif response == '3':
-            print("In College: Welcome to In College, the world's largest college student network with many users in many countries and territories worldwide")
+        if response.upper() == 'C':
+            settings.currentState = states.businessSolutions
             return True
-        elif response == '4':
-            print("In College Pressroom: Stay on top of the latest news, updates, and reports")
+        if response.upper() == 'D':
+            settings.currentState = states.directories
             return True
-        elif response == '5':
-            print("Under Construction")
-            return True
-        elif response == '6':
-            print("Under Construction")
-            return True
-        elif response == '7':
-            print("Under Construction")
-            return True
-        elif response == '8':
+        if response.upper() == 'Z':
             if not settings.signedIn:
                 settings.currentState = states.loggedOut
             else:
                 settings.currentState = states.mainMenu
             return False  # No links chosen
         else:
-            print("Invalid Option, enter the number option you want and press enter")
+            print("Invalid Option, enter the letter option you want and press enter")
+            continue
+        
+        
+def generalMenu():
+    while settings.currentState == states.general:
+        print("Links:")
+        print("A. Sign Up")
+        print("B. Help Center")
+        print("C. About")
+        print("D. Press")
+        print("E. Blog")
+        print("F. Careers")
+        print("G. Developers")
+        print("Z. Return to Previous Menu")
+        response = input()
+        
+        if response.upper() == 'A':
+            settings.currentState = states.createAccount
+            return True
+        elif response.upper() == 'B':
+            print("We're here to help")
+            return True
+        elif response.upper() == 'C':
+            print("In College: Welcome to In College, the world's largest college student network with many users in many countries and territories worldwide")
+            return True
+        elif response.upper() == 'D':
+            print("In College Pressroom: Stay on top of the latest news, updates, and reports")
+            return True
+        elif response.upper() == 'E':
+            print("Under Construction")
+            return True
+        elif response.upper() == 'F':
+            print("Under Construction")
+            return True
+        elif response.upper() == 'G':
+            print("Under Construction")
+            return True
+        elif response.upper() == 'Z':
+            settings.currentState = states.usefulLinks
+            return False  # No links chosen
+        else:
+            print("Invalid Option, enter the letter option you want and press enter")
             continue
 
             
 def browseMenu():
     while settings.currentState == states.browseInCollege:
         print("Under Construction")
-        if not settings.signedIn:
-            settings.currentState = states.loggedOut
-            return True
-        else:
-            settings.currentState = states.mainMenu
-            return True
+        settings.currentState = states.usefulLinks
+        return True
         
         
 def solutionsMenu():
     while settings.currentState == states.businessSolutions:
         print("Under Construction")
-        if not settings.signedIn:
-            settings.currentState = states.loggedOut
-            return True
-        else:
-            settings.currentState = states.mainMenu
-            return True
+        settings.currentState = states.usefulLinks
+        return True
     
     
 def directoriesMenu():
     while settings.currentState == states.directories:
         print("Under Construction")
-        if not settings.signedIn:
-            settings.currentState = states.loggedOut
-            return True
-        else:
-            settings.currentState = states.mainMenu
-            return True
+        settings.currentState = states.usefulLinks
+        return True
 
 
 def enterImportantLinksMenu(dbCursor, connection):
