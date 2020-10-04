@@ -49,6 +49,7 @@ def loginUser(dbCursor):
         pword = input("Enter your password: ")
 
     # read in user settings on login
+    settings.signedInUname = uname # tracks the logged in user's username
     User = namedtuple('User', 'uname emailnotif smsnotif targetadvert languagepref')
     currentUser = User._make(db.getUserSettingsByName(dbCursor, settings.signedInUname))
 
@@ -58,7 +59,6 @@ def loginUser(dbCursor):
     settings.language = currentUser.languagepref
 
     settings.signedIn = True                 # flags that a user is now signed in
-    settings.signedInUname = uname           # tracks the logged in user's username
     settings.currentState = states.mainMenu  # returns to incollege.py's main() w/ currentState = mainMenu
 
     print("You have successfully logged in.")

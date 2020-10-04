@@ -154,7 +154,10 @@ def generalMenu():
         response = input()
         
         if response.upper() == 'A':
-            settings.currentState = states.createAccount
+            if not settings.signedIn:
+                settings.currentState = states.createAccount
+            else:
+                print("Already logged in as: " + settings.signedInUname + ", logout to create a new account!")
             return True
         elif response.upper() == 'B':
             print("We're here to help")

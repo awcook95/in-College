@@ -95,11 +95,10 @@ def testValidUserLogout():
 
 def testJobSearch(monkeypatch, capfd):
     # Need to update this test when we build the real job search function
-    monkeypatch.setattr("sys.stdin", StringIO("3\n6\n"))
-    settings.currentState = states.loggedOut  ##
+    monkeypatch.setattr("sys.stdin", StringIO("A\n"))
+    settings.currentState = states.mainMenu  ##
     ui.enterInitialMenu()
-    out, err = capfd.readouterr()
-    assert True 
+    assert settings.currentState == states.mainMenu # Check for still in mainMenu until under construction is replaced
 
 
 def testValidFriendSearch(monkeypatch):  # todo: fix (broke because of change in findUser function)
@@ -125,14 +124,14 @@ def testInvalidFriendSearch(monkeypatch):  # todo: fix (broke because of change 
 
 
 def testValidSkillSearch(monkeypatch):
-    monkeypatch.setattr("sys.stdin", StringIO("1\n"))
+    monkeypatch.setattr("sys.stdin", StringIO("D\n"))
     settings.currentState = states.selectSkill
     out = ui.enterSkillMenu()
     assert out
 
 
 def testInvalidSkillSearch(monkeypatch):
-    monkeypatch.setattr("sys.stdin", StringIO("6\n"))
+    monkeypatch.setattr("sys.stdin", StringIO("Z\n"))
     settings.currentState = states.selectSkill
     out = ui.enterSkillMenu()
     assert not out  # Skill menu returns false if exit option is chosen in menu
@@ -152,15 +151,17 @@ def testValidJobPost(monkeypatch):
 
 def testUsefulLinks(monkeypatch):
     monkeypatch.setattr("sys.stdin", StringIO("e\n"))
-    incollege.enterMainMenu()
-    assert settings.currentState == states.general
+    settings.currentState = states.mainMenu
+    ui.enterMainMenu()
+    assert settings.currentState == states.usefulLinks
 
 def testImportantLinks(monkeypatch):
-    monkeypatch.setattr("sys.stdin", StringIO("i\n"))
-    incollege.enterMainMenu()
+    monkeypatch.setattr("sys.stdin", StringIO("f\n"))
+    settings.currentState = states.mainMenu
+    ui.enterMainMenu()
     assert settings.currentState == states.importantLinks
 
-def insertUserSettings():
+def testInsertUserSettings():
     connection = sqlite3.connect("incollege_test.db")
     cursor = connection.cursor()
     db.initTables(cursor)
