@@ -185,34 +185,22 @@ def generalMenu():
 def browseMenu():
     while settings.currentState == states.browseInCollege:
         print("Under Construction")
-        if not settings.signedIn:
-            settings.currentState = states.loggedOut
-            return True
-        else:
-            settings.currentState = states.mainMenu
-            return True
+        settings.currentState = states.usefulLinks
+        return True
         
         
 def solutionsMenu():
     while settings.currentState == states.businessSolutions:
         print("Under Construction")
-        if not settings.signedIn:
-            settings.currentState = states.loggedOut
-            return True
-        else:
-            settings.currentState = states.mainMenu
-            return True
+        settings.currentState = states.usefulLinks
+        return True
     
     
 def directoriesMenu():
     while settings.currentState == states.directories:
         print("Under Construction")
-        if not settings.signedIn:
-            settings.currentState = states.loggedOut
-            return True
-        else:
-            settings.currentState = states.mainMenu
-            return True
+        settings.currentState = states.usefulLinks
+        return True
 
 
 def enterImportantLinksMenu(dbCursor, connection):
