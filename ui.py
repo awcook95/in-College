@@ -175,10 +175,7 @@ def generalMenu():
             print("Under Construction")
             return True
         elif response.upper() == 'Z':
-            if not settings.signedIn:
-                settings.currentState = states.loggedOut
-            else:
-                settings.currentState = states.mainMenu
+            settings.currentState = states.usefulLinks
             return False  # No links chosen
         else:
             print("Invalid Option, enter the letter option you want and press enter")
