@@ -1,6 +1,7 @@
 import sqlite3
 from io import StringIO
 import pytest
+from collections import namedtuple
 
 import dbfunctions as db
 import incollege
@@ -94,11 +95,10 @@ def testValidUserLogout():
 
 def testJobSearch(monkeypatch, capfd):
     # Need to update this test when we build the real job search function
-    monkeypatch.setattr("sys.stdin", StringIO("3\n6\n"))
-    settings.currentState = states.loggedOut  ##
+    monkeypatch.setattr("sys.stdin", StringIO("A\n"))
+    settings.currentState = states.mainMenu  ##
     ui.enterInitialMenu()
-    out, err = capfd.readouterr()
-    assert True 
+    assert settings.currentState == states.mainMenu # Check for still in mainMenu until under construction is replaced
 
 
 def testValidFriendSearch(monkeypatch):  # todo: fix (broke because of change in findUser function)
@@ -124,14 +124,14 @@ def testInvalidFriendSearch(monkeypatch):  # todo: fix (broke because of change 
 
 
 def testValidSkillSearch(monkeypatch):
-    monkeypatch.setattr("sys.stdin", StringIO("1\n"))
+    monkeypatch.setattr("sys.stdin", StringIO("D\n"))
     settings.currentState = states.selectSkill
     out = ui.enterSkillMenu()
     assert out
 
 
 def testInvalidSkillSearch(monkeypatch):
-    monkeypatch.setattr("sys.stdin", StringIO("6\n"))
+    monkeypatch.setattr("sys.stdin", StringIO("Z\n"))
     settings.currentState = states.selectSkill
     out = ui.enterSkillMenu()
     assert not out  # Skill menu returns false if exit option is chosen in menu
@@ -148,3 +148,44 @@ def testValidJobPost(monkeypatch):
     users.postJob(cursor)
     out = db.getJobByTitle(cursor, "Title")  # Confirms that job has been added into DB correctly
     assert out is not None
+
+def testUsefulLinks(monkeypatch):
+    monkeypatch.setattr("sys.stdin", StringIO("e\n"))
+    settings.currentState = states.mainMenu
+    ui.enterMainMenu()
+    assert settings.currentState == states.usefulLinks
+
+def testImportantLinks(monkeypatch):
+    monkeypatch.setattr("sys.stdin", StringIO("f\n"))
+    settings.currentState = states.mainMenu
+    ui.enterMainMenu()
+    assert settings.currentState == states.importantLinks
+
+def testInsertUserSettings():
+    connection = sqlite3.connect("incollege_test.db")
+    cursor = connection.cursor()
+    db.initTables(cursor)
+    db.insertUserSettings(cursor, "testname", 1, 1, 1, "testlanguage")
+    assert db.getUserSettingsByName(cursor, "testname") is not None
+
+def testUpdateUserSettings():
+    connection = sqlite3.connect("incollege_test.db")
+    cursor = connection.cursor()
+    db.initTables(cursor)
+    db.insertUserSettings(cursor, "testname", 1, 1, 1, "testlanguage")
+    db.updateUserSettings(cursor, "testname", 0, 0, 0)
+    userSetting = namedtuple('User', 'uname emailnotif smsnotif targetadvert languagepref')
+    currentUser = userSetting._make(db.getUserSettingsByName(cursor, "testname"))
+    assert currentUser.emailnotif == 0
+
+def testUpdateUserLanguage():
+    connection = sqlite3.connect("incollege_test.db")
+    cursor = connection.cursor()
+    db.initTables(cursor)
+    db.insertUserSettings(cursor, "testname", 1, 1, 1, "testlanguage")
+    db.updateUserLanguage(cursor, "testname", "testlanguage2")
+    userSetting = namedtuple('User', 'uname emailnotif smsnotif targetadvert languagepref')
+    currentUser = userSetting._make(db.getUserSettingsByName(cursor, "testname"))
+    assert currentUser.languagepref == "testlanguage2"
+
+
