@@ -68,6 +68,7 @@ def testValidUserLogin(monkeypatch, capfd):
     cursor = connection.cursor()
     db.initTables(cursor)
     db.insertUser(cursor, "username1", "password", "first", "last")
+    db.insertUserSettings(cursor, "username1", "test@gmail.com", "123-123-1234", 0, "English")
     monkeypatch.setattr("sys.stdin", StringIO("username1\npassword\n"))  # Patch in user input
     users.loginUser(cursor)
     out, err = capfd.readouterr()  # Output should display successfully sign in and state change
