@@ -202,8 +202,7 @@ def testUpdateUserLanguage():
     currentUser = userSetting._make(db.getUserSettingsByName(cursor, "testname"))
     assert currentUser.languagepref == "testlanguage2"
 
-def testCreateStudentProfile():
-    def testValidJobPost(monkeypatch):
+def testCreateStudentProfile(monkeypatch):
     monkeypatch.setattr("sys.stdin", StringIO("Title\nMajor\nUniversityName\nInfoParagraph\nExperience\nEducation"))
     connection = sqlite3.connect("incollege_test.db")
     cursor = connection.cursor()
