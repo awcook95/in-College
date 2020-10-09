@@ -36,7 +36,6 @@ def initTables(cursor):
         major TEXT,
         university TEXT,
         about TEXT,
-        languagepref TEXT,
         FOREIGN KEY(uname) REFERENCES users(uname)
         )""")
 
@@ -54,7 +53,7 @@ def initTables(cursor):
         )""")
     cursor.execute("""CREATE TABLE IF NOT EXISTS
     profile_education(
-        uni_id TEXT PRIMARY KEY,
+        uni_id INTEGER PRIMARY KEY,
         uname TEXT,
         university_name TEXT,
         user_degree TEXT,
@@ -63,6 +62,28 @@ def initTables(cursor):
         FOREIGN KEY(uname) REFERENCES users(uname)
         )""")
 
+def insertProfileEducation(cursor,uni_id, uname, university_name, user_degree, year_start, year_end):
+    cursor.execute("INSERT INTO profile_education VALUES (?, ?, ?, ?, ?)", [None, uname, university_name, user_degree, year_start, year_end])
+
+def updateProfileEducation(cursor, uni_id, uname, university_name, user_degree, year_start, year_end):
+    cursor.execute("UPDATE profile_education SET university_name=?, user_degree=?, year_start=?, year_end=? WHERE uname=?", [university_name, user_degree, year_start, year_end, uname])
+
+#def deleteProfileEducation(...)
+
+def insertProfileJob(cursor, uname, title, employer, date_started, date_ended, location, job_description):
+    cursor.execute("INSERT INTO profile_jobs VALUES (?, ?, ?, ?, ?, ?, ?)", [None, uname, title, employer, date_started, date_ended, location, job_description])
+
+def updateProfileJob(cursor, uname, title, employer, date_started, date_ended, location, job_description):
+    cursor.execute("UPDATE profile_jobs SET title=?, employer=?, date_started=?, date_ended=?, location=?, job_description=? WHERE uname=?", [title, employer, date_started, date_ended, location, job_description, uname])
+
+#def deleteProfileJob(cursor, job_id):
+
+def insertProfilePage(cursor, uname, major, university, about):
+    cursor.execute("INSERT INTO profile_page VALUES (?, ?, ?, ?)", [uname, major, university, about])
+
+
+def updateProfilePage(cursor, uname, major, university, about):
+    cursor.execute("UPDATE profile_page SET major=?, university=?, about=? WHERE uname=?", [major, university, about, uname])
 
 def getUserByFullName(cursor, first, last):
     cursor.execute("SELECT * FROM users WHERE firstname=? AND lastname=? LIMIT 1", [first, last])
