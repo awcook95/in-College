@@ -30,6 +30,39 @@ def initTables(cursor):
         FOREIGN KEY(uname) REFERENCES users(uname)
         )""")
 
+    cursor.execute("""CREATE TABLE IF NOT EXISTS
+    profile_page(
+        uname TEXT PRIMARY KEY,
+        major TEXT,
+        university TEXT,
+        about TEXT,
+        languagepref TEXT,
+        FOREIGN KEY(uname) REFERENCES users(uname)
+        )""")
+
+    cursor.execute("""CREATE TABLE IF NOT EXISTS
+    profile_jobs(
+        job_id INTEGER PRIMARY KEY,
+        uname TEXT,
+        title TEXT,
+        employer TEXT,
+        date_started TEXT,
+        date_ended TEXT,
+        location TEXT,
+        job_description TEXT,
+        FOREIGN KEY(uname) REFERENCES users(uname)
+        )""")
+    cursor.execute("""CREATE TABLE IF NOT EXISTS
+    profile_education(
+        uni_id TEXT PRIMARY KEY,
+        uname TEXT,
+        university_name TEXT,
+        user_degree TEXT,
+        year_start TEXT,
+        year_end TEXT,
+        FOREIGN KEY(uname) REFERENCES users(uname)
+        )""")
+
 
 def getUserByFullName(cursor, first, last):
     cursor.execute("SELECT * FROM users WHERE firstname=? AND lastname=? LIMIT 1", [first, last])

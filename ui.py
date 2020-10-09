@@ -40,7 +40,7 @@ def enterInitialMenu():
             print("Invalid Option, enter the letter option you want and press enter")
 
 
-def enterMainMenu():  # presents the user with an introductory menu
+def enterMainMenu():  # presents the user with an introductory menu if logged in
     while settings.currentState == states.mainMenu:  # change from currentState = mainMenu will result in return to incollege.py's main()
         print("Options:\n"
               "A. Search for a job/internship\n"
@@ -49,6 +49,8 @@ def enterMainMenu():  # presents the user with an introductory menu
               "D. Learn a new skill\n")
         print("E. InCollege Useful Links")
         print("F. InCollege Important Links")
+        #G for friend capabilities
+        print("H. Student Profile")
         print("Z. Logout")
 
         response = input()
@@ -64,6 +66,8 @@ def enterMainMenu():  # presents the user with an introductory menu
             settings.currentState = states.usefulLinks
         elif response.upper() == "F":
             settings.currentState = states.importantLinks
+        elif response.upper() == 'H':
+            settings.currentState = states.profilePage
         elif response.upper() == "Z":
             users.logOutUser()  # logs user out: currentState = loggedOut; signedInUname = None; signedIn = False
         else:
@@ -278,3 +282,56 @@ def enterImportantLinksMenu(dbCursor, connection):
                 settings.currentState = states.loggedOut
         else:
             print("Invalid Option, enter the letter option you want and press enter")
+
+def enterProfilePageMenu(dbCursor, connection):
+    while settings.currentState == states.profilePage:
+        printProfilePage(settings.signedInUname)
+        # print("sample name""Profile Page") # title
+        # print("Major: ") # major
+        # print("University: ") # uni name
+        # print("About: \n") # paragraph of info about student
+        # #if they have and job exp then
+        #     print("Career: ") # experience of jobs if any, dont show if none, up to 3, title, employer, date started, date ended, location, description of what did
+        # print("Education: ") # 1 or more lines about education, school name, degree, year start, year end date
+        print("A. Edit Profile Page")
+        print("Z. Return to Previous Menu")
+        response = input()
+
+        if response.upper() == 'A':
+            while settings.currentState == states.profilePageEdit:
+                print("change stuff")
+                print("A. Major") # major
+                print("B. University") # uni name
+                print("C. About") # paragraph of info about student
+                print("D. Career: ") # experience of jobs if any, dont show if none, up to 3, title, employer, date started, date ended, location, description of what did
+                print("E. Education: ") # 1 or more lines about education, school name, degree, year start, year end date
+                response = input()
+                if response.upper() == 'A':
+                    return True
+                if response.upper() == 'B':
+                    return True
+                if response.upper() == 'C':
+                    return True
+                if response.upper() == 'D':
+                    return True
+                if response.upper() == 'E':
+                    return True
+                elif response.upper() == 'Z':
+                    settings.currentState = states.profilePage
+                    return False
+            return True
+        elif response.upper() == 'Z':
+            settings.currentState = states.mainMenu
+            return False  # No links chosen
+        else:
+            print("Invalid Option, enter the letter option you want and press enter")
+            continue
+
+def printProfilePage(uname):
+    print("sample name""Profile Page") # title
+    print("Major: ") # major
+    print("University: ") # uni name
+    print("About: \n") # paragraph of info about student
+    #if they have and job exp then
+        print("Career: ") # experience of jobs if any, dont show if none, up to 3, title, employer, date started, date ended, location, description of what did
+    print("Education: ") # 1 or more lines about education, school name, degree, year start, year end date
