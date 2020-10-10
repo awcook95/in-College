@@ -1,3 +1,6 @@
+import dbfunctions as db
+
+
 def validatePassword(password):
     if len(password) < 8 or len(password) > 12:     # out of length bounds
         return False
@@ -9,3 +12,15 @@ def validatePassword(password):
         return False
     else:
         return True
+
+
+def printUserFriends(dbCursor, uname):
+    friends = db.getUserFriendsByName(dbCursor, uname)
+    if friends:
+        count = 1
+        for f in friends:
+            print(f"{count}. {f[0]}")
+            count += 1
+        return friends
+    else:
+        return None

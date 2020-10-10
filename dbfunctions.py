@@ -30,6 +30,14 @@ def initTables(cursor):
         FOREIGN KEY(uname) REFERENCES users(uname)
         )""")
 
+    cursor.execute("""CREATE TABLE IF NOT EXISTS
+    user_friends(
+        friend_id INTEGER PRIMARY KEY,
+        uname TEXT,
+        friend_uname TEXT,
+        FOREIGN KEY(uname) REFERENCES users(uname)
+        )""")
+
 
 def getUserByFullName(cursor, first, last):
     cursor.execute("SELECT * FROM users WHERE firstname=? AND lastname=? LIMIT 1", [first, last])
@@ -95,3 +103,12 @@ def tryLogin(cursor, uname, pword):
 def readUsers(cursor):
     cursor.execute("Select * from users")
     return cursor.fetchall()
+
+
+def getUserFriendsByName(cursor, uname):
+    cursor.execute("SELECT friend_uname FROM user_friends WHERE uname=?", [uname])
+    return cursor.fetchall()
+
+
+def insertUserFriend(cursor, uname, friend_uname):
+    cursor.execute("INSERT INTO user_friends VALUES (?, ?, ?)", [None, uname, friend_uname])

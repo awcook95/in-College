@@ -1,6 +1,7 @@
 import settings
 import states
 import users
+import utils
 import dbfunctions as db
 
 
@@ -49,6 +50,7 @@ def enterMainMenu():  # presents the user with an introductory menu
               "D. Learn a new skill\n")
         print("E. InCollege Useful Links")
         print("F. InCollege Important Links")
+        print("G. View Friends")
         print("Z. Logout")
 
         response = input()
@@ -64,6 +66,8 @@ def enterMainMenu():  # presents the user with an introductory menu
             settings.currentState = states.usefulLinks
         elif response.upper() == "F":
             settings.currentState = states.importantLinks
+        elif response.upper() == "G":
+            settings.currentState = states.friendsMenu
         elif response.upper() == "Z":
             users.logOutUser()  # logs user out: currentState = loggedOut; signedInUname = None; signedIn = False
         else:
@@ -105,6 +109,26 @@ def enterSkillMenu():
         else:
             print("Invalid Option, enter the number option you want and press enter")
             continue
+
+
+def enterFriendsMenu(dbCursor):
+    while settings.currentState == states.friendsMenu:
+        print()
+        friends = utils.printUserFriends(dbCursor, settings.signedInUname)
+        if friends is None:
+            print("No friends found. Add friends to view them here!")
+            settings.currentState = states.mainMenu
+            return
+
+        print("Z. Return to Previous Menu")
+        response = input("Choose a friend to view their profile or 'Z' to return to previous menu: ")
+        if response.isdigit() and int(response) <= len(friends):
+            print()
+            # printProfilePage(dbCursor, (friends[int(response) - 1)[0])
+        elif response.upper() == "Z":
+            settings.currentState = states.mainMenu
+        else:
+            print("Invalid input, try again.")
 
          
 def usefulLinksMenu():

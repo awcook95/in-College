@@ -83,10 +83,17 @@ def findUser(dbCursor):
     last = name[1]
 
     result = db.getUserByFullName(dbCursor, first, last)
+    User = namedtuple('User', 'uname pword firstname lastname')
+    currentUser = User._make(result)
+
     # If the desired user is found successfully, return their data and jump to appropriate menu
     if result is not None:
         print("They are a part of the InCollege system!")
         if settings.signedIn:                         # if a user is signed in
+            response = input("Would you like to add them as a friend? Enter 'Y' for yes: ")
+            if response.upper() == "Y":
+                db.insertUserFriend(dbCursor, settings.signedInUname, currentUser.uname)
+
             settings.currentState = states.mainMenu   # returns to incollege.py's main() w/ currentState = mainMenu
             return True
         else:                                         # else a user is not signed in
