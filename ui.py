@@ -46,7 +46,7 @@ def enterMainMenu():  # presents the user with an introductory menu if logged in
               "A. Search for a job/internship\n"
               "B. Post a job\n"
               "C. Find someone you know\n"
-              "D. Learn a new skill\n")
+              "D. Learn a new skill")
         print("E. InCollege Useful Links")
         print("F. InCollege Important Links")
         #G for friend capabilities
@@ -285,7 +285,7 @@ def enterImportantLinksMenu(dbCursor, connection):
 
 def enterProfilePageMenu(dbCursor, connection):
     while settings.currentState == states.profilePage:
-        printProfilePage(settings.signedInUname)
+        major, university, about = printProfilePage(dbCursor, settings.signedInUname)
         # print("sample name""Profile Page") # title
         # print("Major: ") # major
         # print("University: ") # uni name
@@ -295,31 +295,49 @@ def enterProfilePageMenu(dbCursor, connection):
         # print("Education: ") # 1 or more lines about education, school name, degree, year start, year end date
         print("A. Edit Profile Page")
         print("Z. Return to Previous Menu")
-        response = input()
-
+        response = input("Enter option: ")
         if response.upper() == 'A':
+            settings.currentState = states.profilePageEdit
             while settings.currentState == states.profilePageEdit:
-                print("change stuff")
+                print("Edit Profile")
                 print("A. Major") # major
                 print("B. University") # uni name
                 print("C. About") # paragraph of info about student
-                print("D. Career: ") # experience of jobs if any, dont show if none, up to 3, title, employer, date started, date ended, location, description of what did
+                print("D. Add Job: ") # experience of jobs if any, dont show if none, up to 3, title, employer, date started, date ended, location, description of what did
                 print("E. Education: ") # 1 or more lines about education, school name, degree, year start, year end date
-                response = input()
+                print("Z. Return to Previous Menu")
+                response = input("Enter option: ")
                 if response.upper() == 'A':
-                    return True
-                if response.upper() == 'B':
-                    return True
-                if response.upper() == 'C':
-                    return True
-                if response.upper() == 'D':
-                    return True
-                if response.upper() == 'E':
-                    return True
+                    major = input("Major: ").title()
+                elif response.upper() == 'B':
+                    university = input("University Name: ").title()
+                elif response.upper() == 'C':
+                    about = input("About: ")
+                elif response.upper() == 'D':
+                    if len(db.getProfileJobs(dbCursor, settings.signedInUname)) < 3:
+                        print("Add a new job.")
+                        title = input("Enter title: ")
+                        employer = input("Enter employer: ")
+                        date_start = input("Enter date started: ")
+                        date_end = input("Enter date ended: ")
+                        location = input("Enter location: ")
+                        job_desc = input("Enter job description: ")
+                        db.insertProfileJob(dbCursor, settings.signedInUname, title, employer, date_start, date_end, location, job_desc)
+                    else:
+                        print("Maximum number of jobs entered.")
+                elif response.upper() == 'E':
+                    print("Enter past education.")
+                    university_name = input("Enter university name: ").title()
+                    user_degree = input("Enter degree: ").title()
+                    year_start = input("Enter year started: ")
+                    year_end = input("Enter year ended: ")
+                    db.insertProfileEducation(dbCursor, settings.signedInUname, university_name, user_degree, year_start, year_end)
                 elif response.upper() == 'Z':
                     settings.currentState = states.profilePage
-                    return False
-            return True
+                    db.updateProfilePage(dbCursor, settings.signedInUname, major, university, about)
+                else:
+                    print("Invalid Option, enter the letter option you want and press enter")
+                    continue
         elif response.upper() == 'Z':
             settings.currentState = states.mainMenu
             return False  # No links chosen
@@ -327,11 +345,47 @@ def enterProfilePageMenu(dbCursor, connection):
             print("Invalid Option, enter the letter option you want and press enter")
             continue
 
-def printProfilePage(uname):
-    print("sample name""Profile Page") # title
-    print("Major: ") # major
-    print("University: ") # uni name
-    print("About: \n") # paragraph of info about student
-    #if they have and job exp then
-        print("Career: ") # experience of jobs if any, dont show if none, up to 3, title, employer, date started, date ended, location, description of what did
-    print("Education: ") # 1 or more lines about education, school name, degree, year start, year end date
+def printProfilePage(cursor, uname):
+    name = db.getUserByName(cursor, uname)
+    first = name[2]
+    last = name[3]
+    page = db.getProfilePage(cursor, uname)
+    major = page[1]
+    university = page[2]
+    about = page[3]
+    jobs = db.getProfileJobs(cursor, uname)
+    education = db.getProfileEducation(cursor, uname)
+
+    print(f"{first} {last}'s Profile Page") # title
+    print(f"Major: {major}") # major
+    print(f"University: {university}") # uni name
+    print(f"About: \n{about}") # paragraph of info about student
+    if jobs is None:
+        print("Career:") # experience of jobs if any, dont show if none, up to 3, title, employer, date started, date ended, location, description of what did
+    else:
+        print("Career:")
+        for i in jobs:
+            title = i[2]
+            employer = i[3]
+            date_start = i[4]
+            date_end = i[5]
+            location = i[6]
+            job_desc = i[7]
+            print(title)
+            print(f"\tEmployer: {employer}")
+            print(f"\tDate: {date_start} - {date_end}")
+            print(f"\tLocation: {location}")
+            print(f"\tDescription: \n\t{job_desc}")
+    if education is None:
+        print("Education:") # 1 or more lines about education, school name, degree, year start, year end date
+    else:
+        print("Education:")
+        for i in education:
+            university_name = i[2]
+            user_degree = i[3]
+            year_start = i[4]
+            year_end = i[5]
+            print(f"University: {university_name}")
+            print(f"\tDegree: {user_degree}")
+            print(f"\tYear: {year_start} - {year_end}")
+    return major, university, about

@@ -30,6 +30,7 @@ def createUser(dbCursor, connection):
 
     db.insertUser(dbCursor, uname, pword, fname, lname)
     db.insertUserSettings(dbCursor, uname, settings.emailNotif, settings.smsNotif, settings.targetAdvert, settings.language)
+    db.insertProfilePage(dbCursor, uname, "", "", "")
     connection.commit()  # commits the new account and settings to the database (ensures account and settings are saved)
 
     settings.currentState = states.loggedOut  # returns to incollege.py's main() w/ currentState = loggedOut

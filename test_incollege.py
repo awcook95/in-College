@@ -15,9 +15,19 @@ import ui
 # StringIO simulates a file to hold simulated inputs (inputs separated by \n)
 # monkeypatch: needed to simulate user input
 # capfd: used to capture text that was output to console
-
-
-def testValidatePasswordCorrect(): 
+def testtest(capfd):
+    connection = sqlite3.connect("incollege_test.db")
+    cursor = connection.cursor()
+    db.initTables(cursor)
+    db.insertUser(cursor, "username", "password", "first", "last")
+    db.insertProfilePage(cursor, "username", "major", "uni", "about")
+    db.insertProfileJob(cursor, "username", "title", "emp", "2029", "2030", "basement", "gamin")
+    db.insertProfileJob(cursor, "username", "title2", "emp2", "2029", "2030", "2nd basement", "moar gamin")
+    db.insertProfileEducation(cursor, "username", "USF", "CS", "2018", "2020")
+    ui.printProfilePage(cursor, "username")
+    out, err = capfd.readouterr()
+    assert out == "hello"
+def testValidatePasswordCorrect():
     assert utils.validatePassword("Testing123!")
 
 

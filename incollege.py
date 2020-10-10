@@ -62,6 +62,9 @@ def main(dbCursor, dbConnection):
         if settings.currentState == states.modifyUserSettings:
             users.changeUserSettings(dbCursor, dbConnection)
 
+        if settings.currentState == states.profilePage:
+            ui.enterProfilePageMenu(dbCursor, dbConnection)
+
     print("Ending Program")
 
     # This needs to happen for changes to be committed to db
