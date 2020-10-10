@@ -207,7 +207,7 @@ def testCreateStudentProfile():
     cursor = connection.cursor()
     db.initTables(cursor)
     db.insertProfilePage(cursor, "uname", "major", "university", "about")
-    db.insertProfileEducation(cursor, "uname", "university_name", "user_degree", 2016, 2020)
+    db.insertProfileEducation(cursor, "uname", "university_name", "user_degree", "2016", "2020")
     db.insertProfileJob(cursor, "uname", "title", "employer", "date_start", "date_end", "location", "job_description")
     assert db.getProfilePage(cursor, "uname") is not None
     assert db.getProfileJobs(cursor, "uname") is not None
