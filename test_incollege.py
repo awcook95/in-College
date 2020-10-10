@@ -202,13 +202,13 @@ def testUpdateUserLanguage():
     currentUser = userSetting._make(db.getUserSettingsByName(cursor, "testname"))
     assert currentUser.languagepref == "testlanguage2"
 
-def testCreateStudentProfile(monkeypatch):
-    monkeypatch.setattr("sys.stdin", StringIO("Title\nMajor\nUniversityName\nInfoParagraph\nExperience\nEducation"))
+def testCreateStudentProfile():
     connection = sqlite3.connect("incollege_test.db")
     cursor = connection.cursor()
     db.initTables(cursor)
-    db.insertUser(cursor, "username1", "password", "first", "last")
-    settings.signedInUname = "username1"
-    users.createProfile(cursor)
-    out = db.getProfileByTitle(cursor, "Title")  # Confirms that profile has been added into DB correctly
-    assert out is not None
+    db.insertProfilePage(cursor, "uname", "major", "university", "about")
+    db.insertProfileEducation(cursor, "uname", "university_name", "user_degree", 2016, 2020)
+    db.insertProfileJob(cursor, "uname", "title", "employer", "date_start", "date_end", "location", "job_description")
+    assert db.getProfilePage(cursor, "uname") is not None
+    assert db.getProfileJobs(cursor, "uname") is not None
+    assert db.getProfileEducation(cursor, "uname") is not None
