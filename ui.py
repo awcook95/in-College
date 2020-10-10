@@ -124,7 +124,7 @@ def enterFriendsMenu(dbCursor):
         response = input("Choose a friend to view their profile or 'Z' to return to previous menu: ")
         if response.isdigit() and int(response) <= len(friends):
             print()
-            # printProfilePage(dbCursor, (friends[int(response) - 1)[0])
+            # printProfilePage(dbCursor, (friends[int(response) - 1])[0])
         elif response.upper() == "Z":
             settings.currentState = states.mainMenu
         else:
