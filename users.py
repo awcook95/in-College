@@ -111,7 +111,10 @@ def findUser(dbCursor):
             if response.upper() == "A":
                 break
             elif response.upper() == "B":
-                settings.currentState = states.loggedOut  # returns to incollege.py's main() w/ currentState = loggedOut
+                if settings.signedIn:
+                    settings.currentState = states.mainMenu
+                else:
+                    settings.currentState = states.loggedOut  # returns to incollege.py's main() w/ currentState = loggedOut
                 return False  # Didn't find user
             else:
                 print("Invalid input")
