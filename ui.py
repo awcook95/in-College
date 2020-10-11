@@ -1,6 +1,7 @@
 import settings
 import states
 import users
+import utils
 import dbfunctions as db
 
 
@@ -40,15 +41,17 @@ def enterInitialMenu():
             print("Invalid Option, enter the letter option you want and press enter")
 
 
-def enterMainMenu():  # presents the user with an introductory menu
+def enterMainMenu():  # presents the user with an introductory menu if logged in
     while settings.currentState == states.mainMenu:  # change from currentState = mainMenu will result in return to incollege.py's main()
         print("Options:\n"
               "A. Search for a job/internship\n"
               "B. Post a job\n"
               "C. Find someone you know\n"
-              "D. Learn a new skill\n")
+              "D. Learn a new skill")
         print("E. InCollege Useful Links")
         print("F. InCollege Important Links")
+        print("G. View Friends")
+        print("H. Student Profile")
         print("Z. Logout")
 
         response = input()
@@ -64,6 +67,10 @@ def enterMainMenu():  # presents the user with an introductory menu
             settings.currentState = states.usefulLinks
         elif response.upper() == "F":
             settings.currentState = states.importantLinks
+        elif response.upper() == "G":
+            settings.currentState = states.friendsMenu
+        elif response.upper() == 'H':
+            settings.currentState = states.profilePage
         elif response.upper() == "Z":
             users.logOutUser()  # logs user out: currentState = loggedOut; signedInUname = None; signedIn = False
         else:
@@ -105,6 +112,25 @@ def enterSkillMenu():
         else:
             print("Invalid Option, enter the number option you want and press enter")
             continue
+
+
+def enterFriendsMenu(dbCursor):
+    while settings.currentState == states.friendsMenu:
+        print()
+        friends = utils.printUserFriends(dbCursor, settings.signedInUname)
+        if friends is None:
+            print("No friends found. Add friends to view them here!")
+            settings.currentState = states.mainMenu
+            return
+
+        print("Z. Return to Previous Menu")
+        response = input("Choose a friend to view their profile or 'Z' to return to previous menu: ")
+        if response.isdigit() and int(response) <= len(friends):
+            printProfilePage(dbCursor, (friends[int(response) - 1])[0])
+        elif response.upper() == "Z":
+            settings.currentState = states.mainMenu
+        else:
+            print("Invalid input, try again.")
 
          
 def usefulLinksMenu():
@@ -278,3 +304,105 @@ def enterImportantLinksMenu(dbCursor, connection):
                 settings.currentState = states.loggedOut
         else:
             print("Invalid Option, enter the letter option you want and press enter")
+
+
+def enterProfilePageMenu(dbCursor):
+    while settings.currentState == states.profilePage:
+        major, university, about = printProfilePage(dbCursor, settings.signedInUname)
+        print("A. Edit Profile Page")
+        print("Z. Return to Previous Menu")
+        response = input("Enter option: ")
+        if response.upper() == 'A':
+            settings.currentState = states.profilePageEdit
+            while settings.currentState == states.profilePageEdit:
+                print("Edit Profile")
+                print("A. Major")  # major
+                print("B. University")  # uni name
+                print("C. About")  # paragraph of info about student
+                print("D. Add Job: ")  # experience of jobs if any, dont show if none, up to 3, title, employer, date started, date ended, location, description of what did
+                print("E. Education: ")  # 1 or more lines about education, school name, degree, year start, year end date
+                print("Z. Return to Previous Menu")
+                response = input("Enter option: ")
+                if response.upper() == 'A':
+                    major = input("Major: ").title()
+                elif response.upper() == 'B':
+                    university = input("University Name: ").title()
+                elif response.upper() == 'C':
+                    about = input("About: ")
+                elif response.upper() == 'D':
+                    if len(db.getProfileJobs(dbCursor, settings.signedInUname)) < 3:
+                        print("Add a new job.")
+                        title = input("Enter title: ")
+                        employer = input("Enter employer: ")
+                        date_start = input("Enter date started: ")
+                        date_end = input("Enter date ended: ")
+                        location = input("Enter location: ")
+                        job_desc = input("Enter job description: ")
+                        db.insertProfileJob(dbCursor, settings.signedInUname, title, employer, date_start, date_end, location, job_desc)
+                    else:
+                        print("Maximum number of jobs entered.")
+                elif response.upper() == 'E':
+                    print("Enter past education.")
+                    university_name = input("Enter university name: ").title()
+                    user_degree = input("Enter degree: ").title()
+                    year_start = input("Enter year started: ")
+                    year_end = input("Enter year ended: ")
+                    db.insertProfileEducation(dbCursor, settings.signedInUname, university_name, user_degree, year_start, year_end)
+                elif response.upper() == 'Z':
+                    settings.currentState = states.profilePage
+                    db.updateProfilePage(dbCursor, settings.signedInUname, major, university, about)
+                else:
+                    print("Invalid Option, enter the letter option you want and press enter")
+                    continue
+        elif response.upper() == 'Z':
+            settings.currentState = states.mainMenu
+            return False  # No links chosen
+        else:
+            print("Invalid Option, enter the letter option you want and press enter")
+            continue
+
+
+def printProfilePage(cursor, uname):
+    name = db.getUserByName(cursor, uname)
+    first = name[2]
+    last = name[3]
+    page = db.getProfilePage(cursor, uname)
+    major = page[1]
+    university = page[2]
+    about = page[3]
+    jobs = db.getProfileJobs(cursor, uname)
+    education = db.getProfileEducation(cursor, uname)
+
+    print(f"{first} {last}'s Profile Page")  # title
+    print(f"Major: {major}")  # major
+    print(f"University: {university}")  # uni name
+    print(f"About: \n{about}")  # paragraph of info about student
+    if jobs is None:
+        print("Career:")  # experience of jobs if any, dont show if none, up to 3, title, employer, date started, date ended, location, description of what did
+    else:
+        print("Career:")
+        for i in jobs:
+            title = i[2]
+            employer = i[3]
+            date_start = i[4]
+            date_end = i[5]
+            location = i[6]
+            job_desc = i[7]
+            print(title)
+            print(f"\tEmployer: {employer}")
+            print(f"\tDate: {date_start} - {date_end}")
+            print(f"\tLocation: {location}")
+            print(f"\tDescription: \n\t{job_desc}")
+    if education is None:
+        print("Education:")  # 1 or more lines about education, school name, degree, year start, year end date
+    else:
+        print("Education:")
+        for i in education:
+            university_name = i[2]
+            user_degree = i[3]
+            year_start = i[4]
+            year_end = i[5]
+            print(f"University: {university_name}")
+            print(f"\tDegree: {user_degree}")
+            print(f"\tYear: {year_start} - {year_end}")
+    return major, university, about

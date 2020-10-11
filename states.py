@@ -14,3 +14,6 @@ businessSolutions = 11
 directories = 12
 importantLinks = 13
 modifyUserSettings = 14
+profilePage = 15
+profilePageEdit = 16
+friendsMenu = 17

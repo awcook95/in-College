@@ -1,2 +1,6 @@
 __pychache__/
 *.py[cod]
+*.db
+venv/
+.idea/
+*.db-journal

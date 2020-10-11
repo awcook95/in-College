@@ -30,6 +30,7 @@ def createUser(dbCursor, connection):
 
     db.insertUser(dbCursor, uname, pword, fname, lname)
     db.insertUserSettings(dbCursor, uname, settings.emailNotif, settings.smsNotif, settings.targetAdvert, settings.language)
+    db.insertProfilePage(dbCursor, uname, "", "", "")
     connection.commit()  # commits the new account and settings to the database (ensures account and settings are saved)
 
     settings.currentState = states.loggedOut  # returns to incollege.py's main() w/ currentState = loggedOut
@@ -83,10 +84,18 @@ def findUser(dbCursor):
     last = name[1]
 
     result = db.getUserByFullName(dbCursor, first, last)
+
     # If the desired user is found successfully, return their data and jump to appropriate menu
     if result is not None:
         print("They are a part of the InCollege system!")
+        User = namedtuple('User', 'uname pword firstname lastname')
+        currentUser = User._make(result)
         if settings.signedIn:                         # if a user is signed in
+            if settings.signedInUname != currentUser.uname:
+                response = input("Would you like to add them as a friend? Enter 'Y' for yes: ")
+                if response.upper() == "Y":
+                    db.insertUserFriend(dbCursor, settings.signedInUname, currentUser.uname)
+
             settings.currentState = states.mainMenu   # returns to incollege.py's main() w/ currentState = mainMenu
             return True
         else:                                         # else a user is not signed in
@@ -102,7 +111,10 @@ def findUser(dbCursor):
             if response.upper() == "A":
                 break
             elif response.upper() == "B":
-                settings.currentState = states.loggedOut  # returns to incollege.py's main() w/ currentState = loggedOut
+                if settings.signedIn:
+                    settings.currentState = states.mainMenu
+                else:
+                    settings.currentState = states.loggedOut  # returns to incollege.py's main() w/ currentState = loggedOut
                 return False  # Didn't find user
             else:
                 print("Invalid input")
