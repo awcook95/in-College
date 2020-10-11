@@ -224,10 +224,10 @@ def testProfileAddFourJobs(monkeypatch, capfd):
         db.insertProfileJob(cursor, "uname", "title", "employer", "date_start", "date_end", "location", "job_description")
     settings.currentState = states.profilePage #settings needed for enterProfilePageMenu to work
     settings.signedInUname = "uname"
-    monkeypatch.setattr("sys.stdin", StringIO("a\nd\nz\n")) #navigate menu. pressing d tries to add a new job which should fail
+    monkeypatch.setattr("sys.stdin", StringIO("a\nd\nz\nz\n")) #navigate menu. pressing d tries to add a new job which should fail
     ui.enterProfilePageMenu(cursor)
     out, err = capfd.readouterr()
     assert out is not None
-    #assert len(db.getProfileJobs(cursor, settings.signedInUname)) == 3
-    #assert settings.currentState = states.mainMenu
+    assert len(db.getProfileJobs(cursor, settings.signedInUname)) == 3
+    assert settings.currentState == states.mainMenu
     
