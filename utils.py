@@ -1,3 +1,4 @@
+from collections import namedtuple
 import dbfunctions as db
 
 
@@ -24,3 +25,17 @@ def printUserFriends(dbCursor, uname):
         return friends
     else:
         return None
+
+def checkExistingFriendRequest(dbCursor, sender, reciever):
+    requests = db.getUserFriendRequests(dbCursor, reciever)
+    exists = False
+    if requests:
+        for r in requests:
+            Request = namedtuple('Request', 'relation_id sender_uname reciever_uname')
+            f = Request._make(r)
+            # Found matching request, shouldn't create a duplicate
+            if f.sender_uname == sender and f.reciever_uname == reciever:
+                exists = True
+
+    return exists 
+

@@ -36,7 +36,7 @@ def main(dbCursor, dbConnection):
             ui.enterSkillMenu()
             
         if settings.currentState == states.userSearch:
-            users.findUser(dbCursor)
+            users.findUser(dbCursor, dbConnection)
                   
         if settings.currentState == states.createJob:
             users.postJob(dbCursor)

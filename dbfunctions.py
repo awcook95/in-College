@@ -38,6 +38,14 @@ def initTables(cursor):
         FOREIGN KEY(uname) REFERENCES users(uname)
         )""")
 
+    cursor.execute(""" CREATE TABLE IF NOT EXISTS
+    friend_requests(
+        relation_id INTEGER IDENTITY PRIMARY KEY,
+        sender_uname TEXT,
+        reciever_uname TEXT,
+        FOREIGN KEY (sender_uname) REFERENCES users(uname)
+    )""")
+
     cursor.execute("""CREATE TABLE IF NOT EXISTS
     profile_page(
         uname TEXT PRIMARY KEY,
@@ -111,8 +119,8 @@ def updateProfilePage(cursor, uname, major, university, about):
     cursor.execute("UPDATE profile_page SET major=?, university=?, about=? WHERE uname=?", [major, university, about, uname])
 
 
-def getUserByFullName(cursor, first, last):
-    cursor.execute("SELECT * FROM users WHERE firstname=? AND lastname=? LIMIT 1", [first, last])
+def getUserByFullName(cursor, first, last): # Modified to ignore case
+    cursor.execute("SELECT * FROM users WHERE UPPER(firstname)=? AND UPPER(lastname)=? LIMIT 1", [first.upper(), last.upper()])
     return cursor.fetchone()
 
 
@@ -184,3 +192,10 @@ def getUserFriendsByName(cursor, uname):
 
 def insertUserFriend(cursor, uname, friend_uname):
     cursor.execute("INSERT INTO user_friends VALUES (?, ?, ?)", [None, uname, friend_uname])
+
+def insertFriendRequest(cursor, sender_name, reciever_name):
+    cursor.execute("INSERT INTO friend_requests VALUES (?, ?, ?)", [None, sender_name, reciever_name])
+
+def getUserFriendRequests(cursor, reciever_name):
+    cursor.execute("SELECT * FROM friend_requests WHERE UPPER(reciever_uname)=?", [reciever_name.upper()])
+    return cursor.fetchall()
