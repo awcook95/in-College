@@ -26,6 +26,8 @@ def printUserFriends(dbCursor, uname):
     else:
         return None
 
+# Searches through existing friend requests to determine if the one you are attempting to send 
+# has already been sent, to avoid duplicate records
 def checkExistingFriendRequest(dbCursor, sender, reciever):
     requests = db.getUserFriendRequests(dbCursor, reciever)
     exists = False
