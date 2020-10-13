@@ -163,17 +163,20 @@ def testValidJobPost(monkeypatch):
     out = db.getJobByTitle(cursor, "Title")  # Confirms that job has been added into DB correctly
     assert out is not None
 
+    
 def testUsefulLinks(monkeypatch):
     monkeypatch.setattr("sys.stdin", StringIO("e\n"))
     settings.currentState = states.mainMenu
     ui.enterMainMenu()
     assert settings.currentState == states.usefulLinks
+    
 
 def testImportantLinks(monkeypatch):
     monkeypatch.setattr("sys.stdin", StringIO("f\n"))
     settings.currentState = states.mainMenu
     ui.enterMainMenu()
     assert settings.currentState == states.importantLinks
+    
 
 def testInsertUserSettings():
     connection = sqlite3.connect("incollege_test.db")
@@ -181,6 +184,7 @@ def testInsertUserSettings():
     db.initTables(cursor)
     db.insertUserSettings(cursor, "testname", 1, 1, 1, "testlanguage")
     assert db.getUserSettingsByName(cursor, "testname") is not None
+    
 
 def testUpdateUserSettings():
     connection = sqlite3.connect("incollege_test.db")
@@ -191,6 +195,7 @@ def testUpdateUserSettings():
     userSetting = namedtuple('User', 'uname emailnotif smsnotif targetadvert languagepref')
     currentUser = userSetting._make(db.getUserSettingsByName(cursor, "testname"))
     assert currentUser.emailnotif == 0
+    
 
 def testUpdateUserLanguage():
     connection = sqlite3.connect("incollege_test.db")
@@ -201,6 +206,7 @@ def testUpdateUserLanguage():
     userSetting = namedtuple('User', 'uname emailnotif smsnotif targetadvert languagepref')
     currentUser = userSetting._make(db.getUserSettingsByName(cursor, "testname"))
     assert currentUser.languagepref == "testlanguage2"
+    
 
 def testCreateStudentProfile():
     connection = sqlite3.connect("incollege_test.db")
@@ -212,6 +218,7 @@ def testCreateStudentProfile():
     assert db.getProfilePage(cursor, "uname") is not None
     assert db.getProfileJobs(cursor, "uname") is not None
     assert db.getProfileEducation(cursor, "uname") is not None
+    
 
 def testProfileAddFourJobs(monkeypatch, capfd):
     connection = sqlite3.connect("incollege_test.db")
@@ -231,3 +238,25 @@ def testProfileAddFourJobs(monkeypatch, capfd):
     assert len(db.getProfileJobs(cursor, settings.signedInUname)) == 3
     assert settings.currentState == states.mainMenu
     
+
+def testAddFriend():
+    connection = sqlite3.connect("incollege_test.db")
+    cursor = connection.cursor()
+    db.initTables(cursor)
+    db.insertUserFriend(cursor, "uname", "friend_uname")
+    assert db.getUserFriendsByName(cursor, "uname") is not None
+    
+    
+def testViewFriendList(monkeypatch, capfd):
+    connection = sqlite3.connect("incollege_test.db")
+    cursor = connection.cursor()
+    db.initTables(cursor)
+    db.insertUserFriend(cursor, "uname", "friend_uname")
+    settings.currentState = states.friendsMenu
+    settings.signedInUname = "uname"
+    monkeypatch.setattr("sys.stdin", StringIO("Z\n"))
+    ui.enterFriendsMenu(cursor)
+    out, err = capfd.readouterr()
+    assert out is not None
+    assert settings.currentState == states.mainMenu
+    assert getUserFriendsByName(cursor, "uname") is not None
