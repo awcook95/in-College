@@ -30,7 +30,7 @@ def main(dbCursor, dbConnection):
             users.createUser(dbCursor, dbConnection)
 
         if settings.currentState == states.mainMenu:
-            ui.enterMainMenu()
+            ui.enterMainMenu(dbCursor)
 
         if settings.currentState == states.selectSkill:
             ui.enterSkillMenu()

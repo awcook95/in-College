@@ -62,7 +62,7 @@ def loginUser(dbCursor):
     settings.signedIn = True                 # flags that a user is now signed in
     settings.currentState = states.mainMenu  # returns to incollege.py's main() w/ currentState = mainMenu
 
-    print("You have successfully logged in.")
+    print("You have successfully logged in.\n")
 
 
 def logOutUser():
@@ -102,7 +102,7 @@ def findUser(dbCursor, connection):
                 if response.upper() == "Y":
                     # Send request if there is no pending request
                     if not utils.checkExistingFriendRequest(dbCursor, settings.signedInUname, reciever.uname):
-                        print("Sending friend request! They will need to accept before they appear in your friends list!")
+                        print("Sending friend request! They will need to accept before they appear in your friends list!\n")
                         db.insertFriendRequest(dbCursor, settings.signedInUname, reciever.uname)
                         connection.commit()
                     else: 

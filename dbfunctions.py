@@ -40,7 +40,6 @@ def initTables(cursor):
 
     cursor.execute(""" CREATE TABLE IF NOT EXISTS
     friend_requests(
-        relation_id INTEGER IDENTITY PRIMARY KEY,
         sender_uname TEXT,
         reciever_uname TEXT,
         FOREIGN KEY (sender_uname) REFERENCES users(uname)
@@ -194,7 +193,7 @@ def insertUserFriend(cursor, uname, friend_uname):
     cursor.execute("INSERT INTO user_friends VALUES (?, ?, ?)", [None, uname, friend_uname])
 
 def insertFriendRequest(cursor, sender_name, reciever_name):
-    cursor.execute("INSERT INTO friend_requests VALUES (?, ?, ?)", [None, sender_name, reciever_name])
+    cursor.execute("INSERT INTO friend_requests VALUES ( ?, ?)", [sender_name, reciever_name])
 
 def getUserFriendRequests(cursor, reciever_name):
     cursor.execute("SELECT * FROM friend_requests WHERE UPPER(reciever_uname)=?", [reciever_name.upper()])
