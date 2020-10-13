@@ -259,4 +259,4 @@ def testViewFriendList(monkeypatch, capfd):
     out, err = capfd.readouterr()
     assert out is not None
     assert settings.currentState == states.mainMenu
-    assert getUserFriendsByName(cursor, "uname") is not None
+    assert db.getUserFriendsByName(cursor, "uname") is not None
