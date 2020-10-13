@@ -202,4 +202,32 @@ def testUpdateUserLanguage():
     currentUser = userSetting._make(db.getUserSettingsByName(cursor, "testname"))
     assert currentUser.languagepref == "testlanguage2"
 
+def testCreateStudentProfile():
+    connection = sqlite3.connect("incollege_test.db")
+    cursor = connection.cursor()
+    db.initTables(cursor)
+    db.insertProfilePage(cursor, "uname", "major", "university", "about")
+    db.insertProfileEducation(cursor, "uname", "university_name", "user_degree", "2016", "2020")
+    db.insertProfileJob(cursor, "uname", "title", "employer", "date_start", "date_end", "location", "job_description")
+    assert db.getProfilePage(cursor, "uname") is not None
+    assert db.getProfileJobs(cursor, "uname") is not None
+    assert db.getProfileEducation(cursor, "uname") is not None
 
+def testProfileAddFourJobs(monkeypatch, capfd):
+    connection = sqlite3.connect("incollege_test.db")
+    cursor = connection.cursor()
+    cursor.execute("DROP TABLE IF EXISTS profile_jobs")
+    db.initTables(cursor)
+    db.insertUser(cursor, "uname", "password", "first", "last")
+    db.insertProfilePage(cursor, "uname", "major", "university", "about")
+    for _ in range(3): #add 3 jobs
+        db.insertProfileJob(cursor, "uname", "title", "employer", "date_start", "date_end", "location", "job_description")
+    settings.currentState = states.profilePage #settings needed for enterProfilePageMenu to work
+    settings.signedInUname = "uname"
+    monkeypatch.setattr("sys.stdin", StringIO("a\nd\nz\nz\n")) #navigate menu. pressing d tries to add a new job which should fail
+    ui.enterProfilePageMenu(cursor)
+    out, err = capfd.readouterr()
+    assert out is not None
+    assert len(db.getProfileJobs(cursor, settings.signedInUname)) == 3
+    assert settings.currentState == states.mainMenu
+    
