@@ -41,14 +41,17 @@ def enterInitialMenu():
             print("Invalid Option, enter the letter option you want and press enter")
 
 
-def enterMainMenu(dbCursor):  # presents the user with an introductory menu if logged in
+def enterMainMenu(dbCursor, dbConnection):  # presents the user with an introductory menu if logged in
     while settings.currentState == states.mainMenu:  # change from currentState = mainMenu will result in return to incollege.py's main()
         
         # Check for any pending friend requests
+        response = db.getUserFriendsByName(dbCursor, settings.signedInUname)
+        print(len(response))
+
         if len(db.getUserFriendRequests(dbCursor, settings.signedInUname)) > 0:
             response = input("You have pending friend requests! Enter 'Y' to view them: ")
             if(response.upper() == 'Y'):
-                utils.printUserFriendRequests(dbCursor, settings.signedInUname)
+                utils.handleUserFriendRequests(dbCursor, dbConnection, settings.signedInUname)
 
         print("Options:\n"
               "A. Search for a job/internship\n"

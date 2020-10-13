@@ -1,5 +1,6 @@
 from collections import namedtuple
 import dbfunctions as db
+import settings
 
 
 def validatePassword(password):
@@ -26,13 +27,25 @@ def printUserFriends(dbCursor, uname):
     else:
         return None
 
-def printUserFriendRequests(dbCursor, reciever):
+def handleUserFriendRequests(dbCursor, dbConnection, reciever):
     requests = db.getUserFriendRequests(dbCursor, reciever)
     if len(requests) > 0: 
-        count = 1
         for r in requests: 
-            print("Request from: " + r[0] )
-            count += 1
+            print("Request from: " + r[0] + "\n" )
+            response = input("Would you like to Accept (A) or Ignore (I): ")
+            while(response.upper() != 'A' and response != 'I'):
+                if(response.upper() == 'A'):
+                    # To accept will add friend relation to both users
+                    db.insertUserFriend(dbCursor, settings.signedInUname, r[0])
+                    db.insertUserFriend(dbCursor, r[0], settings.signedInUname)
+                    dbConnection.commit()
+                    print("here")
+                elif(response.upper() == 'I'):
+                    continue
+                else: 
+                    print("Invalid input: enter either A to accept or I to ignore")
+                    response = input("Would you like to Accept (A) or Ignore (I): ")
+
         return requests
     else: 
         return None

@@ -185,7 +185,7 @@ def readUsers(cursor):
 
 
 def getUserFriendsByName(cursor, uname):
-    cursor.execute("SELECT friend_uname FROM user_friends WHERE uname=?", [uname])
+    cursor.execute("SELECT friend_uname FROM user_friends WHERE UPPER(uname)=?", [uname.upper()])
     return cursor.fetchall()
 
 
@@ -193,7 +193,7 @@ def insertUserFriend(cursor, uname, friend_uname):
     cursor.execute("INSERT INTO user_friends VALUES (?, ?, ?)", [None, uname, friend_uname])
 
 def insertFriendRequest(cursor, sender_name, reciever_name):
-    cursor.execute("INSERT INTO friend_requests VALUES ( ?, ?)", [sender_name, reciever_name])
+    cursor.execute("INSERT INTO friend_requests VALUES (?, ?)", [sender_name, reciever_name])
 
 def getUserFriendRequests(cursor, reciever_name):
     cursor.execute("SELECT * FROM friend_requests WHERE UPPER(reciever_uname)=?", [reciever_name.upper()])
