@@ -45,10 +45,9 @@ def enterMainMenu(dbCursor, dbConnection):  # presents the user with an introduc
     while settings.currentState == states.mainMenu:  # change from currentState = mainMenu will result in return to incollege.py's main()
         
         # Check for any pending friend requests
-        response = db.getUserFriendsByName(dbCursor, settings.signedInUname)
-        print(len(response))
+        response = db.getUserFriendRequests(dbCursor, settings.signedInUname)
 
-        if len(db.getUserFriendRequests(dbCursor, settings.signedInUname)) > 0:
+        if len(response) > 0:
             response = input("You have pending friend requests! Enter 'Y' to view them: ")
             if(response.upper() == 'Y'):
                 utils.handleUserFriendRequests(dbCursor, dbConnection, settings.signedInUname)

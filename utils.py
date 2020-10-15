@@ -28,20 +28,23 @@ def printUserFriends(dbCursor, uname):
         return None
 
 def handleUserFriendRequests(dbCursor, dbConnection, reciever):
-    requests = db.getUserFriendRequests(dbCursor, reciever)
+    requests = db.getUserFriendRequests(dbCursor, reciever) # Check for pending request
+
     if len(requests) > 0: 
         for r in requests: 
             print("Request from: " + r[0] + "\n" )
             response = input("Would you like to Accept (A) or Ignore (I): ")
-            while(response.upper() != 'A' and response != 'I'):
+            while(response.upper() != 'A' or response != 'I'):
                 if(response.upper() == 'A'):
                     # To accept will add friend relation to both users
                     db.insertUserFriend(dbCursor, settings.signedInUname, r[0])
                     db.insertUserFriend(dbCursor, r[0], settings.signedInUname)
+                    # Delete existing request and commit changes
+                    db.deleteFriendRequest(dbCursor, r[0], settings.signedInUname)
                     dbConnection.commit()
-                    print("here")
+                    break
                 elif(response.upper() == 'I'):
-                    continue
+                    break
                 else: 
                     print("Invalid input: enter either A to accept or I to ignore")
                     response = input("Would you like to Accept (A) or Ignore (I): ")
@@ -55,9 +58,9 @@ def handleUserFriendRequests(dbCursor, dbConnection, reciever):
 def checkExistingFriendRequest(dbCursor, sender, reciever):
     requests = db.getUserFriendRequests(dbCursor, reciever)
     exists = False
-    if requests:
+    if len(requests) > 0:
         for r in requests:
-            Request = namedtuple('Request', 'relation_id sender_uname reciever_uname')
+            Request = namedtuple('Request', 'sender_uname reciever_uname')
             f = Request._make(r)
             # Found matching request, shouldn't create a duplicate
             if f.sender_uname == sender and f.reciever_uname == reciever:
