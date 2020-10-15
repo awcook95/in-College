@@ -60,6 +60,7 @@ def enterMainMenu(dbCursor, dbConnection):  # presents the user with an introduc
         print("E. InCollege Useful Links")
         print("F. InCollege Important Links")
         print("G. View Friends")
+        # print("H. View pending friend requests")
         print("H. Student Profile")
         print("Z. Logout")
 

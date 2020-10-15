@@ -44,6 +44,7 @@ def handleUserFriendRequests(dbCursor, dbConnection, reciever):
                     dbConnection.commit()
                     break
                 elif(response.upper() == 'I'):
+                    # Should also delete friend request
                     break
                 else: 
                     print("Invalid input: enter either A to accept or I to ignore")

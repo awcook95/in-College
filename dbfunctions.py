@@ -192,7 +192,6 @@ def checkUserFriendRelation(cursor, name, friend):
     cursor.execute("SELECT COUNT(*) FROM user_friends WHERE UPPER(uname)=? AND UPPER(friend_uname)=?", [name.upper(), friend.upper()])
     test = cursor.fetchone()
     return test[0] == 1
-    
 
 def insertUserFriend(cursor, uname, friend_uname):
     cursor.execute("INSERT INTO user_friends VALUES (?, ?, ?)", [None, uname, friend_uname])
