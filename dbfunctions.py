@@ -40,7 +40,6 @@ def initTables(cursor):
 
     cursor.execute(""" CREATE TABLE IF NOT EXISTS
     friend_requests(
-        relation_id INTEGER IDENTITY PRIMARY KEY,
         sender_uname TEXT,
         reciever_uname TEXT,
         FOREIGN KEY (sender_uname) REFERENCES users(uname)
@@ -186,15 +185,22 @@ def readUsers(cursor):
 
 
 def getUserFriendsByName(cursor, uname):
-    cursor.execute("SELECT friend_uname FROM user_friends WHERE uname=?", [uname])
+    cursor.execute("SELECT friend_uname FROM user_friends WHERE UPPER(uname)=?", [uname.upper()])
     return cursor.fetchall()
 
+def checkUserFriendRelation(cursor, name, friend):
+    cursor.execute("SELECT COUNT(*) FROM user_friends WHERE UPPER(uname)=? AND UPPER(friend_uname)=?", [name.upper(), friend.upper()])
+    test = cursor.fetchone()
+    return test[0] == 1
 
 def insertUserFriend(cursor, uname, friend_uname):
     cursor.execute("INSERT INTO user_friends VALUES (?, ?, ?)", [None, uname, friend_uname])
 
 def insertFriendRequest(cursor, sender_name, reciever_name):
-    cursor.execute("INSERT INTO friend_requests VALUES (?, ?, ?)", [None, sender_name, reciever_name])
+    cursor.execute("INSERT INTO friend_requests VALUES (?, ?)", [sender_name, reciever_name])
+
+def deleteFriendRequest(cursor, sender, reciever):
+    cursor.execute("DELETE FROM friend_requests WHERE UPPER(sender_uname)=? AND UPPER(reciever_uname)=? ", [sender.upper(), reciever.upper()])
 
 def getUserFriendRequests(cursor, reciever_name):
     cursor.execute("SELECT * FROM friend_requests WHERE UPPER(reciever_uname)=?", [reciever_name.upper()])

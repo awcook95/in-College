@@ -62,7 +62,7 @@ def loginUser(dbCursor):
     settings.signedIn = True                 # flags that a user is now signed in
     settings.currentState = states.mainMenu  # returns to incollege.py's main() w/ currentState = mainMenu
 
-    print("You have successfully logged in.")
+    print("You have successfully logged in.\n")
 
 
 def logOutUser():
@@ -92,17 +92,27 @@ def findUser(dbCursor, connection):
 
     # If the desired user is found successfully, return their data and jump to appropriate menu
     if result is not None:
-        print("They are a part of the InCollege system!")
         User = namedtuple('User', 'uname pword firstname lastname')
         reciever = User._make(result)
 
+        friend_exists = db.checkUserFriendRelation(dbCursor, settings.signedInUname, reciever.uname)
+
+        # If this person is already your friend,return  
+        if friend_exists:
+            print(reciever.uname + " is already your friend!")
+            settings.currentState = states.mainMenu   # returns to incollege.py's main() w/ currentState = mainMenu
+            return True
+        
+        print("They are a part of the InCollege system!")
         if settings.signedIn:         # if a user is signed in
             if settings.signedInUname != reciever.uname: # Person you are requesting is not yourself
                 response = input("Would you like to add them as a friend? Enter 'Y' for yes: ")
+                request_exists = utils.checkExistingFriendRequest(dbCursor, settings.signedInUname, reciever.uname)
+                
                 if response.upper() == "Y":
                     # Send request if there is no pending request
-                    if not utils.checkExistingFriendRequest(dbCursor, settings.signedInUname, reciever.uname):
-                        print("Sending friend request! They will need to accept before they appear in your friends list!")
+                    if not request_exists:
+                        print("Sending friend request! They will need to accept before they appear in your friends list!\n")
                         db.insertFriendRequest(dbCursor, settings.signedInUname, reciever.uname)
                         connection.commit()
                     else: 
