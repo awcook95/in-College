@@ -196,6 +196,9 @@ def checkUserFriendRelation(cursor, name, friend):
 def insertUserFriend(cursor, uname, friend_uname):
     cursor.execute("INSERT INTO user_friends VALUES (?, ?, ?)", [None, uname, friend_uname])
 
+def deleteUserFriend(cursor, uname, friend_uname):
+    cursor.execute("DELETE FROM user_friends WHERE UPPER(uname)=? AND UPPER(friend_uname)=?", [uname.upper(), friend_uname.upper()])
+
 def insertFriendRequest(cursor, sender_name, reciever_name):
     cursor.execute("INSERT INTO friend_requests VALUES (?, ?)", [sender_name, reciever_name])
 

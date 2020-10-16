@@ -63,10 +63,10 @@ def main(dbCursor, dbConnection):
             users.changeUserSettings(dbCursor, dbConnection)
 
         if settings.currentState == states.friendsMenu:
-            ui.enterFriendsMenu(dbCursor)
+            ui.enterFriendsMenu(dbCursor, dbConnection)
 
         if settings.currentState == states.profilePage:
-            ui.enterProfilePageMenu(dbCursor)
+            ui.enterProfilePageMenu(dbCursor, dbConnection)
 
     print("Ending Program")
 

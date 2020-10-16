@@ -33,7 +33,7 @@ def handleUserFriendRequests(dbCursor, dbConnection, reciever):
     if len(requests) > 0: 
         for r in requests: 
             print("Request from: " + r[0] + "\n" )
-            response = input("Would you like to Accept (A) or Ignore (I): ")
+            response = input("Would you like to Accept (A), Ignore (I) or Return to previous menu (Z): ")
             while(response.upper() != 'A' or response != 'I'):
                 if(response.upper() == 'A'):
                     # To accept will add friend relation to both users
@@ -48,12 +48,15 @@ def handleUserFriendRequests(dbCursor, dbConnection, reciever):
                     db.deleteFriendRequest(dbCursor, r[0], settings.signedInUname)
                     dbConnection.commit()
                     break
+                elif(response.upper() == 'Z'):
+                    return None
                 else: 
-                    print("Invalid input: enter either A to accept or I to ignore")
-                    response = input("Would you like to Accept (A) or Ignore (I): ")
+                    print("Invalid input: enter either A to accept , I to ignore or Z to return to previous menu")
+                    response = input("Would you like to Accept (A), Ignore (I) or Return (Z): ")
 
         return requests
-    else: 
+    else:
+        print("You have no incoming friend requests")
         return None
 
 # Searches through existing friend requests to determine if the one you are attempting to send 

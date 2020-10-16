@@ -22,7 +22,7 @@ def enterInitialMenu():
         print("E. InCollege Useful Links")
         print("F. InCollege Important Links")
         print("Z. Quit")
-        response = input()
+        response = input("Input: ")
         if response.upper() == "A":
             settings.currentState = states.login          # returns to incollege.py's main() w/ currentState = login
         elif response.upper() == "B":
@@ -47,10 +47,7 @@ def enterMainMenu(dbCursor, dbConnection):  # presents the user with an introduc
         # Check for any pending friend requests
         response = db.getUserFriendRequests(dbCursor, settings.signedInUname)
 
-        if len(response) > 0:
-            response = input("You have pending friend requests! Enter 'Y' to view them: ")
-            if(response.upper() == 'Y'):
-                utils.handleUserFriendRequests(dbCursor, dbConnection, settings.signedInUname)
+
 
         print("Options:\n"
               "A. Search for a job/internship\n"
@@ -64,7 +61,14 @@ def enterMainMenu(dbCursor, dbConnection):  # presents the user with an introduc
         print("H. Student Profile")
         print("Z. Logout")
 
-        response = input()
+
+        if len(response) > 0:
+            response = input("You have pending friend requests! Enter 'Y' to view them\nInput: ")
+            if(response.upper() == 'Y'):
+                utils.handleUserFriendRequests(dbCursor, dbConnection, settings.signedInUname)
+                continue
+        else:
+            response = input("Input: ")
         if response.upper() == "A":
             print("Under Construction")
         elif response.upper() == "B":
@@ -124,19 +128,36 @@ def enterSkillMenu():
             continue
 
 
-def enterFriendsMenu(dbCursor):
+def enterFriendsMenu(dbCursor, dbConnection):
     while settings.currentState == states.friendsMenu:
         print()
         friends = utils.printUserFriends(dbCursor, settings.signedInUname)
         if friends is None:
             print("No friends found. Add friends to view them here!")
-            settings.currentState = states.mainMenu
-            return
+            # settings.currentState = states.mainMenu
+            # return
 
+        friend_requests = db.getUserFriendRequests(dbCursor, settings.signedInUname)
+        if len(friend_requests) > 0:
+            print("You have pending friend requests!")
+        print("A. Delete a Friend")
+        print("B. View Friend Requests")
         print("Z. Return to Previous Menu")
-        response = input("Choose a friend to view their profile or 'Z' to return to previous menu: ")
+        response = input("Choose a friend to view their profile or enter another option: ")
         if response.isdigit() and int(response) <= len(friends):
             printProfilePage(dbCursor, (friends[int(response) - 1])[0])
+        elif response.upper() == "A":
+            if friends is None:
+                print("No friends found.")
+            else:
+                response = input("Choose a friend you want to delete from your friends list or 'Z' to return to previous menu: ")
+                # if response.isdigit() and int(response) <= len(friends):
+                db.deleteUserFriend(dbCursor, settings.signedInUname, (friends[int(response) - 1])[0])
+                db.deleteUserFriend(dbCursor, (friends[int(response) - 1])[0], settings.signedInUname)
+                dbConnection.commit()
+        elif response.upper() == "B":
+            utils.handleUserFriendRequests(dbCursor, dbConnection, settings.signedInUname)
+            dbConnection.commit()
         elif response.upper() == "Z":
             settings.currentState = states.mainMenu
         else:
@@ -316,7 +337,7 @@ def enterImportantLinksMenu(dbCursor, connection):
             print("Invalid Option, enter the letter option you want and press enter")
 
 
-def enterProfilePageMenu(dbCursor):
+def enterProfilePageMenu(dbCursor, dbConnection):
     while settings.currentState == states.profilePage:
         major, university, about = printProfilePage(dbCursor, settings.signedInUname)
         print("A. Edit Profile Page")
@@ -361,6 +382,7 @@ def enterProfilePageMenu(dbCursor):
                 elif response.upper() == 'Z':
                     settings.currentState = states.profilePage
                     db.updateProfilePage(dbCursor, settings.signedInUname, major, university, about)
+                    dbConnection.commit()
                 else:
                     print("Invalid Option, enter the letter option you want and press enter")
                     continue

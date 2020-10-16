@@ -9,7 +9,7 @@ import utils
 def createUser(dbCursor, connection):
     # todo: possibly add exit option in case user wants to cancel account creation
 
-    if db.getNumUsers(dbCursor) >= 5:  # checks if number of accounts in database is at max limit
+    if db.getNumUsers(dbCursor) >= 10:  # checks if number of accounts in database is at max limit
         print("All permitted accounts have been created, please come back later")
         settings.currentState = states.loggedOut  # returns to incollege.py's main() w/ currentState = loggedOut
         return
@@ -88,35 +88,35 @@ def findUser(dbCursor, connection):
     first = name[0]
     last = name[1]
 
-    result = db.getUserByFullName(dbCursor, first, last) # Find reciever for friend request
+    result = db.getUserByFullName(dbCursor, first, last) # Find receiver for friend request
 
     # If the desired user is found successfully, return their data and jump to appropriate menu
     if result is not None:
         User = namedtuple('User', 'uname pword firstname lastname')
-        reciever = User._make(result)
+        receiver = User._make(result)
 
-        friend_exists = db.checkUserFriendRelation(dbCursor, settings.signedInUname, reciever.uname)
+        friend_exists = db.checkUserFriendRelation(dbCursor, settings.signedInUname, receiver.uname)
 
         # If this person is already your friend,return  
         if friend_exists:
-            print(reciever.uname + " is already your friend!")
+            print(receiver.uname + " is already your friend!")
             settings.currentState = states.mainMenu   # returns to incollege.py's main() w/ currentState = mainMenu
             return True
         
         print("They are a part of the InCollege system!")
         if settings.signedIn:         # if a user is signed in
-            if settings.signedInUname != reciever.uname: # Person you are requesting is not yourself
+            if settings.signedInUname != receiver.uname: # Person you are requesting is not yourself
                 response = input("Would you like to add them as a friend? Enter 'Y' for yes: ")
-                request_exists = utils.checkExistingFriendRequest(dbCursor, settings.signedInUname, reciever.uname)
+                request_exists = utils.checkExistingFriendRequest(dbCursor, settings.signedInUname, receiver.uname)
                 
                 if response.upper() == "Y":
                     # Send request if there is no pending request
                     if not request_exists:
                         print("Sending friend request! They will need to accept before they appear in your friends list!\n")
-                        db.insertFriendRequest(dbCursor, settings.signedInUname, reciever.uname)
+                        db.insertFriendRequest(dbCursor, settings.signedInUname, receiver.uname)
                         connection.commit()
                     else: 
-                        print(reciever.uname + " has already been sent a request! They will show up in your friends list once they accept!")
+                        print(receiver.uname + " has already been sent a request! They will show up in your friends list once they accept!")
             
             settings.currentState = states.mainMenu   # returns to incollege.py's main() w/ currentState = mainMenu
             return True
