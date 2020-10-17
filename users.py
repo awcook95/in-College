@@ -109,17 +109,16 @@ def findUser(dbCursor, connection):
                 while settings.currentState == states.userSearch:
                     response = input("Choose a person you might know: ")
                     if response.isdigit() and int(response) <= len(users_found):
-                        result = db.getUserByFullName(dbCursor, (users_found[int(response) - 1])[2], (users_found[int(response) - 1])[3])
-                        # result = (users_found[int(response) - 1])[0]
-                        # name = db.getUserByName(dbCursor, u[0])
-                        # print(f"{count}. {name[2]} {name[3]}")
+                        first_name = (users_found[int(response) - 1])[2]            # parse first name from user object
+                        last_name = (users_found[int(response) - 1])[3]             # parse last name from user object
+                        result = db.getUserByFullName(dbCursor, first_name, last_name)
                         break
                     else:
                         print("Invalid input, try again.")
             break
         elif response.upper() == 'C':
             university = input("Enter the University of the person you might know goes to: ")
-            users_found = utils.printUsersFoundUniversity(dbCursor, university)
+            users_found = utils.printUsersFoundParameter(dbCursor, university, 0)
             if users_found is None:
                 print("No users found under that criteria.")
                 result = None
@@ -127,8 +126,7 @@ def findUser(dbCursor, connection):
                 while settings.currentState == states.userSearch:
                     response = input("Choose a person you might know: ")
                     if response.isdigit() and int(response) <= len(users_found):
-                        # result = (users_found[int(response) - 1])[0]
-                        name = db.getUserByName(dbCursor, (users_found[int(response) - 1])[0])
+                        name = db.getUserByName(dbCursor, (users_found[int(response) - 1])[0])  # parses first and last name from user object
                         result = db.getUserByFullName(dbCursor, name[2], name[3])
                         break
                     else:
@@ -136,7 +134,7 @@ def findUser(dbCursor, connection):
             break
         elif response.upper() == 'D':
             major = input("Enter the major of the person you might know has: ")
-            users_found = utils.printUsersFoundMajor(dbCursor, major)
+            users_found = utils.printUsersFoundParameter(dbCursor, major, 1)
             if users_found is None:
                 print("No users found under that criteria.")
                 result = None
@@ -144,8 +142,7 @@ def findUser(dbCursor, connection):
                 while settings.currentState == states.userSearch:
                     response = input("Choose a person you might know: ")
                     if response.isdigit() and int(response) <= len(users_found):
-                        # result = (users_found[int(response) - 1])[0]
-                        name = db.getUserByName(dbCursor, (users_found[int(response) - 1])[0])
+                        name = db.getUserByName(dbCursor, (users_found[int(response) - 1])[0])  # parses first and last name from user object
                         result = db.getUserByFullName(dbCursor, name[2], name[3])
                         break
                     else:

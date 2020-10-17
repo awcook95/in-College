@@ -126,13 +126,11 @@ def getUsersByLastName(cursor, last):
     cursor.execute("SELECT * FROM users WHERE UPPER(lastname)=?", [last.upper()])
     return cursor.fetchall()
 
-def getUsersByMajor(cursor, major):
-    cursor.execute("SELECT * FROM profile_page WHERE UPPER(major)=?", [major.upper()])
+def getUsersByParameter(cursor, param_string):
+    query = "SELECT * FROM profile_page WHERE " + param_string
+    cursor.execute(query)
     return cursor.fetchall()
 
-def getUsersbyUniversity(cursor, university):
-    cursor.execute("SELECT * FROM profile_page WHERE UPPER(university)=?", [university.upper()])
-    return cursor.fetchall()
 
 def insertJob(cursor, title, desc, emp, loc, sal, author):
     cursor.execute("INSERT INTO jobs VALUES (?, ?, ?, ?, ?, ?, ?)", [None, title, desc, emp, loc, sal, author])

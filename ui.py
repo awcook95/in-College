@@ -134,8 +134,6 @@ def enterFriendsMenu(dbCursor, dbConnection):
         friends = utils.printUserFriends(dbCursor, settings.signedInUname)
         if friends is None:
             print("No friends found. Add friends to view them here!")
-            # settings.currentState = states.mainMenu
-            # return
 
         friend_requests = db.getUserFriendRequests(dbCursor, settings.signedInUname)
         if len(friend_requests) > 0:

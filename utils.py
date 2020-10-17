@@ -40,8 +40,13 @@ def printUsersFoundLastName(dbCursor, lastname):
     else:
         return None
 
-def printUsersFoundUniversity(dbCursor, university):
-    users = db.getUsersbyUniversity(dbCursor, university)
+# Search by University or Major
+def printUsersFoundParameter(dbCursor, param, param_type):
+    if param_type == 0: #Search by University
+        param_string = "UPPER(university)= '" + param.upper() + "'"
+    elif param_type == 1: #Search by Major
+        param_string = "UPPER(major)= '" + param.upper() + "'"
+    users = db.getUsersByParameter(dbCursor, param_string)
     if users:
         count = 1
         for u in users:
@@ -52,17 +57,6 @@ def printUsersFoundUniversity(dbCursor, university):
     else:
         return None
 
-def printUsersFoundMajor(dbCursor, major):
-    users = db.getUsersbyMajor(dbCursor, major)
-    if users:
-        count = 1
-        for u in users:
-            name = db.getUserByName(dbCursor, u[0])
-            print(f"{count}. {name[2]} {name[3]}")
-            count += 1
-        return users
-    else:
-        return None
 
 def handleUserFriendRequests(dbCursor, dbConnection, reciever):
     requests = db.getUserFriendRequests(dbCursor, reciever) # Check for pending request
