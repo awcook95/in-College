@@ -74,34 +74,104 @@ def logOutUser():
 
 
 def findUser(dbCursor, connection):
-    # Added the user prompt for searched person within this function
-    name = input("Enter the name of a person you know: ").split(" ")
-    
-    # If the user enters an extra spaces at the end of first or last name they will be removed 
-    while("" in name):
-        name.remove("")
+    while settings.currentState == states.userSearch:
+        # Added the user prompt for searched person within this function
+        print("Which search term do you want to find users by?")
+        print("A. By Full Name")
+        print("B. By Last Name")
+        print("C. By University")
+        print("D. By Major")
+        print("Z. Return to the previous menu")
+        response = input("Enter how you wish to search for a user: ")
+        if response.upper() == 'A':
+            name = input("Enter the name of a person you know: ").split(" ")
 
-    while len(name) != 2:
-        print("Name must be in the form (firstname lastname)")
-        name = input("Enter the name of a person you know: ").split(" ")
+            # If the user enters an extra spaces at the end of first or last name they will be removed
+            while("" in name):
+                name.remove("")
 
-    first = name[0]
-    last = name[1]
+            while len(name) != 2:
+                print("Name must be in the form (firstname lastname)")
+                name = input("Enter the name of a person you know: ").split(" ")
 
-    result = db.getUserByFullName(dbCursor, first, last) # Find receiver for friend request
+            first = name[0]
+            last = name[1]
+
+            result = db.getUserByFullName(dbCursor, first, last) # Find receiver for friend request
+            break
+        elif response.upper() == 'B':
+            name = input("Enter the last name of the person you might know: ")
+            users_found = utils.printUsersFoundLastName(dbCursor, name)
+            if users_found is None:
+                print("No users found under that criteria.")
+                result = None
+            else:
+                while settings.currentState == states.userSearch:
+                    response = input("Choose a person you might know: ")
+                    if response.isdigit() and int(response) <= len(users_found):
+                        result = db.getUserByFullName(dbCursor, (users_found[int(response) - 1])[2], (users_found[int(response) - 1])[3])
+                        # result = (users_found[int(response) - 1])[0]
+                        # name = db.getUserByName(dbCursor, u[0])
+                        # print(f"{count}. {name[2]} {name[3]}")
+                        break
+                    else:
+                        print("Invalid input, try again.")
+            break
+        elif response.upper() == 'C':
+            university = input("Enter the University of the person you might know goes to: ")
+            users_found = utils.printUsersFoundUniversity(dbCursor, university)
+            if users_found is None:
+                print("No users found under that criteria.")
+                result = None
+            else:
+                while settings.currentState == states.userSearch:
+                    response = input("Choose a person you might know: ")
+                    if response.isdigit() and int(response) <= len(users_found):
+                        # result = (users_found[int(response) - 1])[0]
+                        name = db.getUserByName(dbCursor, (users_found[int(response) - 1])[0])
+                        result = db.getUserByFullName(dbCursor, name[2], name[3])
+                        break
+                    else:
+                        print("Invalid input, try again.")
+            break
+        elif response.upper() == 'D':
+            major = input("Enter the major of the person you might know has: ")
+            users_found = utils.printUsersFoundMajor(dbCursor, major)
+            if users_found is None:
+                print("No users found under that criteria.")
+                result = None
+            else:
+                while settings.currentState == states.userSearch:
+                    response = input("Choose a person you might know: ")
+                    if response.isdigit() and int(response) <= len(users_found):
+                        # result = (users_found[int(response) - 1])[0]
+                        name = db.getUserByName(dbCursor, (users_found[int(response) - 1])[0])
+                        result = db.getUserByFullName(dbCursor, name[2], name[3])
+                        break
+                    else:
+                        print("Invalid input, try again.")
+            break
+        elif response.upper() == 'Z':
+            if settings.signedIn:
+                settings.currentState = states.mainMenu
+            else:
+                settings.currentState = states.loggedOut  # returns to incollege.py's main() w/ currentState = loggedOut
+            return False  # Didn't find user
+        else:
+            print("Invalid Option, enter the valid letter option")
 
     # If the desired user is found successfully, return their data and jump to appropriate menu
     if result is not None:
         User = namedtuple('User', 'uname pword firstname lastname')
         receiver = User._make(result)
+        if settings.signedIn:
+            friend_exists = db.checkUserFriendRelation(dbCursor, settings.signedInUname, receiver.uname)
 
-        friend_exists = db.checkUserFriendRelation(dbCursor, settings.signedInUname, receiver.uname)
-
-        # If this person is already your friend,return  
-        if friend_exists:
-            print(receiver.uname + " is already your friend!")
-            settings.currentState = states.mainMenu   # returns to incollege.py's main() w/ currentState = mainMenu
-            return True
+            # If this person is already your friend,return
+            if friend_exists:
+                print(receiver.uname + " is already your friend!")
+                settings.currentState = states.mainMenu   # returns to incollege.py's main() w/ currentState = mainMenu
+                return True
         
         print("They are a part of the InCollege system!")
         if settings.signedIn:         # if a user is signed in
@@ -128,11 +198,11 @@ def findUser(dbCursor, connection):
             print("They are not yet a part of the InCollege system yet.")
             print("Options:\n")
             print("A. Search for another user")
-            print("B. Return to previous menu")
+            print("Z. Return to previous menu")
             response = input()
             if response.upper() == "A":
                 break
-            elif response.upper() == "B":
+            elif response.upper() == "Z":
                 if settings.signedIn:
                     settings.currentState = states.mainMenu
                 else:

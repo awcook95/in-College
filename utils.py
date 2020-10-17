@@ -21,9 +21,46 @@ def printUserFriends(dbCursor, uname):
     if friends:
         count = 1
         for f in friends:
-            print(f"{count}. {f[0]}")
+            name = db.getUserByName(dbCursor, f[0])
+            # print(f"{count}. {f[0]}") #original prints out uname instead of full name
+            print(f"{count}. {name[2]} {name[3]}")
             count += 1
         return friends
+    else:
+        return None
+
+def printUsersFoundLastName(dbCursor, lastname):
+    users = db.getUsersByLastName(dbCursor, lastname)
+    if users:
+        count = 1
+        for u in users:
+            print(f"{count}. {u[2]} {u[3]}")
+            count += 1
+        return users
+    else:
+        return None
+
+def printUsersFoundUniversity(dbCursor, university):
+    users = db.getUsersbyUniversity(dbCursor, university)
+    if users:
+        count = 1
+        for u in users:
+            name = db.getUserByName(dbCursor, u[0])
+            print(f"{count}. {name[2]} {name[3]}")
+            count += 1
+        return users
+    else:
+        return None
+
+def printUsersFoundMajor(dbCursor, major):
+    users = db.getUsersbyMajor(dbCursor, major)
+    if users:
+        count = 1
+        for u in users:
+            name = db.getUserByName(dbCursor, u[0])
+            print(f"{count}. {name[2]} {name[3]}")
+            count += 1
+        return users
     else:
         return None
 

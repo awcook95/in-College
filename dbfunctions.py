@@ -122,6 +122,17 @@ def getUserByFullName(cursor, first, last): # Modified to ignore case
     cursor.execute("SELECT * FROM users WHERE UPPER(firstname)=? AND UPPER(lastname)=? LIMIT 1", [first.upper(), last.upper()])
     return cursor.fetchone()
 
+def getUsersByLastName(cursor, last):
+    cursor.execute("SELECT * FROM users WHERE UPPER(lastname)=?", [last.upper()])
+    return cursor.fetchall()
+
+def getUsersByMajor(cursor, major):
+    cursor.execute("SELECT * FROM profile_page WHERE UPPER(major)=?", [major.upper()])
+    return cursor.fetchall()
+
+def getUsersbyUniversity(cursor, university):
+    cursor.execute("SELECT * FROM profile_page WHERE UPPER(university)=?", [university.upper()])
+    return cursor.fetchall()
 
 def insertJob(cursor, title, desc, emp, loc, sal, author):
     cursor.execute("INSERT INTO jobs VALUES (?, ?, ?, ?, ?, ?, ?)", [None, title, desc, emp, loc, sal, author])
