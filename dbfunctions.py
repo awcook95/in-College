@@ -122,6 +122,15 @@ def getUserByFullName(cursor, first, last): # Modified to ignore case
     cursor.execute("SELECT * FROM users WHERE UPPER(firstname)=? AND UPPER(lastname)=? LIMIT 1", [first.upper(), last.upper()])
     return cursor.fetchone()
 
+def getUsersByLastName(cursor, last):
+    cursor.execute("SELECT * FROM users WHERE UPPER(lastname)=?", [last.upper()])
+    return cursor.fetchall()
+
+def getUsersByParameter(cursor, param_string):
+    query = "SELECT * FROM profile_page WHERE " + param_string
+    cursor.execute(query)
+    return cursor.fetchall()
+
 
 def insertJob(cursor, title, desc, emp, loc, sal, author):
     cursor.execute("INSERT INTO jobs VALUES (?, ?, ?, ?, ?, ?, ?)", [None, title, desc, emp, loc, sal, author])
@@ -195,6 +204,9 @@ def checkUserFriendRelation(cursor, name, friend):
 
 def insertUserFriend(cursor, uname, friend_uname):
     cursor.execute("INSERT INTO user_friends VALUES (?, ?, ?)", [None, uname, friend_uname])
+
+def deleteUserFriend(cursor, uname, friend_uname):
+    cursor.execute("DELETE FROM user_friends WHERE UPPER(uname)=? AND UPPER(friend_uname)=?", [uname.upper(), friend_uname.upper()])
 
 def insertFriendRequest(cursor, sender_name, reciever_name):
     cursor.execute("INSERT INTO friend_requests VALUES (?, ?)", [sender_name, reciever_name])

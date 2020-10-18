@@ -9,7 +9,7 @@ import utils
 def createUser(dbCursor, connection):
     # todo: possibly add exit option in case user wants to cancel account creation
 
-    if db.getNumUsers(dbCursor) >= 5:  # checks if number of accounts in database is at max limit
+    if db.getNumUsers(dbCursor) >= 10:  # checks if number of accounts in database is at max limit
         print("All permitted accounts have been created, please come back later")
         settings.currentState = states.loggedOut  # returns to incollege.py's main() w/ currentState = loggedOut
         return
@@ -74,49 +74,116 @@ def logOutUser():
 
 
 def findUser(dbCursor, connection):
-    # Added the user prompt for searched person within this function
-    name = input("Enter the name of a person you know: ").split(" ")
-    
-    # If the user enters an extra spaces at the end of first or last name they will be removed 
-    while("" in name):
-        name.remove("")
+    while settings.currentState == states.userSearch:
+        # Added the user prompt for searched person within this function
+        print("Which search term do you want to find users by?")
+        print("A. By Full Name")
+        print("B. By Last Name")
+        print("C. By University")
+        print("D. By Major")
+        print("Z. Return to the previous menu")
+        response = input("Enter how you wish to search for a user: ")
+        if response.upper() == 'A':
+            name = input("Enter the name of a person you know: ").split(" ")
 
-    while len(name) != 2:
-        print("Name must be in the form (firstname lastname)")
-        name = input("Enter the name of a person you know: ").split(" ")
+            # If the user enters an extra spaces at the end of first or last name they will be removed
+            while("" in name):
+                name.remove("")
 
-    first = name[0]
-    last = name[1]
+            while len(name) != 2:
+                print("Name must be in the form (firstname lastname)")
+                name = input("Enter the name of a person you know: ").split(" ")
 
-    result = db.getUserByFullName(dbCursor, first, last) # Find reciever for friend request
+            first = name[0]
+            last = name[1]
+
+            result = db.getUserByFullName(dbCursor, first, last) # Find receiver for friend request
+            break
+        elif response.upper() == 'B':
+            name = input("Enter the last name of the person you might know: ")
+            users_found = utils.printUsersFoundLastName(dbCursor, name)
+            if users_found is None:
+                print("No users found under that criteria.")
+                result = None
+            else:
+                while settings.currentState == states.userSearch:
+                    response = input("Choose a person you might know: ")
+                    if response.isdigit() and int(response) <= len(users_found):
+                        first_name = (users_found[int(response) - 1])[2]            # parse first name from user object
+                        last_name = (users_found[int(response) - 1])[3]             # parse last name from user object
+                        result = db.getUserByFullName(dbCursor, first_name, last_name)
+                        break
+                    else:
+                        print("Invalid input, try again.")
+            break
+        elif response.upper() == 'C':
+            university = input("Enter the University of the person you might know goes to: ")
+            users_found = utils.printUsersFoundParameter(dbCursor, university, 0)
+            if users_found is None:
+                print("No users found under that criteria.")
+                result = None
+            else:
+                while settings.currentState == states.userSearch:
+                    response = input("Choose a person you might know: ")
+                    if response.isdigit() and int(response) <= len(users_found):
+                        name = db.getUserByName(dbCursor, (users_found[int(response) - 1])[0])  # parses first and last name from user object
+                        result = db.getUserByFullName(dbCursor, name[2], name[3])
+                        break
+                    else:
+                        print("Invalid input, try again.")
+            break
+        elif response.upper() == 'D':
+            major = input("Enter the major of the person you might know has: ")
+            users_found = utils.printUsersFoundParameter(dbCursor, major, 1)
+            if users_found is None:
+                print("No users found under that criteria.")
+                result = None
+            else:
+                while settings.currentState == states.userSearch:
+                    response = input("Choose a person you might know: ")
+                    if response.isdigit() and int(response) <= len(users_found):
+                        name = db.getUserByName(dbCursor, (users_found[int(response) - 1])[0])  # parses first and last name from user object
+                        result = db.getUserByFullName(dbCursor, name[2], name[3])
+                        break
+                    else:
+                        print("Invalid input, try again.")
+            break
+        elif response.upper() == 'Z':
+            if settings.signedIn:
+                settings.currentState = states.mainMenu
+            else:
+                settings.currentState = states.loggedOut  # returns to incollege.py's main() w/ currentState = loggedOut
+            return False  # Didn't find user
+        else:
+            print("Invalid Option, enter the valid letter option")
 
     # If the desired user is found successfully, return their data and jump to appropriate menu
     if result is not None:
         User = namedtuple('User', 'uname pword firstname lastname')
-        reciever = User._make(result)
+        receiver = User._make(result)
+        if settings.signedIn:
+            friend_exists = db.checkUserFriendRelation(dbCursor, settings.signedInUname, receiver.uname)
 
-        friend_exists = db.checkUserFriendRelation(dbCursor, settings.signedInUname, reciever.uname)
-
-        # If this person is already your friend,return  
-        if friend_exists:
-            print(reciever.uname + " is already your friend!")
-            settings.currentState = states.mainMenu   # returns to incollege.py's main() w/ currentState = mainMenu
-            return True
+            # If this person is already your friend,return
+            if friend_exists:
+                print(receiver.uname + " is already your friend!")
+                settings.currentState = states.mainMenu   # returns to incollege.py's main() w/ currentState = mainMenu
+                return True
         
         print("They are a part of the InCollege system!")
         if settings.signedIn:         # if a user is signed in
-            if settings.signedInUname != reciever.uname: # Person you are requesting is not yourself
+            if settings.signedInUname != receiver.uname: # Person you are requesting is not yourself
                 response = input("Would you like to add them as a friend? Enter 'Y' for yes: ")
-                request_exists = utils.checkExistingFriendRequest(dbCursor, settings.signedInUname, reciever.uname)
+                request_exists = utils.checkExistingFriendRequest(dbCursor, settings.signedInUname, receiver.uname)
                 
                 if response.upper() == "Y":
                     # Send request if there is no pending request
                     if not request_exists:
                         print("Sending friend request! They will need to accept before they appear in your friends list!\n")
-                        db.insertFriendRequest(dbCursor, settings.signedInUname, reciever.uname)
+                        db.insertFriendRequest(dbCursor, settings.signedInUname, receiver.uname)
                         connection.commit()
                     else: 
-                        print(reciever.uname + " has already been sent a request! They will show up in your friends list once they accept!")
+                        print(receiver.uname + " has already been sent a request! They will show up in your friends list once they accept!")
             
             settings.currentState = states.mainMenu   # returns to incollege.py's main() w/ currentState = mainMenu
             return True
@@ -128,11 +195,11 @@ def findUser(dbCursor, connection):
             print("They are not yet a part of the InCollege system yet.")
             print("Options:\n")
             print("A. Search for another user")
-            print("B. Return to previous menu")
+            print("Z. Return to previous menu")
             response = input()
             if response.upper() == "A":
                 break
-            elif response.upper() == "B":
+            elif response.upper() == "Z":
                 if settings.signedIn:
                     settings.currentState = states.mainMenu
                 else:
