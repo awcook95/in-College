@@ -49,19 +49,16 @@ def testCreateUser():  # todo: potentially change this test to utilize createUse
     connection.close()
 
 
-def testCreateSixUsers(monkeypatch, capfd):
+def testMaxAccountsCreated(monkeypatch, capfd):
     connection = sqlite3.connect("incollege_test.db")
     cursor = connection.cursor()
     db.initTables(cursor)
-    db.insertUser(cursor, "username1", "password", "first", "last")
-    db.insertUser(cursor, "username2", "password", "first1", "last1")
-    db.insertUser(cursor, "username3", "password", "first2", "last2")
-    db.insertUser(cursor, "username4", "password", "first3", "last3")
-    db.insertUser(cursor, "username5", "password", "first4", "last4")
+    for i in range(10):
+        db.insertUser(cursor, f"username{i}", "password", f"first{i}", f"last{i}")
     users.createUser(cursor, connection)
     out, err = capfd.readouterr()  # Output should display max users created
     assert out == "All permitted accounts have been created, please come back later\n"
-    assert db.getNumUsers(cursor) == 5
+    assert db.getNumUsers(cursor) == 10
 
 
 def testUserAlreadyExists(monkeypatch, capfd):
@@ -163,17 +160,20 @@ def testValidJobPost(monkeypatch):
     out = db.getJobByTitle(cursor, "Title")  # Confirms that job has been added into DB correctly
     assert out is not None
 
+    
 def testUsefulLinks(monkeypatch):
     monkeypatch.setattr("sys.stdin", StringIO("e\n"))
     settings.currentState = states.mainMenu
     ui.enterMainMenu()
     assert settings.currentState == states.usefulLinks
+    
 
 def testImportantLinks(monkeypatch):
     monkeypatch.setattr("sys.stdin", StringIO("f\n"))
     settings.currentState = states.mainMenu
     ui.enterMainMenu()
     assert settings.currentState == states.importantLinks
+    
 
 def testInsertUserSettings():
     connection = sqlite3.connect("incollege_test.db")
@@ -181,6 +181,7 @@ def testInsertUserSettings():
     db.initTables(cursor)
     db.insertUserSettings(cursor, "testname", 1, 1, 1, "testlanguage")
     assert db.getUserSettingsByName(cursor, "testname") is not None
+    
 
 def testUpdateUserSettings():
     connection = sqlite3.connect("incollege_test.db")
@@ -191,6 +192,7 @@ def testUpdateUserSettings():
     userSetting = namedtuple('User', 'uname emailnotif smsnotif targetadvert languagepref')
     currentUser = userSetting._make(db.getUserSettingsByName(cursor, "testname"))
     assert currentUser.emailnotif == 0
+    
 
 def testUpdateUserLanguage():
     connection = sqlite3.connect("incollege_test.db")
@@ -201,6 +203,7 @@ def testUpdateUserLanguage():
     userSetting = namedtuple('User', 'uname emailnotif smsnotif targetadvert languagepref')
     currentUser = userSetting._make(db.getUserSettingsByName(cursor, "testname"))
     assert currentUser.languagepref == "testlanguage2"
+    
 
 def testCreateStudentProfile():
     connection = sqlite3.connect("incollege_test.db")
@@ -212,6 +215,7 @@ def testCreateStudentProfile():
     assert db.getProfilePage(cursor, "uname") is not None
     assert db.getProfileJobs(cursor, "uname") is not None
     assert db.getProfileEducation(cursor, "uname") is not None
+    
 
 def testProfileAddFourJobs(monkeypatch, capfd):
     connection = sqlite3.connect("incollege_test.db")
@@ -231,3 +235,70 @@ def testProfileAddFourJobs(monkeypatch, capfd):
     assert len(db.getProfileJobs(cursor, settings.signedInUname)) == 3
     assert settings.currentState == states.mainMenu
     
+
+def testAddFriend():
+    connection = sqlite3.connect("incollege_test.db")
+    cursor = connection.cursor()
+    db.initTables(cursor)
+    db.insertUserFriend(cursor, "uname", "friend_uname")
+    assert db.getUserFriendsByName(cursor, "uname") is not None
+    
+    
+def testViewFriendList(monkeypatch, capfd):
+    connection = sqlite3.connect("incollege_test.db")
+    cursor = connection.cursor()
+    db.initTables(cursor)
+    db.insertUserFriend(cursor, "uname", "friend_uname")
+    settings.currentState = states.friendsMenu
+    settings.signedInUname = "uname"
+    monkeypatch.setattr("sys.stdin", StringIO("Z\n"))
+    ui.enterFriendsMenu(cursor)
+    out, err = capfd.readouterr()
+    assert out is not None
+    assert settings.currentState == states.mainMenu
+    assert db.getUserFriendsByName(cursor, "uname") is not None
+
+    
+def testRemoveFriend(monkeypatch):
+    connection = sqlite3.connect("incollege_test.db")
+    cursor = connection.cursor()
+    db.initTables(cursor)
+    db.insertUserFriend(cursor, "uname", "friend_uname")
+    db.insertUserFriend(cursor, "friend_uname", "uname")
+    settings.currentState = states.friendsMenu
+    settings.signedInUname = "uname"
+    monkeypatch.setattr("sys.stdin", StringIO("A\n1\nZ\n"))
+    ui.enterFriendsMenu(cursor)
+    assert settings.currentState == states.mainMenu
+    assert db.getUserFriendsByName(cursor, "uname") is None
+    assert db.getUserFriendsByName(cursor, "friend_uname") is None
+    
+    
+def testSendFriendRequest(monkeypatch):
+    connection = sqlite3.connect("incollege_test.db")
+    cursor = connection.cursor()
+    db.initTables(cursor)
+    db.insertUser(cursor, "username1", "password", "first1", "last1")
+    db.insertUser(cursor, "username2", "password", "first2", "last2")
+    settings.signedInUname = "username1"
+    settings.signedIn = True
+    settings.currentState = states.userSearch
+    monkeypatch.setattr("sys.stdin", StringIO("A\nfirst2 last2\nY\n"))
+    users.findUser(cursor, connection)
+    assert len(db.getUserFriendRequests(cursor, "username2")) == 1
+
+
+def testAcceptFriendRequest(monkeypatch):
+    connection = sqlite3.connect("incollege_test.db")
+    cursor = connection.cursor()
+    db.initTables(cursor)
+    db.insertUser(cursor, "username1", "password", "first1", "last1")
+    db.insertUser(cursor, "username2", "password", "first2", "last2")
+    db.insertFriendRequest(cursor, "username1", "username2")
+    settings.signedInUname = "username2"
+    monkeypatch.setattr("sys.stdin", StringIO("A\n"))
+    utils.handleUserFriendRequests(cursor, connection, settings.signedInUname)
+    assert len(db.getUserFriendsByName(cursor, "username1")) == 1
+    assert len(db.getUserFriendsByName(cursor, "username2")) == 1
+    assert ((db.getUserFriendsByName(cursor, "username1"))[0])[0] == "username2"
+    assert ((db.getUserFriendsByName(cursor, "username2"))[0])[0] == "username1"
