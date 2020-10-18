@@ -268,7 +268,7 @@ def testRemoveFriend(monkeypatch):
     settings.currentState = states.friendsMenu
     settings.signedInUname = "uname"
     monkeypatch.setattr("sys.stdin", StringIO("A\n1\nZ\n"))
-    ui.enterFriendsMenu()
+    ui.enterFriendsMenu(cursor)
     assert settings.currentState == states.mainMenu
     assert db.getUserFriendsByName(cursor, "uname") is None
     assert db.getUserFriendsByName(cursor, "friend_uname") is None
