@@ -49,19 +49,16 @@ def testCreateUser():  # todo: potentially change this test to utilize createUse
     connection.close()
 
 
-def testCreateSixUsers(monkeypatch, capfd):
+def testMaxAccountsCreated(monkeypatch, capfd):
     connection = sqlite3.connect("incollege_test.db")
     cursor = connection.cursor()
     db.initTables(cursor)
-    db.insertUser(cursor, "username1", "password", "first", "last")
-    db.insertUser(cursor, "username2", "password", "first1", "last1")
-    db.insertUser(cursor, "username3", "password", "first2", "last2")
-    db.insertUser(cursor, "username4", "password", "first3", "last3")
-    db.insertUser(cursor, "username5", "password", "first4", "last4")
+    for i in range(10):
+        db.insertUser(cursor, f"username{i}", "password", f"first{i}", f"last{i}")
     users.createUser(cursor, connection)
     out, err = capfd.readouterr()  # Output should display max users created
     assert out == "All permitted accounts have been created, please come back later\n"
-    assert db.getNumUsers(cursor) == 5
+    assert db.getNumUsers(cursor) == 10
 
 
 def testUserAlreadyExists(monkeypatch, capfd):
