@@ -272,3 +272,33 @@ def testRemoveFriend(monkeypatch):
     assert settings.currentState == states.mainMenu
     assert db.getUserFriendsByName(cursor, "uname") is None
     assert db.getUserFriendsByName(cursor, "friend_uname") is None
+    
+    
+def testSendFriendRequest(monkeypatch):
+    connection = sqlite3.connect("incollege_test.db")
+    cursor = connection.cursor()
+    db.initTables(cursor)
+    db.insertUser(cursor, "username1", "password", "first1", "last1")
+    db.insertUser(cursor, "username2", "password", "first2", "last2")
+    settings.signedInUname = "username1"
+    settings.signedIn = True
+    settings.currentState = states.userSearch
+    monkeypatch.setattr("sys.stdin", StringIO("A\nfirst2 last2\nY\n"))
+    users.findUser(cursor, connection)
+    assert len(db.getUserFriendRequests(cursor, "username2")) == 1
+
+
+def testAcceptFriendRequest(monkeypatch):
+    connection = sqlite3.connect("incollege_test.db")
+    cursor = connection.cursor()
+    db.initTables(cursor)
+    db.insertUser(cursor, "username1", "password", "first1", "last1")
+    db.insertUser(cursor, "username2", "password", "first2", "last2")
+    db.insertFriendRequest(cursor, "username1", "username2")
+    settings.signedInUname = "username2"
+    monkeypatch.setattr("sys.stdin", StringIO("A\n"))
+    utils.handleUserFriendRequests(cursor, connection, settings.signedInUname)
+    assert len(db.getUserFriendsByName(cursor, "username1")) == 1
+    assert len(db.getUserFriendsByName(cursor, "username2")) == 1
+    assert ((db.getUserFriendsByName(cursor, "username1"))[0])[0] == "username2"
+    assert ((db.getUserFriendsByName(cursor, "username2"))[0])[0] == "username1"
