@@ -260,3 +260,18 @@ def testViewFriendList(monkeypatch, capfd):
     assert out is not None
     assert settings.currentState == states.mainMenu
     assert db.getUserFriendsByName(cursor, "uname") is not None
+
+    
+def testRemoveFriend(monkeypatch):
+    connection = sqlite3.connect("incollege_test.db")
+    cursor = connection.cursor()
+    db.initTables(cursor)
+    db.insertUserFriend(cursor, "uname", "friend_uname")
+    db.insertUserFriend(cursor, "friend_uname", "uname")
+    settings.currentState = states.friendsMenu
+    settings.signedInUname = "uname"
+    monkeypatch.setattr("sys.stdin", StringIO("A\n1\nZ\n"))
+    ui.enterFriendsMenu()
+    assert settings.currentState == states.mainMenu
+    assert db.getUserFriendsByName(cursor, "uname") is None
+    assert db.getUserFriendsByName(cursor, "friend_uname") is None
