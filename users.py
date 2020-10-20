@@ -210,7 +210,7 @@ def findUser(dbCursor, connection):
 
 
 def postJob(dbCursor):
-    if db.getNumJobs(dbCursor) >= 5:  # checks if number of jobs in database is at max limit
+    if db.getNumJobs(dbCursor) >= 10:  # checks if number of jobs in database is at max limit
         print("All permitted jobs have been created, please come back later")
         settings.currentState = states.mainMenu
         return
