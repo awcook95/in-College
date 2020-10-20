@@ -39,7 +39,10 @@ def main(dbCursor, dbConnection):
             users.findUser(dbCursor, dbConnection)
                   
         if settings.currentState == states.createJob:
-            users.postJob(dbCursor)
+            users.postJob(dbCursor, dbConnection)
+
+        if settings.currentState == states.viewJobs: #### NEW EPIC 6 #####
+            ui.printJobListings(dbCursor)
             
         if settings.currentState == states.usefulLinks:
             ui.usefulLinksMenu()

@@ -209,7 +209,7 @@ def findUser(dbCursor, connection):
                 print("Invalid input")
 
 
-def postJob(dbCursor):
+def postJob(dbCursor, dbConnection):
     if db.getNumJobs(dbCursor) >= 10:  # checks if number of jobs in database is at max limit
         print("All permitted jobs have been created, please come back later")
         settings.currentState = states.mainMenu
@@ -229,6 +229,7 @@ def postJob(dbCursor):
     sal = input("Enter salary: ")
 
     db.insertJob(dbCursor, title, desc, emp, loc, sal, author)
+    dbConnection.commit()
     print("Job has been posted\n")
     settings.currentState = states.mainMenu  # returns to incollege.py's main() w/ currentState = mainMenu
 
