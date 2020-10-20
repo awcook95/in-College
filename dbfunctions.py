@@ -140,6 +140,12 @@ def getAllJobs(cursor):
     cursor.execute("SELECT * FROM jobs")
     return cursor.fetchall()
 
+def getJobsByAuthor(cursor, author):
+    cursor.execute("SELECT * FROM jobs WHERE author=?", [author])
+    return cursor.fetchall()
+
+def deleteJob(cursor, jobID):
+    cursor.execute("DELETE FROM jobs WHERE jobID=?", [jobID])
 
 def getJobByTitle(cursor, title):
     cursor.execute("SELECT * FROM jobs WHERE Title like ?", [title])

@@ -61,12 +61,13 @@ def enterMainMenu(dbCursor, dbConnection):  # presents the user with an introduc
               "A. Search for a job/internship\n"
               "B. Post a job\n"
               "C. View posted jobs\n"
-              "D. Find someone you know\n"
-              "E. Learn a new skill\n"
-              "F. InCollege Useful Links\n"
-              "G. InCollege Important Links\n"
-              "H. View Friends\n"
-              "I. Student Profile\n"
+              "D. Delete a job\n"
+              "E. Find someone you know\n"
+              "F. Learn a new skill\n"
+              "G. InCollege Useful Links\n"
+              "H. InCollege Important Links\n"
+              "I. View Friends\n"
+              "J. Student Profile\n"
               "Z. Logout\n")
 
         if len(response) > 0:
@@ -83,16 +84,18 @@ def enterMainMenu(dbCursor, dbConnection):  # presents the user with an introduc
         elif response.upper() == "C":
             settings.currentState = states.viewJobs     # returns to incollege.py's main() w/ currentState = viewJobs
         elif response.upper() == "D":
-            settings.currentState = states.userSearch   # returns to incollege.py's main() w/ currentState = userSearch
+            settings.currentState = states.deleteJob # returns to incollege.py's main() w/ currentState = deleteJob
         elif response.upper() == "E":
+            settings.currentState = states.userSearch   # returns to incollege.py's main() w/ currentState = userSearch
+        elif response.upper() == "F":
             settings.currentState = states.selectSkill  # returns to incollege.py's main() w/ currentState = selectSkill
-        elif response.upper() == 'F':
-            settings.currentState = states.usefulLinks
         elif response.upper() == "G":
-            settings.currentState = states.importantLinks
+            settings.currentState = states.usefulLinks
         elif response.upper() == "H":
-            settings.currentState = states.friendsMenu
+            settings.currentState = states.importantLinks
         elif response.upper() == "I":
+            settings.currentState = states.friendsMenu
+        elif response.upper() == "J":
             settings.currentState = states.profilePage
         elif response.upper() == "Z":
             users.logOutUser()  # logs user out: currentState = loggedOut; signedInUname = None; signedIn = False
@@ -467,6 +470,41 @@ def printJobListings(dbCursor):
         settings.currentState = states.mainMenu # returns to incollege.py's main() w/ currentState = mainMenu
     elif response.upper() == "N":
         print("PUT MORE FUNCTIONALITY HERE!!")
+
+def enterDeleteAJobMenu(dbCursor, dbConnection):
+    print("Jobs you have posted:\n")
+    User = namedtuple('User', 'uname pword firstname lastname')
+    currentUser = User._make(db.getUserByName(dbCursor, settings.signedInUname))
+
+    first = currentUser.firstname
+    last = currentUser.lastname
+    author = first + " " + last
+    jobs = db.getJobsByAuthor(dbCursor, author)
+    if len(jobs) > 0:
+        for i in range(0, len(jobs)):
+            # first create job object to select from
+            Job = namedtuple('User', 'jobID title description employer location salary author')
+            selectedJob = Job._make(jobs[i])
+
+            print(f"{i+1}. Job Title: {selectedJob.title}")
+            print(f"\tJob Description: {selectedJob.description}")
+            print(f"\tEmployer Name: {selectedJob.employer}")
+            print(f"\tJob Location: {selectedJob.location}")
+            print(f"\tSalary: ${selectedJob.salary}")
+            print(f"\tJob Poster: {selectedJob.author}\n")
+            response = input("Delete this job (Y/N)? ")
+            # could make this into a while loop that contiually asks for input
+            if response.upper() == "Y":
+                db.deleteJob(dbCursor, selectedJob.jobID)
+                dbConnection.commit()
+            elif response.upper() == "N":
+                continue
+        clear()
+        settings.currentState = states.mainMenu
+    else: 
+        print("You have not posted any jobs! You can only delete jobs you have posted. \n")
+        settings.currentState = states.mainMenu
+
     
         
     

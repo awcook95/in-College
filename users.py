@@ -218,7 +218,7 @@ def postJob(dbCursor, dbConnection):
     # Take input from user and create job in DB
     User = namedtuple('User', 'uname pword firstname lastname')
     currentUser = User._make(db.getUserByName(dbCursor, settings.signedInUname))
-
+ 
     first = currentUser.firstname
     last = currentUser.lastname
     author = first + " " + last
