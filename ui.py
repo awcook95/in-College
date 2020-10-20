@@ -1,9 +1,19 @@
+from collections import namedtuple
 import settings
 import states
 import users
 import utils
 import dbfunctions as db
+import os           # These are used to clear the console when switching between menus
+import subprocess   #
 
+def clear(): # Clear console to print menu on blank page
+    if os.name in ('nt','dos'): # Windows
+        subprocess.call("cls")
+    elif os.name in ('linux','osx','posix'): # Mac/linux
+        subprocess.call("clear")
+    else: # if unrecognized just print many new lines 
+        print("\n") * 120
 
 def enterInitialMenu():
     while settings.currentState == states.loggedOut:  # change from currentState = loggedOut will result in return to incollege.py's main()
@@ -47,20 +57,18 @@ def enterMainMenu(dbCursor, dbConnection):  # presents the user with an introduc
         # Check for any pending friend requests
         response = db.getUserFriendRequests(dbCursor, settings.signedInUname)
 
-
-
         print("Options:\n"
               "A. Search for a job/internship\n"
               "B. Post a job\n"
-              "C. Find someone you know\n"
-              "D. Learn a new skill")
-        print("E. InCollege Useful Links")
-        print("F. InCollege Important Links")
-        print("G. View Friends")
-        # print("H. View pending friend requests")
-        print("H. Student Profile")
-        print("Z. Logout")
-
+              "C. View posted jobs\n"
+              "D. Delete a job\n"
+              "E. Find someone you know\n"
+              "F. Learn a new skill\n"
+              "G. InCollege Useful Links\n"
+              "H. InCollege Important Links\n"
+              "I. View Friends\n"
+              "J. Student Profile\n"
+              "Z. Logout\n")
 
         if len(response) > 0:
             response = input("You have pending friend requests! Enter 'Y' to view them\nInput: ")
@@ -74,16 +82,20 @@ def enterMainMenu(dbCursor, dbConnection):  # presents the user with an introduc
         elif response.upper() == "B":
             settings.currentState = states.createJob    # returns to incollege.py's main() w/ currentState = createJob
         elif response.upper() == "C":
-            settings.currentState = states.userSearch   # returns to incollege.py's main() w/ currentState = userSearch
+            settings.currentState = states.viewJobs     # returns to incollege.py's main() w/ currentState = viewJobs
         elif response.upper() == "D":
-            settings.currentState = states.selectSkill  # returns to incollege.py's main() w/ currentState = selectSkill
-        elif response.upper() == 'E':
-            settings.currentState = states.usefulLinks
+            settings.currentState = states.deleteJob # returns to incollege.py's main() w/ currentState = deleteJob
+        elif response.upper() == "E":
+            settings.currentState = states.userSearch   # returns to incollege.py's main() w/ currentState = userSearch
         elif response.upper() == "F":
-            settings.currentState = states.importantLinks
+            settings.currentState = states.selectSkill  # returns to incollege.py's main() w/ currentState = selectSkill
         elif response.upper() == "G":
+            settings.currentState = states.usefulLinks
+        elif response.upper() == "H":
+            settings.currentState = states.importantLinks
+        elif response.upper() == "I":
             settings.currentState = states.friendsMenu
-        elif response.upper() == 'H':
+        elif response.upper() == "J":
             settings.currentState = states.profilePage
         elif response.upper() == "Z":
             users.logOutUser()  # logs user out: currentState = loggedOut; signedInUname = None; signedIn = False
@@ -392,16 +404,16 @@ def enterProfilePageMenu(dbCursor, dbConnection):
             continue
 
 
-def printProfilePage(cursor, uname):
-    name = db.getUserByName(cursor, uname)
+def printProfilePage(dbCursor, uname):
+    name = db.getUserByName(dbCursor, uname)
     first = name[2]
     last = name[3]
-    page = db.getProfilePage(cursor, uname)
+    page = db.getProfilePage(dbCursor, uname)
     major = page[1]
     university = page[2]
     about = page[3]
-    jobs = db.getProfileJobs(cursor, uname)
-    education = db.getProfileEducation(cursor, uname)
+    jobs = db.getProfileJobs(dbCursor, uname)
+    education = db.getProfileEducation(dbCursor, uname)
 
     print(f"{first} {last}'s Profile Page")  # title
     print(f"Major: {major}")  # major
@@ -436,3 +448,65 @@ def printProfilePage(cursor, uname):
             print(f"\tDegree: {user_degree}")
             print(f"\tYear: {year_start} - {year_end}")
     return major, university, about
+
+def printJobListings(dbCursor):
+    print("Jobs currently listed in the system:\n")
+    jobs = db.getAllJobs(dbCursor)
+    if len(jobs) > 0:
+        for i in range(0, len(jobs)):
+            # first create job object to select from
+            Job = namedtuple('User', 'jobID title description employer location salary author')
+            selectedJob = Job._make(jobs[i])
+
+            print(f"{i+1}. Job Title: {selectedJob.title}")
+            print(f"\tJob Description: {selectedJob.description}")
+            print(f"\tEmployer Name: {selectedJob.employer}")
+            print(f"\tJob Location: {selectedJob.location}")
+            print(f"\tSalary: ${selectedJob.salary}")
+            print(f"\tJob Poster: {selectedJob.author}\n")
+    response = input("Return to pervious menu (Y/N)? ")
+    if response.upper() == "Y":
+        clear()
+        settings.currentState = states.mainMenu # returns to incollege.py's main() w/ currentState = mainMenu
+    elif response.upper() == "N":
+        print("PUT MORE FUNCTIONALITY HERE!!")
+
+def enterDeleteAJobMenu(dbCursor, dbConnection):
+    print("Jobs you have posted:\n")
+    User = namedtuple('User', 'uname pword firstname lastname')
+    currentUser = User._make(db.getUserByName(dbCursor, settings.signedInUname))
+
+    first = currentUser.firstname
+    last = currentUser.lastname
+    author = first + " " + last
+    jobs = db.getJobsByAuthor(dbCursor, author)
+    if len(jobs) > 0:
+        for i in range(0, len(jobs)):
+            # first create job object to select from
+            Job = namedtuple('User', 'jobID title description employer location salary author')
+            selectedJob = Job._make(jobs[i])
+
+            print(f"{i+1}. Job Title: {selectedJob.title}")
+            print(f"\tJob Description: {selectedJob.description}")
+            print(f"\tEmployer Name: {selectedJob.employer}")
+            print(f"\tJob Location: {selectedJob.location}")
+            print(f"\tSalary: ${selectedJob.salary}")
+            print(f"\tJob Poster: {selectedJob.author}\n")
+            response = input("Delete this job (Y/N)? ")
+            # could make this into a while loop that contiually asks for input
+            if response.upper() == "Y":
+                db.deleteJob(dbCursor, selectedJob.jobID)
+                dbConnection.commit()
+            elif response.upper() == "N":
+                continue
+        clear()
+        settings.currentState = states.mainMenu
+    else: 
+        print("You have not posted any jobs! You can only delete jobs you have posted. \n")
+        settings.currentState = states.mainMenu
+
+    
+        
+    
+    
+

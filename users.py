@@ -209,8 +209,8 @@ def findUser(dbCursor, connection):
                 print("Invalid input")
 
 
-def postJob(dbCursor):
-    if db.getNumJobs(dbCursor) >= 5:  # checks if number of jobs in database is at max limit
+def postJob(dbCursor, dbConnection):
+    if db.getNumJobs(dbCursor) >= 10:  # checks if number of jobs in database is at max limit
         print("All permitted jobs have been created, please come back later")
         settings.currentState = states.mainMenu
         return
@@ -218,7 +218,7 @@ def postJob(dbCursor):
     # Take input from user and create job in DB
     User = namedtuple('User', 'uname pword firstname lastname')
     currentUser = User._make(db.getUserByName(dbCursor, settings.signedInUname))
-
+ 
     first = currentUser.firstname
     last = currentUser.lastname
     author = first + " " + last
@@ -229,6 +229,7 @@ def postJob(dbCursor):
     sal = input("Enter salary: ")
 
     db.insertJob(dbCursor, title, desc, emp, loc, sal, author)
+    dbConnection.commit()
     print("Job has been posted\n")
     settings.currentState = states.mainMenu  # returns to incollege.py's main() w/ currentState = mainMenu
 
