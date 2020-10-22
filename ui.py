@@ -462,9 +462,13 @@ def printJobListings(dbCursor, dbConnection):
     response = input("View Job details (Y/N)?")
     # print full job details
     while response.upper() == "Y":
-        job_id = input("Which job 1 - " + str(len(jobs)) + " would you like to view? ")
         Job = namedtuple('User', 'jobID title description employer location salary author')
-        selectedJob = Job._make(jobs[int(job_id) - 1])
+        if len(jobs) != 1: 
+            job_id = input("Which job 1 - " + str(len(jobs)) + " would you like to view? ")
+            selectedJob = Job._make(jobs[int(job_id) - 1])
+        else:
+            selectedJob = Job._make(jobs[0])
+            
         print(f"Job title: {selectedJob.title}")
         print(f"\tJob description: {selectedJob.description}")
         print(f"\tEmployer: {selectedJob.employer}")
