@@ -59,15 +59,12 @@ def enterMainMenu(dbCursor, dbConnection):  # presents the user with an introduc
 
         print("Options:\n"
               "A. Search for a job/internship\n"
-              "B. Post a job\n"
-              "C. View posted jobs\n"
-              "D. Delete a job\n"
-              "E. Find someone you know\n"
-              "F. Learn a new skill\n"
-              "G. InCollege Useful Links\n"
-              "H. InCollege Important Links\n"
-              "I. View Friends\n"
-              "J. Student Profile\n"
+              "B. Find someone you know\n"
+              "C. Learn a new skill\n"
+              "D. InCollege Useful Links\n"
+              "E. InCollege Important Links\n"
+              "F. View Friends\n"
+              "G. Student Profile\n"
               "Z. Logout\n")
 
         if len(response) > 0:
@@ -76,26 +73,20 @@ def enterMainMenu(dbCursor, dbConnection):  # presents the user with an introduc
                 utils.handleUserFriendRequests(dbCursor, dbConnection, settings.signedInUname)
                 continue
         else:
-            response = input("Input: ")
+            response = input("\nInput: ")
         if response.upper() == "A":
-            print("Under Construction")
+            enterJobMenu()
         elif response.upper() == "B":
-            settings.currentState = states.createJob    # returns to incollege.py's main() w/ currentState = createJob
-        elif response.upper() == "C":
-            settings.currentState = states.viewJobs     # returns to incollege.py's main() w/ currentState = viewJobs
-        elif response.upper() == "D":
-            settings.currentState = states.deleteJob # returns to incollege.py's main() w/ currentState = deleteJob
-        elif response.upper() == "E":
             settings.currentState = states.userSearch   # returns to incollege.py's main() w/ currentState = userSearch
-        elif response.upper() == "F":
+        elif response.upper() == "C":
             settings.currentState = states.selectSkill  # returns to incollege.py's main() w/ currentState = selectSkill
-        elif response.upper() == "G":
+        elif response.upper() == "D":
             settings.currentState = states.usefulLinks
-        elif response.upper() == "H":
+        elif response.upper() == "E":
             settings.currentState = states.importantLinks
-        elif response.upper() == "I":
+        elif response.upper() == "F":
             settings.currentState = states.friendsMenu
-        elif response.upper() == "J":
+        elif response.upper() == "G":
             settings.currentState = states.profilePage
         elif response.upper() == "Z":
             users.logOutUser()  # logs user out: currentState = loggedOut; signedInUname = None; signedIn = False
@@ -449,7 +440,7 @@ def printProfilePage(dbCursor, uname):
             print(f"\tYear: {year_start} - {year_end}")
     return major, university, about
 
-def printJobListings(dbCursor):
+def printJobListings(dbCursor, dbConnection):
     print("Jobs currently listed in the system:\n")
     jobs = db.getAllJobs(dbCursor)
     if len(jobs) > 0:
@@ -457,19 +448,29 @@ def printJobListings(dbCursor):
             # first create job object to select from
             Job = namedtuple('User', 'jobID title description employer location salary author')
             selectedJob = Job._make(jobs[i])
-
             print(f"{i+1}. Job Title: {selectedJob.title}")
-            print(f"\tJob Description: {selectedJob.description}")
-            print(f"\tEmployer Name: {selectedJob.employer}")
-            print(f"\tJob Location: {selectedJob.location}")
-            print(f"\tSalary: ${selectedJob.salary}")
-            print(f"\tJob Poster: {selectedJob.author}\n")
-    response = input("Return to pervious menu (Y/N)? ")
-    if response.upper() == "Y":
-        clear()
-        settings.currentState = states.mainMenu # returns to incollege.py's main() w/ currentState = mainMenu
-    elif response.upper() == "N":
-        print("PUT MORE FUNCTIONALITY HERE!!")
+
+    response = input("View Job details (Y/N)? ")
+    # print full job details
+    while response.upper() == "Y":
+        Job = namedtuple('User', 'jobID title description employer location salary author')
+        if len(jobs) != 1: 
+            job_id = input("Which job 1 - " + str(len(jobs)) + " would you like to view? ")
+            selectedJob = Job._make(jobs[int(job_id) - 1])
+        else:
+            selectedJob = Job._make(jobs[0])
+
+        print(f"Job title: {selectedJob.title}")
+        print(f"\tJob description: {selectedJob.description}")
+        print(f"\tEmployer: {selectedJob.employer}")
+        print(f"\tJob location: {selectedJob.location}")
+        print(f"\tSalary: {selectedJob.salary}")
+        print(f"\tJob poster: {selectedJob.author}")
+
+        response = input("View another job details (Y/N)? ")
+
+    if response.upper() == "N":
+        settings.currentState = states.jobMenu # Return to main menu with state mainMenu
 
 def enterDeleteAJobMenu(dbCursor, dbConnection):
     print("Jobs you have posted:\n")
@@ -500,13 +501,25 @@ def enterDeleteAJobMenu(dbCursor, dbConnection):
             elif response.upper() == "N":
                 continue
         clear()
-        settings.currentState = states.mainMenu
+        settings.currentState = states.jobMenu
     else: 
         print("You have not posted any jobs! You can only delete jobs you have posted. \n")
-        settings.currentState = states.mainMenu
+        settings.currentState = states.jobMenu
+
+def enterJobMenu():
+    print("Select a job function: \n")
+    choice = input("A. Post a job\n"  
+                "B. View posted jobs\n"  
+                "C. Delete a job\n"
+                "input: ")
+    if choice.upper() == "A":
+        settings.currentState = states.createJob    # returns to incollege.py's main() w/ currentState = createJob
+    elif choice.upper() == "B":
+        settings.currentState = states.viewJobs     # returns to incollege.py's main() w/ currentState = viewJobs
+    elif choice.upper() == "C":
+        settings.currentState = states.deleteJob # returns to incollege.py's main() w/ currentState = deleteJob
 
     
-        
     
     
 

@@ -212,7 +212,7 @@ def findUser(dbCursor, connection):
 def postJob(dbCursor, dbConnection):
     if db.getNumJobs(dbCursor) >= 10:  # checks if number of jobs in database is at max limit
         print("All permitted jobs have been created, please come back later")
-        settings.currentState = states.mainMenu
+        settings.currentState = states.jobMenu
         return
 
     # Take input from user and create job in DB
@@ -231,7 +231,7 @@ def postJob(dbCursor, dbConnection):
     db.insertJob(dbCursor, title, desc, emp, loc, sal, author)
     dbConnection.commit()
     print("Job has been posted\n")
-    settings.currentState = states.mainMenu  # returns to incollege.py's main() w/ currentState = mainMenu
+    settings.currentState = states.jobMenu  # returns to incollege.py's main() w/ currentState = jobMenu
 
 
 def changeUserSettings(dbCursor, connection):
@@ -270,3 +270,22 @@ def changeUserSettings(dbCursor, connection):
             settings.currentState = states.importantLinks
         else:
             print("Invalid Option, enter the letter option you want and press enter")
+
+def applyForJob(dbCursor, dbConnection, job_title):
+    # check if there are any existing applications to this job
+    applied = len(db.getUserJobApplicationByTitle(dbCursor, settings.signedInUname, job_title)) == 1
+    if applied:
+        print("You have already applied for this job!\n")
+    else:
+        apply = input("Apply for this job (Y/N)? ")
+        if apply.upper() == "Y":
+            # PRINT APP MENU 
+            grad = input("Please enter a graduation date (mm/dd/yyyy): ")
+            start = input("Please enter the earliest date you can start (mm/dd/yyyy): ")
+            credentials = input("Please brielfy describe why you are fit for this job: ")
+            db.insertUserJobApplication(dbCursor, settings.signedInUname, job_title, grad, start, credentials)
+            dbConnection.commit()
+            print(db.getUserJobApplicationByTitle(dbCursor, settings.signedInUname, job_title))
+        elif apply.upper() == "N":
+            settings.currentState = states.jobMenu
+
