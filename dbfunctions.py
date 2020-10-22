@@ -162,7 +162,6 @@ def getJobByTitle(cursor, title):
     cursor.execute("SELECT * FROM jobs WHERE Title like ?", [title])
     return cursor.fetchone()
     
-
 def insertUser(cursor, uname, pword, fname, lname):
     cursor.execute("INSERT INTO users VALUES (?, ?, ?, ?)", [uname, pword, fname, lname])
 

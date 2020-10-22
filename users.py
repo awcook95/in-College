@@ -212,7 +212,7 @@ def findUser(dbCursor, connection):
 def postJob(dbCursor, dbConnection):
     if db.getNumJobs(dbCursor) >= 10:  # checks if number of jobs in database is at max limit
         print("All permitted jobs have been created, please come back later")
-        settings.currentState = states.mainMenu
+        settings.currentState = states.jobMenu
         return
 
     # Take input from user and create job in DB
@@ -231,7 +231,7 @@ def postJob(dbCursor, dbConnection):
     db.insertJob(dbCursor, title, desc, emp, loc, sal, author)
     dbConnection.commit()
     print("Job has been posted\n")
-    settings.currentState = states.mainMenu  # returns to incollege.py's main() w/ currentState = mainMenu
+    settings.currentState = states.jobMenu  # returns to incollege.py's main() w/ currentState = jobMenu
 
 
 def changeUserSettings(dbCursor, connection):
@@ -273,8 +273,8 @@ def changeUserSettings(dbCursor, connection):
 
 def applyForJob(dbCursor, dbConnection, job_title):
     # check if there are any existing applications to this job
-    applied = len(db.getUserJobApplicationByTitle(dbCursor, settings.signedInUname, job_title)) == 0
-    if not applied:
+    applied = len(db.getUserJobApplicationByTitle(dbCursor, settings.signedInUname, job_title)) == 1
+    if applied:
         print("You have already applied for this job!\n")
     else:
         apply = input("Apply for this job (Y/N)? ")
@@ -287,5 +287,5 @@ def applyForJob(dbCursor, dbConnection, job_title):
             dbConnection.commit()
             print(db.getUserJobApplicationByTitle(dbCursor, settings.signedInUname, job_title))
         elif apply.upper() == "N":
-            settings.currentState = states.mainMenu
+            settings.currentState = states.jobMenu
 

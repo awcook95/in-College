@@ -60,6 +60,9 @@ def main(dbCursor, dbConnection):
         if settings.currentState == states.deleteJob: #### NEW EPIC 6 #####
             ui.enterDeleteAJobMenu(dbCursor, dbConnection)
             
+        if settings.currentState == states.jobMenu: 
+            ui.enterJobMenu()
+            
         if settings.currentState == states.usefulLinks:
             ui.usefulLinksMenu()
         
