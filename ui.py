@@ -78,7 +78,7 @@ def enterMainMenu(dbCursor, dbConnection):  # presents the user with an introduc
         else:
             response = input("Input: ")
         if response.upper() == "A":
-            print("Under Construction")
+            settings.currentState = states.apply # apply for job menu 
         elif response.upper() == "B":
             settings.currentState = states.createJob    # returns to incollege.py's main() w/ currentState = createJob
         elif response.upper() == "C":
@@ -468,7 +468,7 @@ def printJobListings(dbCursor, dbConnection):
             selectedJob = Job._make(jobs[int(job_id) - 1])
         else:
             selectedJob = Job._make(jobs[0])
-            
+
         print(f"Job title: {selectedJob.title}")
         print(f"\tJob description: {selectedJob.description}")
         print(f"\tEmployer: {selectedJob.employer}")

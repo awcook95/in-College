@@ -19,3 +19,4 @@ profilePageEdit = 16
 friendsMenu = 17
 viewJobs = 18
 deleteJob = 19
+apply = 20

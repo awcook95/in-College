@@ -51,6 +51,9 @@ def main(dbCursor, dbConnection):
         if settings.currentState == states.createJob:
             users.postJob(dbCursor, dbConnection)
 
+        if settings.currentState == states.apply:
+            users.applyForJob(dbCursor, dbConnection)
+             
         if settings.currentState == states.viewJobs: #### NEW EPIC 6 #####
             ui.printJobListings(dbCursor, dbConnection)
         

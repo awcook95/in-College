@@ -270,3 +270,22 @@ def changeUserSettings(dbCursor, connection):
             settings.currentState = states.importantLinks
         else:
             print("Invalid Option, enter the letter option you want and press enter")
+
+def applyForJob(dbCursor, dbConnection, job_title):
+    # check if there are any existing applications to this job
+    applied = len(db.getUserJobApplicationByTitle(dbCursor, settings.signedInUname, job_title)) == 0
+    if not applied:
+        print("You have already applied for this job!\n")
+    else:
+        apply = input("Apply for this job (Y/N)? ")
+        if apply.upper() == "Y":
+            # PRINT APP MENU 
+            grad = input("Please enter a graduation date (mm/dd/yyyy): ")
+            start = input("Please enter the earliest date you can start (mm/dd/yyyy): ")
+            credentials = input("Please brielfy describe why you are fit for this job: ")
+            db.insertUserJobApplication(dbCursor, settings.signedInUname, job_title, grad, start, credentials)
+            dbConnection.commit()
+            print(db.getUserJobApplicationByTitle(dbCursor, settings.signedInUname, job_title))
+        elif apply.upper() == "N":
+            settings.currentState = states.mainMenu
+
