@@ -510,13 +510,16 @@ def enterJobMenu():
     print("Select a job function: \n")
     choice = input("A. Post a job\n"  
                 "B. View posted jobs\n"  
-                "C. Delete a job\n"
+                "C. Apply for a job\n"
+                "D. Delete a job\n"
                 "input: ")
     if choice.upper() == "A":
         settings.currentState = states.createJob    # returns to incollege.py's main() w/ currentState = createJob
     elif choice.upper() == "B":
         settings.currentState = states.viewJobs     # returns to incollege.py's main() w/ currentState = viewJobs
     elif choice.upper() == "C":
+        settings.currentState = states.apply     # returns to incollege.py's main() w/ currentState = viewJobs
+    elif choice.upper() == "D":
         settings.currentState = states.deleteJob # returns to incollege.py's main() w/ currentState = deleteJob
 
     

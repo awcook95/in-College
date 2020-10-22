@@ -271,10 +271,25 @@ def changeUserSettings(dbCursor, connection):
         else:
             print("Invalid Option, enter the letter option you want and press enter")
 
-def applyForJob(dbCursor, dbConnection, job_title):
+def applyForJob(dbCursor, dbConnection):
+    # now prints all jobs then asks user to choose
+    print("Jobs currently listed in the system:\n")
+    jobs = db.getAllJobs(dbCursor)
+    if len(jobs) > 0:
+        for i in range(0, len(jobs)):
+            # first create job object to select from
+            Job = namedtuple('User', 'jobID title description employer location salary author')
+            selectedJob = Job._make(jobs[i])
+            print(f"{i+1}. Job Title: {selectedJob.title}")
+
+    job_index = input("Select a job 1 - " + str(len(jobs)) + " to apply for: ")
+    Job = namedtuple('User', 'jobID title description employer location salary author')
+    selectedJob = Job._make(jobs[i])
+    job_title = selectedJob.title
+
     # check if there are any existing applications to this job
     applied = len(db.getUserJobApplicationByTitle(dbCursor, settings.signedInUname, job_title)) == 1
-    if applied:
+    if not applied:
         print("You have already applied for this job!\n")
     else:
         apply = input("Apply for this job (Y/N)? ")
