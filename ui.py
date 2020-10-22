@@ -457,36 +457,25 @@ def printJobListings(dbCursor, dbConnection):
             # first create job object to select from
             Job = namedtuple('User', 'jobID title description employer location salary author')
             selectedJob = Job._make(jobs[i])
-
             print(f"{i+1}. Job Title: {selectedJob.title}")
-            print(f"\tJob Description: {selectedJob.description}")
-            print(f"\tEmployer Name: {selectedJob.employer}")
-            print(f"\tJob Location: {selectedJob.location}")
-            print(f"\tSalary: ${selectedJob.salary}")
-            print(f"\tJob Poster: {selectedJob.author}\n")
-            # check if there are any existing applications to this job
-            applied = len(db.getUserJobApplicationByTitle(dbCursor, settings.signedInUname, selectedJob.title)) == 0
-            if not applied:
-                print("You have already applied for this job!\n")
-                continue
-            else:
-                apply = input("Apply for this job (Y/N)? ")
-                if apply.upper() == "Y":
-                    # PRINT APP MENU 
-                    grad = input("Please enter a graduation date (mm/dd/yyyy): ")
-                    start = input("Please enter the earliest date you can start (mm/dd/yyyy): ")
-                    credentials = input("Please brielfy describe why you are fit for this job: ")
-                    db.insertUserJobApplication(dbCursor, settings.signedInUname, selectedJob.title, grad, start, credentials)
-                    dbConnection.commit()
-                    print(db.getUserJobApplicationByTitle(dbCursor, settings.signedInUname, selectedJob.title))
-                elif apply.upper() == "N":
-                    continue
-    response = input("Return to pervious menu (Y/N)? ")
-    if response.upper() == "Y":
-        #clear()
-        settings.currentState = states.mainMenu # returns to incollege.py's main() w/ currentState = mainMenu
-    elif response.upper() == "N":
-        print("PUT MORE FUNCTIONALITY HERE!!")
+
+    response = input("View Job details (Y/N)?")
+    # print full job details
+    while response.upper() == "Y":
+        job_id = input("Which job 1 - " + str(len(jobs)) + " would you like to view? ")
+        Job = namedtuple('User', 'jobID title description employer location salary author')
+        selectedJob = Job._make(jobs[int(job_id) - 1])
+        print(f"Job title: {selectedJob.title}")
+        print(f"\tJob description: {selectedJob.description}")
+        print(f"\tEmployer: {selectedJob.employer}")
+        print(f"\tJob location: {selectedJob.location}")
+        print(f"\tSalary: {selectedJob.salary}")
+        print(f"\tJob poster: {selectedJob.author}")
+
+        response = input("View another job details (Y/N)?")
+
+    if response.upper() == "N":
+        settings.currentState = states.mainMenu # Return to main menu with state mainMenu
 
 def enterDeleteAJobMenu(dbCursor, dbConnection):
     print("Jobs you have posted:\n")
