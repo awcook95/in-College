@@ -52,7 +52,7 @@ def main(dbCursor, dbConnection):
             users.postJob(dbCursor, dbConnection)
 
         if settings.currentState == states.viewJobs: #### NEW EPIC 6 #####
-            ui.printJobListings(dbCursor)
+            ui.printJobListings(dbCursor, dbConnection)
         
         if settings.currentState == states.deleteJob: #### NEW EPIC 6 #####
             ui.enterDeleteAJobMenu(dbCursor, dbConnection)

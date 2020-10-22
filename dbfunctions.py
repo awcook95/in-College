@@ -78,6 +78,17 @@ def initTables(cursor):
         FOREIGN KEY(uname) REFERENCES users(uname)
         )""")
 
+    cursor.execute("""CREATE TABLE IF NOT EXISTS
+    user_job_applications(
+        app_id INTEGER PRIMARY KEY,
+        aplicant_uname TEXT,
+        job_title TEXT,
+        graduation_date TEXT,
+        start_date TEXT, 
+        credentials TEXT,
+        FOREIGN KEY(job_title) REFERENCES jobs(title)
+    )""")
+
 
 def getProfilePage(cursor, uname):
     cursor.execute("SELECT * FROM profile_page WHERE uname=?", [uname])
@@ -223,3 +234,11 @@ def deleteFriendRequest(cursor, sender, reciever):
 def getUserFriendRequests(cursor, reciever_name):
     cursor.execute("SELECT * FROM friend_requests WHERE UPPER(reciever_uname)=?", [reciever_name.upper()])
     return cursor.fetchall()
+
+def getUserJobApplicationByTitle(cursor, applicant_name, job_title):
+    cursor.execute("SELECT * FROM user_job_applications WHERE UPPER(aplicant_uname)=?", [applicant_name.upper()])
+    return cursor.fetchall()
+
+def insertUserJobApplication(cursor, aplicant_uname, job_title, graduation_date, start_date, credentials):
+    cursor.execute("INSERT INTO user_job_applications VALUES(?,?,?,?,?,?)", [None, aplicant_uname, job_title, graduation_date, start_date, credentials])
+
