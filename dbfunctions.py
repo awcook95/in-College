@@ -247,7 +247,7 @@ def getUserJobApplicationByTitle(cursor, applicant_name, job_title):
     return cursor.fetchall()
 
 def getUnappliedJobs(cursor, uname):
-    cursor.execute("SELECT * FROM user_job_applications WHERE job_title NOT IN (SELECT job_title FROM user_job_applications WHERE uname=?)", [uname])
+    cursor.execute("SELECT * FROM user_job_applications WHERE job_title NOT IN (SELECT job_title FROM user_job_applications WHERE applicant_uname=?)", [uname])
     return cursor.fetchall()
 
 def insertUserJobApplication(cursor, aplicant_uname, job_title, graduation_date, start_date, credentials):

@@ -282,7 +282,7 @@ def applyForJob(dbCursor, dbConnection):
             selectedJob = Job._make(jobs[i])
             print(f"{i+1}. Job Title: {selectedJob.title}")
 
-    job_index = input("Select a job 1 - " + str(len(jobs)) + " to apply for: \n(Or press q to return to previous menu)")
+    job_index = input("Select a job 1 - " + str(len(jobs)) + " to apply for: \n(Or press q to return to previous menu)\n")
     if job_index == "q" or job_index == "Q":
         settings.currentState = states.jobMenu
         return
@@ -319,6 +319,7 @@ def favoriteAJob(dbCursor, dbConnection):
     else:
         input("None\nPress any key return to previous menu")
         settings.currentState = states.jobMenu
+        return
 
     job_index = input("Select a job 1 - " + str(len(jobs)) + " to favorite: \n(Or press q to return to previous menu)")
     if job_index == "q" or job_index == "Q":

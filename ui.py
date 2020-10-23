@@ -8,12 +8,7 @@ import os           # These are used to clear the console when switching between
 import subprocess   #
 
 def clear(): # Clear console to print menu on blank page
-    if os.name in ('nt','dos'): # Windows
-        subprocess.call("cls")
-    elif os.name in ('linux','osx','posix'): # Mac/linux
-        subprocess.call("clear")
-    else: # if unrecognized just print many new lines 
-        print("\n") * 120
+    print("\n" * 120)
 
 def enterInitialMenu():
     while settings.currentState == states.loggedOut:  # change from currentState = loggedOut will result in return to incollege.py's main()
@@ -513,9 +508,9 @@ def enterJobMenu():
                 "C. Apply for a job\n"
                 "D. Delete a job\n"
                 "E. Favorite a job\n"
-                "F. View favorited jobs\n" #copy format of apply for job but list all jobs at once. add option to remove favorite
-                "G. View jobs applied for\n" #print out all at once
-                "H. View jobs not applied for\n" #print out all at once
+                "F. View favorited jobs\n"
+                "G. View jobs applied for\n"
+                "H. View jobs not applied for\n"
                 "Z. Return to main menu\n"
 
                 "input: ")
@@ -540,7 +535,7 @@ def enterJobMenu():
 
 def viewFavoriteJobs(dbCursor, dbConnection):
     print("Your favorited jobs:\n")
-    jobs = db.favoriteJobsByUser(dbCursor, settings.signedInUname)
+    jobs = db.getFavoriteJobsByUser(dbCursor, settings.signedInUname)
     if len(jobs) > 0:
         for i in range(0, len(jobs)):
             # first create job object to select from
@@ -550,8 +545,9 @@ def viewFavoriteJobs(dbCursor, dbConnection):
     else:
         input("None\nPress any key return to previous menu")
         settings.currentState = states.jobMenu
+        return
 
-    job_index = input("Select a job 1 - " + str(len(jobs)) + " to unfavorite: \n(Or press q to return to previous menu)")
+    job_index = input("Select a job 1 - " + str(len(jobs)) + " to unfavorite: \n(Or press q to return to previous menu)\n")
     if job_index == "q" or job_index == "Q":
         settings.currentState = states.jobMenu
         return
@@ -565,20 +561,26 @@ def viewFavoriteJobs(dbCursor, dbConnection):
 
 def viewAppliedJobs(dbCursor, dbConnection):
     jobs = db.getUserJobApplicationByTitle(dbCursor, settings.signedInUname, None)
-    for i in range(0, len(jobs)):
-            # first create job object to select from
-            Job = namedtuple('User', 'jobID title description employer location salary author')
-            selectedJob = Job._make(jobs[i])
-            print(f"{i+1}. Job Title: {selectedJob.title}")
-    input("Press any key to return to previous menu:")
+    if len(jobs) > 0:
+        for i in range(0, len(jobs)):
+                # first create job object to select from
+                Job = namedtuple('User', 'jobID title description employer location salary author')
+                selectedJob = Job._make(jobs[i])
+                print(f"{i+1}. Job Title: {selectedJob.title}")
+    else:           
+        print("You have not applied for any jobs yet")
+    input("Press enter to return to previous menu:")
     settings.currentState = states.jobMenu
 
 def viewUnappliedJobs(dbCursor, dbConnection):
     jobs = db.getUnappliedJobs(dbCursor, settings.signedInUname)
-    for i in range(0, len(jobs)):
-            # first create job object to select from
-            Job = namedtuple('User', 'jobID title description employer location salary author')
-            selectedJob = Job._make(jobs[i])
-            print(f"{i+1}. Job Title: {selectedJob.title}")
-    input("Press any key to return to previous menu:")
+    if len(jobs) > 0:
+        for i in range(0, len(jobs)):
+                # first create job object to select from
+                Job = namedtuple('User', 'jobID title description employer location salary author')
+                selectedJob = Job._make(jobs[i])
+                print(f"{i+1}. Job Title: {selectedJob.title}")
+    else:
+        print("None")
+    input("Press enter to return to previous menu:")
     settings.currentState = states.jobMenu
