@@ -272,7 +272,6 @@ def changeUserSettings(dbCursor, connection):
             print("Invalid Option, enter the letter option you want and press enter")
 
 def applyForJob(dbCursor, dbConnection):
-    # now prints all jobs then asks user to choose
     print("Jobs currently listed in the system:\n")
     jobs = db.getAllJobs(dbCursor)
     if len(jobs) > 0:

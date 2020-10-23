@@ -98,6 +98,11 @@ def initTables(cursor):
         PRIMARY KEY(uname, job_title)
     )""")
 
+def getUserFullName(cursor, uname):
+    cursor.execute("SELECT firstname, lastname FROM Users WHERE UPPER(uname)=?", [uname.upper()])
+    user = cursor.fetchone()
+    return user[0] + " " + user[1]
+
 def getProfilePage(cursor, uname):
     cursor.execute("SELECT * FROM profile_page WHERE uname=?", [uname])
     return cursor.fetchone()
@@ -252,6 +257,10 @@ def getUnappliedJobs(cursor, uname):
 
 def getAppliedJobs(cursor, uname):
     cursor.execute("SELECT * FROM jobs WHERE title IN (SELECT job_title FROM user_job_applications WHERE applicant_uname=?)", [uname])
+    return cursor.fetchall()
+
+def getJobsPostedByUser(cursor, authorName):
+    cursor.execute("SELECT * FROM jobs WHERE UPPER(author)=?", [authorName.upper()])
     return cursor.fetchall()
 
 def insertUserJobApplication(cursor, aplicant_uname, job_title, graduation_date, start_date, credentials):

@@ -464,42 +464,51 @@ def printJobListings(dbCursor, dbConnection):
         settings.currentState = states.jobMenu # Return to main menu with state mainMenu
 
 def enterDeleteAJobMenu(dbCursor, dbConnection):
-    utils.clear()
     print("Jobs you have posted:\n")
-    User = namedtuple('User', 'uname pword firstname lastname')
-    currentUser = User._make(db.getUserByName(dbCursor, settings.signedInUname))
-
-    first = currentUser.firstname
-    last = currentUser.lastname
-    author = first + " " + last
-    jobs = db.getJobsByAuthor(dbCursor, author)
+    userFullName = db.getUserFullName(dbCursor, settings.signedInUname)
+    jobs = db.getJobsPostedByUser(dbCursor, userFullName)
     if len(jobs) > 0:
         for i in range(0, len(jobs)):
             # first create job object to select from
             Job = namedtuple('User', 'jobID title description employer location salary author')
             selectedJob = Job._make(jobs[i])
-
             print(f"{i+1}. Job Title: {selectedJob.title}")
-            print(f"\tJob Description: {selectedJob.description}")
-            print(f"\tEmployer Name: {selectedJob.employer}")
-            print(f"\tJob Location: {selectedJob.location}")
-            print(f"\tSalary: ${selectedJob.salary}")
-            print(f"\tJob Poster: {selectedJob.author}\n")
-            response = input("Delete this job (Y/N)? ")
-            # could make this into a while loop that contiually asks for input
-            while(True):
-                if response.upper() == "Y":
-                    db.deleteJob(dbCursor, selectedJob.jobID)
-                    dbConnection.commit()
-                    break
-                elif response.upper() == "N":
-                    break
-                else:
-                    print("Invalid input")
-        settings.currentState = states.jobMenu
-    else: 
-        print("You have not posted any jobs! You can only delete jobs you have posted. \n")
-        settings.currentState = states.jobMenu
+    else:
+        print("You have not posted any jobs. You can only delete jobs you have posted\n")
+    
+    global job_index
+    while(True):
+        job_index = input("Select a job 1 - " + str(len(jobs)) + " to delete: \n(Or press enter to return to previous menu)\n")
+        if job_index == "":
+            settings.currentState = states.jobMenu
+            return
+        try:
+            int(job_index)
+        except ValueError:
+            print("Invalid input")
+            continue
+        if int(job_index) not in range(1, int(str(len(jobs)))+1):
+            print("Invalid input")
+            continue
+        else:
+            break
+
+    Job = namedtuple('User', 'jobID title description employer location salary author')
+    selectedJob = Job._make(jobs[int(job_index)-1])
+    job_title = selectedJob.title
+
+    db.deleteJob(dbCursor, int(selectedJob.jobID))
+    dbConnection.commit()
+    print("Successfully deleted job")
+    while(True):
+        choice = input("Delete another job? (Y/N)")
+        if choice.upper() == "N":
+            settings.currentState = states.jobMenu
+            return
+        elif choice.upper() == "Y":
+            return
+        else:
+            print("Invalid input")
 
 def enterJobMenu():
     utils.clear()
