@@ -281,11 +281,20 @@ def applyForJob(dbCursor, dbConnection):
             Job = namedtuple('User', 'jobID title description employer location salary author')
             selectedJob = Job._make(jobs[i])
             print(f"{i+1}. Job Title: {selectedJob.title}")
-
+    
     job_index = input("Select a job 1 - " + str(len(jobs)) + " to apply for: \n(Or press enter to return to previous menu)\n")
     if job_index == "":
         settings.currentState = states.jobMenu
         return
+    try:
+        int(job_index)
+    except ValueError:
+        print("Invalid input")
+        return
+    if int(job_index) not in range(1, int(str(len(jobs)))+1):
+        print("Invalid input")
+        return
+
     Job = namedtuple('User', 'jobID title description employer location salary author')
     selectedJob = Job._make(jobs[int(job_index)-1])
     job_title = selectedJob.title
@@ -295,17 +304,13 @@ def applyForJob(dbCursor, dbConnection):
     if applied:
         print("You have already applied for this job!\n")
     else:
-        apply = input("Apply for this job (Y/N)? ")
-        if apply.upper() == "Y":
-            # PRINT APP MENU 
-            grad = input("Please enter a graduation date (mm/dd/yyyy): ")
-            start = input("Please enter the earliest date you can start (mm/dd/yyyy): ")
-            credentials = input("Please brielfy describe why you are fit for this job: ")
-            db.insertUserJobApplication(dbCursor, settings.signedInUname, job_title, grad, start, credentials)
-            dbConnection.commit()
-            print(db.getUserJobApplicationByTitle(dbCursor, settings.signedInUname, job_title))
-        elif apply.upper() == "N":
-            settings.currentState = states.jobMenu
+        # PRINT APP MENU 
+        grad = input("Please enter a graduation date (mm/dd/yyyy): ")
+        start = input("Please enter the earliest date you can start (mm/dd/yyyy): ")
+        credentials = input("Please brielfy describe why you are fit for this job: ")
+        db.insertUserJobApplication(dbCursor, settings.signedInUname, job_title, grad, start, credentials)
+        dbConnection.commit()
+        print("Successfully applied for job")
 
 def favoriteAJob(dbCursor, dbConnection):
     print("Jobs not yet favorited:\n")
@@ -325,6 +330,15 @@ def favoriteAJob(dbCursor, dbConnection):
     if job_index == "":
         settings.currentState = states.jobMenu
         return
+    try:
+        int(job_index)
+    except ValueError:
+        print("Invalid input")
+        return
+    if int(job_index) not in range(1, int(str(len(jobs)))+1):
+        print("Invalid input")
+        return
+        
     Job = namedtuple('User', 'jobID title description employer location salary author')
     selectedJob = Job._make(jobs[int(job_index)-1])
     job_title = selectedJob.title

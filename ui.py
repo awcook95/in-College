@@ -551,6 +551,15 @@ def viewFavoriteJobs(dbCursor, dbConnection):
     if job_index == "":
         settings.currentState = states.jobMenu
         return
+    try:
+        int(job_index)
+    except ValueError:
+        print("Invalid input")
+        return
+    if int(job_index) not in range(1, int(str(len(jobs)))+1):
+        print("Invalid input")
+        return
+        
     Job = namedtuple('User', 'jobID title description employer location salary author')
     selectedJob = Job._make(jobs[int(job_index)-1])
     job_title = selectedJob.title
