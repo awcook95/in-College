@@ -596,7 +596,7 @@ def viewFavoriteJobs(dbCursor, dbConnection):
 
     db.deleteFavoriteJob(dbCursor, settings.signedInUname, job_title)
     dbConnection.commit()
-    settings.currentState = states.jobMenu
+    print("Job has been removed from favorites list.")
 
 def viewAppliedJobs(dbCursor, dbConnection):
     print("Jobs you have applied for:")
