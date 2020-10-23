@@ -314,7 +314,7 @@ def applyForJob(dbCursor, dbConnection):
         # PRINT APP MENU 
         grad = input("Please enter a graduation date (mm/dd/yyyy): ")
         start = input("Please enter the earliest date you can start (mm/dd/yyyy): ")
-        credentials = input("Please brielfy describe why you are fit for this job: ")
+        credentials = input("Please briefly describe why you are fit for this job: ")
         db.insertUserJobApplication(dbCursor, settings.signedInUname, job_title, grad, start, credentials)
         dbConnection.commit()
         print("Successfully applied for job")

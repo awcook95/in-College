@@ -600,6 +600,7 @@ def viewAppliedJobs(dbCursor, dbConnection):
     settings.currentState = states.jobMenu
 
 def viewUnappliedJobs(dbCursor, dbConnection):
+    print("Jobs you have yet to apply for")
     jobs = db.getUnappliedJobs(dbCursor, settings.signedInUname)
     if len(jobs) > 0:
         for i in range(0, len(jobs)):
