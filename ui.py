@@ -547,12 +547,12 @@ def viewFavoriteJobs(dbCursor, dbConnection):
         settings.currentState = states.jobMenu
         return
 
-    job_index = input("Select a job 1 - " + str(len(jobs)) + " to unfavorite: \n(Or press q to return to previous menu)\n")
-    if job_index == "q" or job_index == "Q":
+    job_index = input("Select a job 1 - " + str(len(jobs)) + " to unfavorite: \n(Or press enter to return to previous menu)\n")
+    if job_index == "":
         settings.currentState = states.jobMenu
         return
     Job = namedtuple('User', 'jobID title description employer location salary author')
-    selectedJob = Job._make(jobs[i])
+    selectedJob = Job._make(jobs[int(job_index)-1])
     job_title = selectedJob.title
 
     db.deleteFavoriteJob(dbCursor, settings.signedInUname, job_title)
@@ -560,7 +560,7 @@ def viewFavoriteJobs(dbCursor, dbConnection):
     settings.currentState = states.jobMenu
 
 def viewAppliedJobs(dbCursor, dbConnection):
-    jobs = db.getUserJobApplicationByTitle(dbCursor, settings.signedInUname, None)
+    jobs = db.getAppliedJobs(dbCursor, settings.signedInUname)
     if len(jobs) > 0:
         for i in range(0, len(jobs)):
                 # first create job object to select from

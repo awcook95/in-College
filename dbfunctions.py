@@ -243,19 +243,22 @@ def getUserFriendRequests(cursor, reciever_name):
     return cursor.fetchall()
 
 def getUserJobApplicationByTitle(cursor, applicant_name, job_title):
-    cursor.execute("SELECT * FROM user_job_applications WHERE UPPER(applicant_uname)=?", [applicant_name.upper()])
+    cursor.execute("SELECT * FROM user_job_applications WHERE UPPER(applicant_uname)=? AND job_title=?", [applicant_name.upper(), job_title])
     return cursor.fetchall()
 
 def getUnappliedJobs(cursor, uname):
-    cursor.execute("SELECT * FROM user_job_applications WHERE job_title NOT IN (SELECT job_title FROM user_job_applications WHERE applicant_uname=?)", [uname])
+    cursor.execute("SELECT * FROM jobs WHERE title NOT IN (SELECT job_title FROM user_job_applications WHERE applicant_uname=?)", [uname])
+    return cursor.fetchall()
+
+def getAppliedJobs(cursor, uname):
+    cursor.execute("SELECT * FROM jobs WHERE title IN (SELECT job_title FROM user_job_applications WHERE applicant_uname=?)", [uname])
     return cursor.fetchall()
 
 def insertUserJobApplication(cursor, aplicant_uname, job_title, graduation_date, start_date, credentials):
     cursor.execute("INSERT INTO user_job_applications VALUES(?,?,?,?,?,?)", [None, aplicant_uname, job_title, graduation_date, start_date, credentials])
 
-
 def getFavoriteJobsByUser(cursor, uname):
-    cursor.execute("SELECT * FROM favorited_jobs WHERE UPPER(uname)=?", [uname])
+    cursor.execute("SELECT * FROM jobs WHERE title IN (SELECT job_title FROM favorited_jobs WHERE uname=?)", [uname])
     return cursor.fetchall()
 
 def getJobsNotFavorited(cursor, uname):
@@ -266,4 +269,4 @@ def insertFavoriteJob(cursor, uname, jobTitle):
     cursor.execute("INSERT INTO favorited_jobs VALUES(?,?)", [uname, jobTitle])
 
 def deleteFavoriteJob(cursor, uname, jobTitle):
-    cursor.execute("DELETE FROM favorited_jobs WHERE UPPER(uname)=? AND job_title=?", [uname, jobTitle])
+    cursor.execute("DELETE FROM favorited_jobs WHERE UPPER(uname)=? AND job_title=?", [uname.upper(), jobTitle])
