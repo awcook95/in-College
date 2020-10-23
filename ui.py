@@ -509,9 +509,15 @@ def enterDeleteAJobMenu(dbCursor, dbConnection):
 def enterJobMenu():
     print("Select a job function: \n")
     choice = input("A. Post a job\n"  
-                "B. View posted jobs\n"  
+                "B. View posted jobs\n"
                 "C. Apply for a job\n"
                 "D. Delete a job\n"
+                "E. Favorite a job\n"
+                "F. View favorited jobs\n" #copy format of apply for job but list all jobs at once. add option to remove favorite
+                "G. View jobs applied for\n" #print out all at once
+                "H. View jobs not applied for\n" #print out all at once
+                "Z. Return to main menu\n"
+
                 "input: ")
     if choice.upper() == "A":
         settings.currentState = states.createJob    # returns to incollege.py's main() w/ currentState = createJob
@@ -521,8 +527,58 @@ def enterJobMenu():
         settings.currentState = states.apply     # returns to incollege.py's main() w/ currentState = viewJobs
     elif choice.upper() == "D":
         settings.currentState = states.deleteJob # returns to incollege.py's main() w/ currentState = deleteJob
+    elif choice.upper() == "E":
+        settings.currentState = states.favoriteJob # returns to incollege.py's main() w/ currentState = favoriteJob
+    elif choice.upper() == "F":
+        settings.currentState = states.viewFavoriteJobs # returns to incollege.py's main() w/ currentState = viewFavoriteJobs
+    elif choice.upper() == "G":
+        settings.currentState = states.viewAppliedJobs # returns to incollege.py's main() w/ currentState = viewAppliedJobs
+    elif choice.upper() == "H":
+        settings.currentState = states.viewUnappliedJobs # returns to incollege.py's main() w/ currentState = viewUnappliedJobs
+    elif choice.upper() == "Z":
+        settings.currentState = states.mainMenu
 
-    
-    
-    
+def viewFavoriteJobs(dbCursor, dbConnection):
+    print("Your favorited jobs:\n")
+    jobs = db.favoriteJobsByUser(dbCursor, settings.signedInUname)
+    if len(jobs) > 0:
+        for i in range(0, len(jobs)):
+            # first create job object to select from
+            Job = namedtuple('User', 'jobID title description employer location salary author')
+            selectedJob = Job._make(jobs[i])
+            print(f"{i+1}. Job Title: {selectedJob.title}")
+    else:
+        input("None\nPress any key return to previous menu")
+        settings.currentState = states.jobMenu
 
+    job_index = input("Select a job 1 - " + str(len(jobs)) + " to unfavorite: \n(Or press q to return to previous menu)")
+    if job_index == "q" or job_index == "Q":
+        settings.currentState = states.jobMenu
+        return
+    Job = namedtuple('User', 'jobID title description employer location salary author')
+    selectedJob = Job._make(jobs[i])
+    job_title = selectedJob.title
+
+    db.deleteFavoriteJob(dbCursor, settings.signedInUname, job_title)
+    dbConnection.commit()
+    settings.currentState = states.jobMenu
+
+def viewAppliedJobs(dbCursor, dbConnection):
+    jobs = db.getUserJobApplicationByTitle(dbCursor, settings.signedInUname, None)
+    for i in range(0, len(jobs)):
+            # first create job object to select from
+            Job = namedtuple('User', 'jobID title description employer location salary author')
+            selectedJob = Job._make(jobs[i])
+            print(f"{i+1}. Job Title: {selectedJob.title}")
+    input("Press any key to return to previous menu:")
+    settings.currentState = states.jobMenu
+
+def viewUnappliedJobs(dbCursor, dbConnection):
+    jobs = db.getUnappliedJobs(dbCursor, settings.signedInUname)
+    for i in range(0, len(jobs)):
+            # first create job object to select from
+            Job = namedtuple('User', 'jobID title description employer location salary author')
+            selectedJob = Job._make(jobs[i])
+            print(f"{i+1}. Job Title: {selectedJob.title}")
+    input("Press any key to return to previous menu:")
+    settings.currentState = states.jobMenu

@@ -282,7 +282,10 @@ def applyForJob(dbCursor, dbConnection):
             selectedJob = Job._make(jobs[i])
             print(f"{i+1}. Job Title: {selectedJob.title}")
 
-    job_index = input("Select a job 1 - " + str(len(jobs)) + " to apply for: ")
+    job_index = input("Select a job 1 - " + str(len(jobs)) + " to apply for: \n(Or press q to return to previous menu)")
+    if job_index == "q" or job_index == "Q":
+        settings.currentState = states.jobMenu
+        return
     Job = namedtuple('User', 'jobID title description employer location salary author')
     selectedJob = Job._make(jobs[i])
     job_title = selectedJob.title
@@ -303,4 +306,29 @@ def applyForJob(dbCursor, dbConnection):
             print(db.getUserJobApplicationByTitle(dbCursor, settings.signedInUname, job_title))
         elif apply.upper() == "N":
             settings.currentState = states.jobMenu
+
+def favoriteAJob(dbCursor, dbConnection):
+    print("Jobs not yet favorited:\n")
+    jobs = db.getJobsNotFavorited(dbCursor, settings.signedInUname)
+    if len(jobs) > 0:
+        for i in range(0, len(jobs)):
+            # first create job object to select from
+            Job = namedtuple('User', 'jobID title description employer location salary author')
+            selectedJob = Job._make(jobs[i])
+            print(f"{i+1}. Job Title: {selectedJob.title}")
+    else:
+        input("None\nPress any key return to previous menu")
+        settings.currentState = states.jobMenu
+
+    job_index = input("Select a job 1 - " + str(len(jobs)) + " to favorite: \n(Or press q to return to previous menu)")
+    if job_index == "q" or job_index == "Q":
+        settings.currentState = states.jobMenu
+        return
+    Job = namedtuple('User', 'jobID title description employer location salary author')
+    selectedJob = Job._make(jobs[i])
+    job_title = selectedJob.title
+
+    db.insertFavoriteJob(dbCursor, settings.signedInUname, job_title)
+    dbConnection.commit()
+    settings.currentState = states.jobMenu
 

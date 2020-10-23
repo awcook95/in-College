@@ -59,6 +59,18 @@ def main(dbCursor, dbConnection):
         
         if settings.currentState == states.deleteJob: #### NEW EPIC 6 #####
             ui.enterDeleteAJobMenu(dbCursor, dbConnection)
+
+        if settings.currentState == states.favoriteJob: #### NEW EPIC 6 #####
+            users.favoriteAJob(dbCursor, dbConnection)
+
+        if settings.currentState == states.viewFavoriteJobs: #### NEW EPIC 6 #####
+            users.viewFavoriteJobs(dbCursor, dbConnection)
+
+        if settings.currentState == states.viewAppliedJobs: #### NEW EPIC 6 #####
+            users.states.viewAppliedJobs(dbCursor, dbConnection)
+
+        if settings.currentState == states.viewUnappliedJobs: #### NEW EPIC 6 #####
+            users.viewUnappliedJobs(dbCursor, dbConnection)
             
         if settings.currentState == states.jobMenu: 
             ui.enterJobMenu()
