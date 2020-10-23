@@ -280,6 +280,10 @@ def applyForJob(dbCursor, dbConnection):
             Job = namedtuple('User', 'jobID title description employer location salary author')
             selectedJob = Job._make(jobs[i])
             print(f"{i+1}. Job Title: {selectedJob.title}")
+    else:
+        input("No jobs have been posted\nPress enter to return to previous menu.")
+        settings.currentState = states.jobMenu
+        return
     
     global job_index
     while(True):

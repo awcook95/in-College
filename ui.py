@@ -440,6 +440,10 @@ def printJobListings(dbCursor, dbConnection):
             Job = namedtuple('User', 'jobID title description employer location salary author')
             selectedJob = Job._make(jobs[i])
             print(f"{i+1}. Job Title: {selectedJob.title}")
+    else:
+        input("No jobs have been posted\nPress enter to return to previous menu.")
+        settings.currentState = states.jobMenu
+        return
 
     response = input("View Job details (Y/N)? ")
     # print full job details
@@ -474,7 +478,9 @@ def enterDeleteAJobMenu(dbCursor, dbConnection):
             selectedJob = Job._make(jobs[i])
             print(f"{i+1}. Job Title: {selectedJob.title}")
     else:
-        print("You have not posted any jobs. You can only delete jobs you have posted\n")
+        input("You have not posted any jobs. You can only delete jobs you have posted.\nPress enter to return to previous menu.")
+        settings.currentState = states.jobMenu
+        return
     
     global job_index
     while(True):
