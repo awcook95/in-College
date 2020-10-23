@@ -282,18 +282,22 @@ def applyForJob(dbCursor, dbConnection):
             selectedJob = Job._make(jobs[i])
             print(f"{i+1}. Job Title: {selectedJob.title}")
     
-    job_index = input("Select a job 1 - " + str(len(jobs)) + " to apply for: \n(Or press enter to return to previous menu)\n")
-    if job_index == "":
-        settings.currentState = states.jobMenu
-        return
-    try:
-        int(job_index)
-    except ValueError:
-        print("Invalid input")
-        return
-    if int(job_index) not in range(1, int(str(len(jobs)))+1):
-        print("Invalid input")
-        return
+    global job_index
+    while(True):
+        job_index = input("Select a job 1 - " + str(len(jobs)) + " to apply for: \n(Or press enter to return to previous menu)\n")
+        if job_index == "":
+            settings.currentState = states.jobMenu
+            return
+        try:
+            int(job_index)
+        except ValueError:
+            print("Invalid input")
+            continue
+        if int(job_index) not in range(1, int(str(len(jobs)))+1):
+            print("Invalid input")
+            continue
+        else:
+            break
 
     Job = namedtuple('User', 'jobID title description employer location salary author')
     selectedJob = Job._make(jobs[int(job_index)-1])
@@ -338,7 +342,7 @@ def favoriteAJob(dbCursor, dbConnection):
     if int(job_index) not in range(1, int(str(len(jobs)))+1):
         print("Invalid input")
         return
-        
+
     Job = namedtuple('User', 'jobID title description employer location salary author')
     selectedJob = Job._make(jobs[int(job_index)-1])
     job_title = selectedJob.title

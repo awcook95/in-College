@@ -4,11 +4,6 @@ import states
 import users
 import utils
 import dbfunctions as db
-import os           # These are used to clear the console when switching between menus
-import subprocess   #
-
-def clear(): # Clear console to print menu on blank page
-    print("\n" * 120)
 
 def enterInitialMenu():
     while settings.currentState == states.loggedOut:  # change from currentState = loggedOut will result in return to incollege.py's main()
@@ -53,7 +48,7 @@ def enterMainMenu(dbCursor, dbConnection):  # presents the user with an introduc
         response = db.getUserFriendRequests(dbCursor, settings.signedInUname)
 
         print("Options:\n"
-              "A. Search for a job/internship\n"
+              "A. Jobs\n"
               "B. Find someone you know\n"
               "C. Learn a new skill\n"
               "D. InCollege Useful Links\n"
@@ -436,6 +431,7 @@ def printProfilePage(dbCursor, uname):
     return major, university, about
 
 def printJobListings(dbCursor, dbConnection):
+    utils.clear()
     print("Jobs currently listed in the system:\n")
     jobs = db.getAllJobs(dbCursor)
     if len(jobs) > 0:
@@ -468,6 +464,7 @@ def printJobListings(dbCursor, dbConnection):
         settings.currentState = states.jobMenu # Return to main menu with state mainMenu
 
 def enterDeleteAJobMenu(dbCursor, dbConnection):
+    utils.clear()
     print("Jobs you have posted:\n")
     User = namedtuple('User', 'uname pword firstname lastname')
     currentUser = User._make(db.getUserByName(dbCursor, settings.signedInUname))
@@ -490,18 +487,22 @@ def enterDeleteAJobMenu(dbCursor, dbConnection):
             print(f"\tJob Poster: {selectedJob.author}\n")
             response = input("Delete this job (Y/N)? ")
             # could make this into a while loop that contiually asks for input
-            if response.upper() == "Y":
-                db.deleteJob(dbCursor, selectedJob.jobID)
-                dbConnection.commit()
-            elif response.upper() == "N":
-                continue
-        clear()
+            while(True):
+                if response.upper() == "Y":
+                    db.deleteJob(dbCursor, selectedJob.jobID)
+                    dbConnection.commit()
+                    break
+                elif response.upper() == "N":
+                    break
+                else:
+                    print("Invalid input")
         settings.currentState = states.jobMenu
     else: 
         print("You have not posted any jobs! You can only delete jobs you have posted. \n")
         settings.currentState = states.jobMenu
 
 def enterJobMenu():
+    utils.clear()
     print("Select a job function: \n")
     choice = input("A. Post a job\n"  
                 "B. View posted jobs\n"
@@ -514,6 +515,7 @@ def enterJobMenu():
                 "Z. Return to main menu\n"
 
                 "input: ")
+    utils.clear()
     if choice.upper() == "A":
         settings.currentState = states.createJob    # returns to incollege.py's main() w/ currentState = createJob
     elif choice.upper() == "B":
@@ -534,7 +536,7 @@ def enterJobMenu():
         settings.currentState = states.mainMenu
 
 def viewFavoriteJobs(dbCursor, dbConnection):
-    print("Your favorited jobs:\n")
+    print("Your favorited jobs:")
     jobs = db.getFavoriteJobsByUser(dbCursor, settings.signedInUname)
     if len(jobs) > 0:
         for i in range(0, len(jobs)):
@@ -543,7 +545,7 @@ def viewFavoriteJobs(dbCursor, dbConnection):
             selectedJob = Job._make(jobs[i])
             print(f"{i+1}. Job Title: {selectedJob.title}")
     else:
-        input("None\nPress any key return to previous menu")
+        input("You currently have no favorited jobs.\nPress any key return to previous menu")
         settings.currentState = states.jobMenu
         return
 
@@ -559,7 +561,7 @@ def viewFavoriteJobs(dbCursor, dbConnection):
     if int(job_index) not in range(1, int(str(len(jobs)))+1):
         print("Invalid input")
         return
-        
+
     Job = namedtuple('User', 'jobID title description employer location salary author')
     selectedJob = Job._make(jobs[int(job_index)-1])
     job_title = selectedJob.title
@@ -569,6 +571,7 @@ def viewFavoriteJobs(dbCursor, dbConnection):
     settings.currentState = states.jobMenu
 
 def viewAppliedJobs(dbCursor, dbConnection):
+    print("Jobs you have applied for:")
     jobs = db.getAppliedJobs(dbCursor, settings.signedInUname)
     if len(jobs) > 0:
         for i in range(0, len(jobs)):
