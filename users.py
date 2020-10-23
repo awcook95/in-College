@@ -342,7 +342,7 @@ def favoriteAJob(dbCursor, dbConnection):
     except ValueError:
         print("Invalid input")
         return
-    if int(job_index) not in range(1, int(str(len(jobs)))+1):
+    if int(job_index) not in range(1, len(jobs)+1):
         print("Invalid input")
         return
 

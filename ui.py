@@ -451,6 +451,15 @@ def printJobListings(dbCursor, dbConnection):
         Job = namedtuple('User', 'jobID title description employer location salary author')
         if len(jobs) != 1: 
             job_id = input("Which job 1 - " + str(len(jobs)) + " would you like to view? ")
+            try:
+                int(job_id)
+            except ValueError:
+                print("Invalid input")
+                continue
+            if int(job_id) not in range(1, len(jobs)+1):
+                print("Invalid input")
+                continue
+
             selectedJob = Job._make(jobs[int(job_id) - 1])
         else:
             selectedJob = Job._make(jobs[0])
@@ -462,7 +471,11 @@ def printJobListings(dbCursor, dbConnection):
         print(f"\tSalary: {selectedJob.salary}")
         print(f"\tJob poster: {selectedJob.author}")
 
-        response = input("View another job details (Y/N)? ")
+        if len(jobs) != 1: 
+            response = input("View another job details (Y/N)? ")
+        else:
+            input("No other jobs to view details of. Press enter to return to job list.")
+            return
 
     if response.upper() == "N":
         settings.currentState = states.jobMenu # Return to main menu with state mainMenu
