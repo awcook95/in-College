@@ -322,10 +322,42 @@ def testDeleteJobPost(monkeypatch):
     cursor = connection.cursor()
     db.initTables(cursor)
     db.insertUser(cursor, "username1", "password", "first1", "last1")
+    db.insertUser(cursor, "username2", "password", "first2", "last2")
     settings.signedInUname = "username1"
     db.insertJob(cursor, "title1", "desc1", "emp1", "loc1", "sal1", "first1 last1")
     db.insertJob(cursor, "title2", "desc2", "emp2", "loc2", "sal2", "first1 last1")
     assert db.getNumJobs(cursor) == 2
-    monkeypatch.setattr("sys.stdin", StringIO("Y\nN\n"))
+    db.insertUserJobApplication(cursor, "username2", "title1", "01/01/1243", "01/02/1243", "credentials")
+    monkeypatch.setattr("sys.stdin", StringIO("1\nN\n"))
     ui.enterDeleteAJobMenu(cursor, connection)
     assert db.getNumJobs(cursor) == 1
+    assert len(db.getAppliedJobs(cursor, "username2")) == 0
+
+
+def testApplyForJob(monkeypatch):
+    connection = sqlite3.connect("incollege_test.db")
+    cursor = connection.cursor()
+    db.initTables(cursor)
+    db.insertUser(cursor, "username1", "password", "first1", "last1")
+    db.insertUser(cursor, "username2", "password", "first2", "last2")
+    db.insertJob(cursor, "title1", "desc1", "emp1", "loc1", "sal1", "first1 last1")
+    settings.signedInUname = "username2"
+    monkeypatch.setattr("sys.stdin", StringIO("1\n01/01/1234\n01/02/1234\ncredentials\n"))
+    users.applyForJob(cursor, connection)
+    assert len(db.getAppliedJobs(cursor, "username2")) == 1
+    monkeypatch.setattr("sys.stdin", StringIO("1\n\n"))
+    users.applyForJob(cursor, connection)
+    assert settings.currentState == states.jobMenu
+
+
+def testFavoriteAJob(monkeypatch):
+    connection = sqlite3.connect("incollege_test.db")
+    cursor = connection.cursor()
+    db.initTables(cursor)
+    db.insertUser(cursor, "username1", "password", "first1", "last1")
+    db.insertUser(cursor, "username2", "password", "first2", "last2")
+    db.insertJob(cursor, "title1", "desc1", "emp1", "loc1", "sal1", "first1 last1")
+    settings.signedInUname = "username2"
+    monkeypatch.setattr("sys.stdin", StringIO("1\n"))
+    users.favoriteAJob(cursor, connection)
+    assert len(db.getFavoriteJobsByUser(cursor, "username2")) == 1
