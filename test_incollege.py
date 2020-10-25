@@ -358,3 +358,18 @@ def testFavoriteAJob(monkeypatch):
     monkeypatch.setattr("sys.stdin", StringIO("1\n"))
     users.favoriteAJob(cursor, connection)
     assert len(db.getFavoriteJobsByUser(cursor, "username2")) == 1
+
+
+def testApplyForJobAlreadyAppliedFor(monkeypatch):
+    connection = sqlite3.connect("incollege_test.db")
+    cursor = connection.cursor()
+    db.initTables(cursor)
+    db.insertUser(cursor, "username1", "password", "first1", "last1")
+    db.insertUser(cursor, "username2", "password", "first2", "last2")
+    db.insertJob(cursor, "title1", "desc1", "emp1", "loc1", "sal1", "first1 last1")
+    db.insertUserJobApplication(cursor, "username2", "title1", "01/01/1234", "01/02/1234", "credentials")
+    settings.signedInUname = "username2"
+    monkeypatch.setattr("sys.stdin", StringIO("1\n\n"))
+    users.applyForJob(cursor, connection)
+    assert len(db.getAppliedJobs(cursor, "username2")) == 1
+
