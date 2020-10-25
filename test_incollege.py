@@ -155,10 +155,23 @@ def testValidJobPost(monkeypatch):
     db.initTables(cursor)
     db.insertUser(cursor, "username1", "password", "first", "last")
     settings.signedInUname = "username1"
-
-    users.postJob(cursor)
+    users.postJob(cursor, connection)
     out = db.getJobByTitle(cursor, "Title")  # Confirms that job has been added into DB correctly
     assert out is not None
+
+
+def testCreateMaxJobPosts(capfd):
+    connection = sqlite3.connect("incollege_test.db")
+    cursor = connection.cursor()
+    db.initTables(cursor)
+    db.insertUser(cursor, "username1", "password", "first1", "last1")
+    for i in range(10):
+        db.insertJob(cursor, "title", "desc", "emp", "loc", "sal", "author")
+    users.postJob(cursor, connection)
+    out, err = capfd.readouterr()
+    assert out == "All permitted jobs have been created, please come back later\n"
+    assert db.getNumJobs(cursor) == 10
+    assert settings.currentState == states.mainMenu
 
     
 def testUsefulLinks(monkeypatch):
@@ -224,12 +237,12 @@ def testProfileAddFourJobs(monkeypatch, capfd):
     db.initTables(cursor)
     db.insertUser(cursor, "uname", "password", "first", "last")
     db.insertProfilePage(cursor, "uname", "major", "university", "about")
-    for _ in range(3): #add 3 jobs
+    for _ in range(3):  # add 3 jobs
         db.insertProfileJob(cursor, "uname", "title", "employer", "date_start", "date_end", "location", "job_description")
     settings.currentState = states.profilePage #settings needed for enterProfilePageMenu to work
     settings.signedInUname = "uname"
     monkeypatch.setattr("sys.stdin", StringIO("a\nd\nz\nz\n")) #navigate menu. pressing d tries to add a new job which should fail
-    ui.enterProfilePageMenu(cursor)
+    ui.enterProfilePageMenu(cursor, connection)
     out, err = capfd.readouterr()
     assert out is not None
     assert len(db.getProfileJobs(cursor, settings.signedInUname)) == 3
@@ -252,7 +265,7 @@ def testViewFriendList(monkeypatch, capfd):
     settings.currentState = states.friendsMenu
     settings.signedInUname = "uname"
     monkeypatch.setattr("sys.stdin", StringIO("Z\n"))
-    ui.enterFriendsMenu(cursor)
+    ui.enterFriendsMenu(cursor, connection)
     out, err = capfd.readouterr()
     assert out is not None
     assert settings.currentState == states.mainMenu
@@ -268,7 +281,7 @@ def testRemoveFriend(monkeypatch):
     settings.currentState = states.friendsMenu
     settings.signedInUname = "uname"
     monkeypatch.setattr("sys.stdin", StringIO("A\n1\nZ\n"))
-    ui.enterFriendsMenu(cursor)
+    ui.enterFriendsMenu(cursor, connection)
     assert settings.currentState == states.mainMenu
     assert db.getUserFriendsByName(cursor, "uname") is None
     assert db.getUserFriendsByName(cursor, "friend_uname") is None
@@ -302,3 +315,61 @@ def testAcceptFriendRequest(monkeypatch):
     assert len(db.getUserFriendsByName(cursor, "username2")) == 1
     assert ((db.getUserFriendsByName(cursor, "username1"))[0])[0] == "username2"
     assert ((db.getUserFriendsByName(cursor, "username2"))[0])[0] == "username1"
+
+
+def testDeleteJobPost(monkeypatch):
+    connection = sqlite3.connect("incollege_test.db")
+    cursor = connection.cursor()
+    db.initTables(cursor)
+    db.insertUser(cursor, "username1", "password", "first1", "last1")
+    db.insertUser(cursor, "username2", "password", "first2", "last2")
+    settings.signedInUname = "username1"
+    db.insertJob(cursor, "title1", "desc1", "emp1", "loc1", "sal1", "first1 last1")
+    db.insertJob(cursor, "title2", "desc2", "emp2", "loc2", "sal2", "first1 last1")
+    assert db.getNumJobs(cursor) == 2
+    db.insertUserJobApplication(cursor, "username2", "title1", "01/01/1243", "01/02/1243", "credentials")
+    monkeypatch.setattr("sys.stdin", StringIO("1\nN\n"))
+    ui.enterDeleteAJobMenu(cursor, connection)
+    assert db.getNumJobs(cursor) == 1
+    assert len(db.getAppliedJobs(cursor, "username2")) == 0
+
+
+def testApplyForJob(monkeypatch):
+    connection = sqlite3.connect("incollege_test.db")
+    cursor = connection.cursor()
+    db.initTables(cursor)
+    db.insertUser(cursor, "username1", "password", "first1", "last1")
+    db.insertUser(cursor, "username2", "password", "first2", "last2")
+    db.insertJob(cursor, "title1", "desc1", "emp1", "loc1", "sal1", "first1 last1")
+    settings.signedInUname = "username2"
+    monkeypatch.setattr("sys.stdin", StringIO("1\n01/01/1234\n01/02/1234\ncredentials\n"))
+    users.applyForJob(cursor, connection)
+    assert len(db.getAppliedJobs(cursor, "username2")) == 1
+
+
+def testFavoriteAJob(monkeypatch):
+    connection = sqlite3.connect("incollege_test.db")
+    cursor = connection.cursor()
+    db.initTables(cursor)
+    db.insertUser(cursor, "username1", "password", "first1", "last1")
+    db.insertUser(cursor, "username2", "password", "first2", "last2")
+    db.insertJob(cursor, "title1", "desc1", "emp1", "loc1", "sal1", "first1 last1")
+    settings.signedInUname = "username2"
+    monkeypatch.setattr("sys.stdin", StringIO("1\n"))
+    users.favoriteAJob(cursor, connection)
+    assert len(db.getFavoriteJobsByUser(cursor, "username2")) == 1
+
+
+def testApplyForJobAlreadyAppliedFor(monkeypatch):
+    connection = sqlite3.connect("incollege_test.db")
+    cursor = connection.cursor()
+    db.initTables(cursor)
+    db.insertUser(cursor, "username1", "password", "first1", "last1")
+    db.insertUser(cursor, "username2", "password", "first2", "last2")
+    db.insertJob(cursor, "title1", "desc1", "emp1", "loc1", "sal1", "first1 last1")
+    db.insertUserJobApplication(cursor, "username2", "title1", "01/01/1234", "01/02/1234", "credentials")
+    settings.signedInUname = "username2"
+    monkeypatch.setattr("sys.stdin", StringIO("1\n\n"))
+    users.applyForJob(cursor, connection)
+    assert len(db.getAppliedJobs(cursor, "username2")) == 1
+
