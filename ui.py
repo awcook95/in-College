@@ -439,7 +439,10 @@ def printJobListings(dbCursor, dbConnection):
             # first create job object to select from
             Job = namedtuple('User', 'jobID title description employer location salary author')
             selectedJob = Job._make(jobs[i])
-            print(f"{i+1}. Job Title: {selectedJob.title}")
+            if len(db.getUserJobApplicationByTitle(dbCursor, settings.signedInUname, selectedJob.title)) > 0: #if user has applied to this job
+                print(f"{i+1}. Job Title: {selectedJob.title} (Applied)")
+            else:
+                print(f"{i+1}. Job Title: {selectedJob.title}")
     else:
         input("No jobs have been posted\nPress enter to return to previous menu.")
         settings.currentState = states.jobMenu
@@ -607,6 +610,7 @@ def viewAppliedJobs(dbCursor, dbConnection):
                 Job = namedtuple('User', 'jobID title description employer location salary author')
                 selectedJob = Job._make(jobs[i])
                 print(f"{i+1}. Job Title: {selectedJob.title}")
+
     else:           
         print("You have not applied for any jobs yet")
     input("Press enter to return to previous menu:")
