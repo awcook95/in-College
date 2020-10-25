@@ -345,9 +345,6 @@ def testApplyForJob(monkeypatch):
     monkeypatch.setattr("sys.stdin", StringIO("1\n01/01/1234\n01/02/1234\ncredentials\n"))
     users.applyForJob(cursor, connection)
     assert len(db.getAppliedJobs(cursor, "username2")) == 1
-    monkeypatch.setattr("sys.stdin", StringIO("1\n\n"))  # tests applying for the same job
-    users.applyForJob(cursor, connection)
-    assert settings.currentState == states.jobMenu
 
 
 def testFavoriteAJob(monkeypatch):
