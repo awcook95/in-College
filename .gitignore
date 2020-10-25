@@ -4,3 +4,4 @@ __pychache__/
 venv/
 .idea/
 *.db-journal
+.vscode

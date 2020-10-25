@@ -21,3 +21,7 @@ jobMenu = 18
 deleteJob = 19
 apply = 20
 viewJobs = 21
+favoriteJob = 22
+viewFavoriteJobs = 23
+viewAppliedJobs = 24
+viewUnappliedJobs = 25

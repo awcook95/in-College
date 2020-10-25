@@ -81,7 +81,7 @@ def initTables(cursor):
     cursor.execute("""CREATE TABLE IF NOT EXISTS
     user_job_applications(
         app_id INTEGER PRIMARY KEY,
-        aplicant_uname TEXT,
+        applicant_uname TEXT,
         job_title TEXT,
         graduation_date TEXT,
         start_date TEXT, 
@@ -89,6 +89,19 @@ def initTables(cursor):
         FOREIGN KEY(job_title) REFERENCES jobs(title)
     )""")
 
+    cursor.execute("""CREATE TABLE IF NOT EXISTS
+    favorited_jobs(
+        uname TEXT,
+        job_title TEXT,
+        FOREIGN KEY(uname) REFERENCES jobs(uname)
+        FOREIGN KEY(job_title) REFERENCES jobs(title)
+        PRIMARY KEY(uname, job_title)
+    )""")
+
+def getUserFullName(cursor, uname):
+    cursor.execute("SELECT firstname, lastname FROM Users WHERE UPPER(uname)=?", [uname.upper()])
+    user = cursor.fetchone()
+    return user[0] + " " + user[1]
 
 def getProfilePage(cursor, uname):
     cursor.execute("SELECT * FROM profile_page WHERE uname=?", [uname])
@@ -235,9 +248,34 @@ def getUserFriendRequests(cursor, reciever_name):
     return cursor.fetchall()
 
 def getUserJobApplicationByTitle(cursor, applicant_name, job_title):
-    cursor.execute("SELECT * FROM user_job_applications WHERE UPPER(aplicant_uname)=?", [applicant_name.upper()])
+    cursor.execute("SELECT * FROM user_job_applications WHERE UPPER(applicant_uname)=? AND job_title=?", [applicant_name.upper(), job_title])
+    return cursor.fetchall()
+
+def getUnappliedJobs(cursor, uname):
+    cursor.execute("SELECT * FROM jobs WHERE title NOT IN (SELECT job_title FROM user_job_applications WHERE applicant_uname=?)", [uname])
+    return cursor.fetchall()
+
+def getAppliedJobs(cursor, uname):
+    cursor.execute("SELECT * FROM jobs WHERE title IN (SELECT job_title FROM user_job_applications WHERE applicant_uname=?)", [uname])
+    return cursor.fetchall()
+
+def getJobsPostedByUser(cursor, authorName):
+    cursor.execute("SELECT * FROM jobs WHERE UPPER(author)=?", [authorName.upper()])
     return cursor.fetchall()
 
 def insertUserJobApplication(cursor, aplicant_uname, job_title, graduation_date, start_date, credentials):
     cursor.execute("INSERT INTO user_job_applications VALUES(?,?,?,?,?,?)", [None, aplicant_uname, job_title, graduation_date, start_date, credentials])
 
+def getFavoriteJobsByUser(cursor, uname):
+    cursor.execute("SELECT * FROM jobs WHERE title IN (SELECT job_title FROM favorited_jobs WHERE uname=?)", [uname])
+    return cursor.fetchall()
+
+def getJobsNotFavorited(cursor, uname):
+    cursor.execute("SELECT * FROM jobs WHERE title NOT IN (SELECT job_title FROM favorited_jobs WHERE uname=?)", [uname])
+    return cursor.fetchall()
+
+def insertFavoriteJob(cursor, uname, jobTitle):
+    cursor.execute("INSERT INTO favorited_jobs VALUES(?,?)", [uname, jobTitle])
+
+def deleteFavoriteJob(cursor, uname, jobTitle):
+    cursor.execute("DELETE FROM favorited_jobs WHERE UPPER(uname)=? AND job_title=?", [uname.upper(), jobTitle])

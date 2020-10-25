@@ -4,16 +4,6 @@ import states
 import users
 import utils
 import dbfunctions as db
-import os           # These are used to clear the console when switching between menus
-import subprocess   #
-
-def clear(): # Clear console to print menu on blank page
-    if os.name in ('nt','dos'): # Windows
-        subprocess.call("cls")
-    elif os.name in ('linux','osx','posix'): # Mac/linux
-        subprocess.call("clear")
-    else: # if unrecognized just print many new lines 
-        print("\n") * 120
 
 def enterInitialMenu():
     while settings.currentState == states.loggedOut:  # change from currentState = loggedOut will result in return to incollege.py's main()
@@ -58,7 +48,7 @@ def enterMainMenu(dbCursor, dbConnection):  # presents the user with an introduc
         response = db.getUserFriendRequests(dbCursor, settings.signedInUname)
 
         print("Options:\n"
-              "A. Search for a job/internship\n"
+              "A. Jobs\n"
               "B. Find someone you know\n"
               "C. Learn a new skill\n"
               "D. InCollege Useful Links\n"
@@ -441,6 +431,7 @@ def printProfilePage(dbCursor, uname):
     return major, university, about
 
 def printJobListings(dbCursor, dbConnection):
+    utils.clear()
     print("Jobs currently listed in the system:\n")
     jobs = db.getAllJobs(dbCursor)
     if len(jobs) > 0:
@@ -448,7 +439,14 @@ def printJobListings(dbCursor, dbConnection):
             # first create job object to select from
             Job = namedtuple('User', 'jobID title description employer location salary author')
             selectedJob = Job._make(jobs[i])
-            print(f"{i+1}. Job Title: {selectedJob.title}")
+            if len(db.getUserJobApplicationByTitle(dbCursor, settings.signedInUname, selectedJob.title)) > 0: #if user has applied to this job
+                print(f"{i+1}. Job Title: {selectedJob.title} (Applied)")
+            else:
+                print(f"{i+1}. Job Title: {selectedJob.title}")
+    else:
+        input("No jobs have been posted\nPress enter to return to previous menu.")
+        settings.currentState = states.jobMenu
+        return
 
     response = input("View Job details (Y/N)? ")
     # print full job details
@@ -456,6 +454,15 @@ def printJobListings(dbCursor, dbConnection):
         Job = namedtuple('User', 'jobID title description employer location salary author')
         if len(jobs) != 1: 
             job_id = input("Which job 1 - " + str(len(jobs)) + " would you like to view? ")
+            try:
+                int(job_id)
+            except ValueError:
+                print("Invalid input")
+                continue
+            if int(job_id) not in range(1, len(jobs)+1):
+                print("Invalid input")
+                continue
+
             selectedJob = Job._make(jobs[int(job_id) - 1])
         else:
             selectedJob = Job._make(jobs[0])
@@ -467,52 +474,79 @@ def printJobListings(dbCursor, dbConnection):
         print(f"\tSalary: {selectedJob.salary}")
         print(f"\tJob poster: {selectedJob.author}")
 
-        response = input("View another job details (Y/N)? ")
+        if len(jobs) != 1: 
+            response = input("View another job details (Y/N)? ")
+        else:
+            input("No other jobs to view details of. Press enter to return to job list.")
+            return
 
     if response.upper() == "N":
         settings.currentState = states.jobMenu # Return to main menu with state mainMenu
 
 def enterDeleteAJobMenu(dbCursor, dbConnection):
     print("Jobs you have posted:\n")
-    User = namedtuple('User', 'uname pword firstname lastname')
-    currentUser = User._make(db.getUserByName(dbCursor, settings.signedInUname))
-
-    first = currentUser.firstname
-    last = currentUser.lastname
-    author = first + " " + last
-    jobs = db.getJobsByAuthor(dbCursor, author)
+    userFullName = db.getUserFullName(dbCursor, settings.signedInUname)
+    jobs = db.getJobsPostedByUser(dbCursor, userFullName)
     if len(jobs) > 0:
         for i in range(0, len(jobs)):
             # first create job object to select from
             Job = namedtuple('User', 'jobID title description employer location salary author')
             selectedJob = Job._make(jobs[i])
-
             print(f"{i+1}. Job Title: {selectedJob.title}")
-            print(f"\tJob Description: {selectedJob.description}")
-            print(f"\tEmployer Name: {selectedJob.employer}")
-            print(f"\tJob Location: {selectedJob.location}")
-            print(f"\tSalary: ${selectedJob.salary}")
-            print(f"\tJob Poster: {selectedJob.author}\n")
-            response = input("Delete this job (Y/N)? ")
-            # could make this into a while loop that contiually asks for input
-            if response.upper() == "Y":
-                db.deleteJob(dbCursor, selectedJob.jobID)
-                dbConnection.commit()
-            elif response.upper() == "N":
-                continue
-        clear()
+    else:
+        input("You have not posted any jobs. You can only delete jobs you have posted.\nPress enter to return to previous menu.")
         settings.currentState = states.jobMenu
-    else: 
-        print("You have not posted any jobs! You can only delete jobs you have posted. \n")
-        settings.currentState = states.jobMenu
+        return
+    
+    global job_index
+    while(True):
+        job_index = input("Select a job 1 - " + str(len(jobs)) + " to delete: \n(Or press enter to return to previous menu)\n")
+        if job_index == "":
+            settings.currentState = states.jobMenu
+            return
+        try:
+            int(job_index)
+        except ValueError:
+            print("Invalid input")
+            continue
+        if int(job_index) not in range(1, int(str(len(jobs)))+1):
+            print("Invalid input")
+            continue
+        else:
+            break
+
+    Job = namedtuple('User', 'jobID title description employer location salary author')
+    selectedJob = Job._make(jobs[int(job_index)-1])
+    job_title = selectedJob.title
+
+    db.deleteJob(dbCursor, int(selectedJob.jobID))
+    dbConnection.commit()
+    print("Successfully deleted job")
+    while(True):
+        choice = input("Delete another job? (Y/N)")
+        if choice.upper() == "N":
+            settings.currentState = states.jobMenu
+            return
+        elif choice.upper() == "Y":
+            return
+        else:
+            print("Invalid input")
 
 def enterJobMenu():
+    utils.clear()
     print("Select a job function: \n")
     choice = input("A. Post a job\n"  
-                "B. View posted jobs\n"  
+                "B. View posted jobs\n"
                 "C. Apply for a job\n"
                 "D. Delete a job\n"
+                "E. Favorite a job\n"
+                "F. View favorited jobs\n"
+                "G. View jobs applied for\n"
+                "H. View jobs not applied for\n"
+                "Z. Return to main menu\n"
+
                 "input: ")
+    utils.clear()
     if choice.upper() == "A":
         settings.currentState = states.createJob    # returns to incollege.py's main() w/ currentState = createJob
     elif choice.upper() == "B":
@@ -521,8 +555,77 @@ def enterJobMenu():
         settings.currentState = states.apply     # returns to incollege.py's main() w/ currentState = viewJobs
     elif choice.upper() == "D":
         settings.currentState = states.deleteJob # returns to incollege.py's main() w/ currentState = deleteJob
+    elif choice.upper() == "E":
+        settings.currentState = states.favoriteJob # returns to incollege.py's main() w/ currentState = favoriteJob
+    elif choice.upper() == "F":
+        settings.currentState = states.viewFavoriteJobs # returns to incollege.py's main() w/ currentState = viewFavoriteJobs
+    elif choice.upper() == "G":
+        settings.currentState = states.viewAppliedJobs # returns to incollege.py's main() w/ currentState = viewAppliedJobs
+    elif choice.upper() == "H":
+        settings.currentState = states.viewUnappliedJobs # returns to incollege.py's main() w/ currentState = viewUnappliedJobs
+    elif choice.upper() == "Z":
+        settings.currentState = states.mainMenu
 
-    
-    
-    
+def viewFavoriteJobs(dbCursor, dbConnection):
+    print("Your favorited jobs:")
+    jobs = db.getFavoriteJobsByUser(dbCursor, settings.signedInUname)
+    if len(jobs) > 0:
+        for i in range(0, len(jobs)):
+            # first create job object to select from
+            Job = namedtuple('User', 'jobID title description employer location salary author')
+            selectedJob = Job._make(jobs[i])
+            print(f"{i+1}. Job Title: {selectedJob.title}")
+    else:
+        input("You currently have no favorited jobs.\nPress any key return to previous menu")
+        settings.currentState = states.jobMenu
+        return
 
+    job_index = input("Select a job 1 - " + str(len(jobs)) + " to unfavorite: \n(Or press enter to return to previous menu)\n")
+    if job_index == "":
+        settings.currentState = states.jobMenu
+        return
+    try:
+        int(job_index)
+    except ValueError:
+        print("Invalid input")
+        return
+    if int(job_index) not in range(1, int(str(len(jobs)))+1):
+        print("Invalid input")
+        return
+
+    Job = namedtuple('User', 'jobID title description employer location salary author')
+    selectedJob = Job._make(jobs[int(job_index)-1])
+    job_title = selectedJob.title
+
+    db.deleteFavoriteJob(dbCursor, settings.signedInUname, job_title)
+    dbConnection.commit()
+    print("Job has been removed from favorites list.")
+
+def viewAppliedJobs(dbCursor, dbConnection):
+    print("Jobs you have applied for:")
+    jobs = db.getAppliedJobs(dbCursor, settings.signedInUname)
+    if len(jobs) > 0:
+        for i in range(0, len(jobs)):
+                # first create job object to select from
+                Job = namedtuple('User', 'jobID title description employer location salary author')
+                selectedJob = Job._make(jobs[i])
+                print(f"{i+1}. Job Title: {selectedJob.title}")
+
+    else:           
+        print("You have not applied for any jobs yet")
+    input("Press enter to return to previous menu:")
+    settings.currentState = states.jobMenu
+
+def viewUnappliedJobs(dbCursor, dbConnection):
+    print("Jobs you have yet to apply for")
+    jobs = db.getUnappliedJobs(dbCursor, settings.signedInUname)
+    if len(jobs) > 0:
+        for i in range(0, len(jobs)):
+                # first create job object to select from
+                Job = namedtuple('User', 'jobID title description employer location salary author')
+                selectedJob = Job._make(jobs[i])
+                print(f"{i+1}. Job Title: {selectedJob.title}")
+    else:
+        print("None")
+    input("Press enter to return to previous menu:")
+    settings.currentState = states.jobMenu

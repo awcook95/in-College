@@ -2,6 +2,8 @@ from collections import namedtuple
 import dbfunctions as db
 import settings
 
+def clear(): # Clear console to print menu on blank page
+    print("\n" * 120)
 
 def validatePassword(password):
     if len(password) < 8 or len(password) > 12:     # out of length bounds
