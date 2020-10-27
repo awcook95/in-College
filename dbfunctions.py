@@ -5,6 +5,7 @@ def initTables(cursor):
         pword TEXT NOT NULL,
         firstname TEXT NOT NULL,
         lastname TEXT NOT NULL,
+        plus_member INTEGER,
         UNIQUE(firstname, lastname)
         )""")
 
@@ -97,6 +98,33 @@ def initTables(cursor):
         FOREIGN KEY(job_title) REFERENCES jobs(title)
         PRIMARY KEY(uname, job_title)
     )""")
+    
+    #### NEW EPIC 7 ####
+    cursor.execute("""CREATE TABLE IF NOT EXISTS
+    messages(
+        message_id INTEGER PRIMARY KEY,
+        sender_uname TEXT,
+        receiver_uname TEXT,
+        body TEXT,
+        read INTEGER,
+        FOREIGN KEY(sender_uname) REFERENCES users(uname)
+        FOREIGN KEY(receiver_uname) REFERENCES users(uname)
+    )""")
+
+def insertMessage(cursor, senderUname, receiverUname, body): #### NEW EPIC 7 ####
+    cursor.execute("INSERT INTO messages VALUES(?,?,?,?,?)", [None, senderUname, receiverUname, body, 0]) # last element is boolean read/unread
+
+def getMessageBySender(cursor, senderUname): #### NEW EPIC 7 ####
+    pass
+
+def getMessageByReceiver(cursor, receiverUname): #### NEW EPIC 7 ####
+    pass
+
+def updateMessageAsRead(cursor, messageID): #### NEW EPIC 7 ####
+    pass
+
+def userIsPlusMember(cursor, uname): #### NEW EPIC 7 ####
+    pass
 
 def getUserFullName(cursor, uname):
     cursor.execute("SELECT firstname, lastname FROM Users WHERE UPPER(uname)=?", [uname.upper()])
@@ -175,8 +203,8 @@ def getJobByTitle(cursor, title):
     cursor.execute("SELECT * FROM jobs WHERE Title like ?", [title])
     return cursor.fetchone()
     
-def insertUser(cursor, uname, pword, fname, lname):
-    cursor.execute("INSERT INTO users VALUES (?, ?, ?, ?)", [uname, pword, fname, lname])
+def insertUser(cursor, uname, pword, fname, lname, plusMember):
+    cursor.execute("INSERT INTO users VALUES (?, ?, ?, ?, ?)", [uname, pword, fname, lname, plusMember]) #plusMember is boolean
 
 
 def insertUserSettings(cursor, uname, email, sms, advert, language):
