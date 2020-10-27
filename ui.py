@@ -649,6 +649,49 @@ def messageCenterMenu(dbCursor, dbConnection): #### NEW EPIC 7 ####
 
 def inboxMenu(dbCursor, dbConnection): #### NEW EPIC 7 ####
     settings.currentState = states.messageCenter    # returns to incollege.py's main() w/ currentState = messageCenter
+    
+    # Display list of messages
+    messages = db.getMessageByReceiver(dbCursor, settings.signedInUname)
+    if len(messages) > 0:
+        for i in range(0, len(messages)):
+                # first create message object to select from
+                Message = namedtuple('User', 'message_id sender_uname receiver_uname body read')
+                selectedMessage = Message._make(messages[i])
+                print(f"{i+1}. {selectedMessage.sender_uname} ")
+                if selectedMessage.read == 0:
+                    print("(Unread)")
+                
+        print("\n")
+        choice = input("Select a message 1 - " + str(len(messages)) + " to read: \n(Or press enter to return to previous menu)\n")
+        if choice == "":
+            return
+        try:
+            int(choice)
+        except ValueError:
+            print("Invalid input\n")
+            return
+        if int(choice) not in range(1, int(str(len(messages)))+1):
+            print("Invalid input\n")
+            return
+        
+        print(f"{selectedMessage.body}\n") # Print Message
+        db.updateMessageAsRead(dbCursor, selectedMessage.message_id) # Mark message as read
+        
+        response = input.upper("Would you like to send a reply? (Y/N): ")
+        if response == 'Y':
+            reply = input("Enter message: ")
+            db.insertMessage(dbCursor, settings.signedInUname, selectedMessage.sender_uname, reply) # Add new message
+            dbConnection.commit()
+        
+        option = input.upper("Would you like to delete the message? (Y/N): ")
+        if option == 'Y':
+            selectedMessage = Message._make(messages[int(choice)-1])
+            message_num = selectedMessage.message_id
+            db.deleteMessage(dbCursor, message_num) # Delete Message
+            dbConnection.commit()
+            print("Message Deleted\n")
+    else:           
+        print("You have no messages\n")
         
 def sendMessageMenu(dbCursor, dbConnection): #### NEW EPIC 7 ####
     settings.currentState = states.messageCenter    # returns to incollege.py's main() w/ currentState = messageCenter
