@@ -25,3 +25,6 @@ favoriteJob = 22
 viewFavoriteJobs = 23
 viewAppliedJobs = 24
 viewUnappliedJobs = 25
+messageCenter = 26
+inbox = 27
+sendMessage = 28
