@@ -113,6 +113,9 @@ def initTables(cursor):
 
 def insertMessage(cursor, senderUname, receiverUname, body): #### NEW EPIC 7 ####
     cursor.execute("INSERT INTO messages VALUES(?,?,?,?,?)", [None, senderUname, receiverUname, body, 0]) # last element is boolean read/unread
+    
+def deleteMessage(cursor, message_id): #### NEW EPIC 7 ####
+    cursor.execute("DELETE FROM messages WHERE message_id=?", [message_id])
 
 def updateMessageAsRead(cursor, messageID): #### NEW EPIC 7 ####
     cursor.execute("UPDATE messages read=1 WHERE message_id=?", [messageID])
