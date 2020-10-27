@@ -114,17 +114,20 @@ def initTables(cursor):
 def insertMessage(cursor, senderUname, receiverUname, body): #### NEW EPIC 7 ####
     cursor.execute("INSERT INTO messages VALUES(?,?,?,?,?)", [None, senderUname, receiverUname, body, 0]) # last element is boolean read/unread
 
-def getMessageBySender(cursor, senderUname): #### NEW EPIC 7 ####
-    pass
+def updateMessageAsRead(cursor, messageID): #### NEW EPIC 7 ####
+    cursor.execute("UPDATE messages read=1 WHERE message_id=?", [messageID])
 
 def getMessageByReceiver(cursor, receiverUname): #### NEW EPIC 7 ####
-    pass
-
-def updateMessageAsRead(cursor, messageID): #### NEW EPIC 7 ####
-    pass
+    cursor.execute("SELECT * FROM messages WHERE receiver_uname=?", [receiverUname])
+    cursor.fetchall()
 
 def userIsPlusMember(cursor, uname): #### NEW EPIC 7 ####
-    pass
+    cursor.execute("SELECT * FROM users WHERE uname=?", [uname])
+    user = cursor.fetchone()
+    if user[4] == 1:
+        return True
+    else:
+        return False
 
 def getUserFullName(cursor, uname):
     cursor.execute("SELECT firstname, lastname FROM Users WHERE UPPER(uname)=?", [uname.upper()])
