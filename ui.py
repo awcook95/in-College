@@ -639,6 +639,7 @@ def messageCenterMenu(dbCursor, dbConnection): #### NEW EPIC 7 ####
     print("Select a messaging option: \n")
     choice = input("A. Inbox\n"  
                 "B. Send a message\n"
+                "C. Return to previous menu\n"
                 "input: ")
 
     utils.clear()
@@ -646,13 +647,20 @@ def messageCenterMenu(dbCursor, dbConnection): #### NEW EPIC 7 ####
         settings.currentState = states.inbox    # returns to incollege.py's main() w/ currentState = inbox
     elif choice.upper() == "B":
         settings.currentState = states.sendMessage     # returns to incollege.py's main() w/ currentState = sendMessage
+    elif choice.upper() == 'C':
+        settings.currentState = states.mainMenu    # returns to incollege.py's main() w/ currentState = mainMenu
+    else:
+        print("Invalid input\n");
 
 def inboxMenu(dbCursor, dbConnection): #### NEW EPIC 7 ####
     settings.currentState = states.messageCenter    # returns to incollege.py's main() w/ currentState = messageCenter
     
     # Display list of messages
     messages = db.getMessageByReceiver(dbCursor, settings.signedInUname)
-    if len(messages) > 0:
+    if messages == None:
+        print("You have no messages\n")
+        choice = input("Press enter to return to previous menu: ")
+    else:
         for i in range(0, len(messages)):
                 # first create message object to select from
                 Message = namedtuple('User', 'message_id sender_uname receiver_uname body read')
@@ -689,9 +697,6 @@ def inboxMenu(dbCursor, dbConnection): #### NEW EPIC 7 ####
             message_num = selectedMessage.message_id
             db.deleteMessage(dbCursor, message_num) # Delete Message
             dbConnection.commit()
-            print("Message Deleted\n")
-    else:           
-        print("You have no messages\n")
         
 def sendMessageMenu(dbCursor, dbConnection): #### NEW EPIC 7 ####
     settings.currentState = states.messageCenter    # returns to incollege.py's main() w/ currentState = messageCenter
