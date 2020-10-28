@@ -639,7 +639,6 @@ def messageCenterMenu(dbCursor, dbConnection): #### NEW EPIC 7 ####
     print("Select a messaging option: \n")
     choice = input("A. Inbox\n"  
                 "B. Send a message\n"
-                "C. Return to previous menu\n"
                 "input: ")
 
     utils.clear()
@@ -647,10 +646,6 @@ def messageCenterMenu(dbCursor, dbConnection): #### NEW EPIC 7 ####
         settings.currentState = states.inbox    # returns to incollege.py's main() w/ currentState = inbox
     elif choice.upper() == "B":
         settings.currentState = states.sendMessage     # returns to incollege.py's main() w/ currentState = sendMessage
-    elif choice.upper() == 'C':
-        settings.currentState = states.mainMenu    # returns to incollege.py's main() w/ currentState = mainMenu
-    else:
-        print("Invalid input\n");
 
 def inboxMenu(dbCursor, dbConnection): #### NEW EPIC 7 ####
     settings.currentState = states.messageCenter    # returns to incollege.py's main() w/ currentState = messageCenter
@@ -699,4 +694,3 @@ def inboxMenu(dbCursor, dbConnection): #### NEW EPIC 7 ####
             dbConnection.commit()
         
 def sendMessageMenu(dbCursor, dbConnection): #### NEW EPIC 7 ####
-    settings.currentState = states.messageCenter    # returns to incollege.py's main() w/ currentState = messageCenter
