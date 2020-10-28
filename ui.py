@@ -654,10 +654,8 @@ def inboxMenu(dbCursor, dbConnection): #### NEW EPIC 7 ####
     settings.currentState = states.messageCenter    # returns to incollege.py's main() w/ currentState = messageCenter
         
 def sendMessageMenu(dbCursor, dbConnection): #### NEW EPIC 7 ####
-    dbCursor.execute("SELECT * FROM users WHERE uname IN (SELECT uname FROM user_friends WHERE uname=?)", [settings.signedInUname])
-    friends = dbCursor.fetchall()
-    dbCursor.execute("SELECT * FROM users WHERE uname !=?", [settings.signedInUname])
-    allUsers = dbCursor.fetchall()
+    friends = db.getUserFriends(dbCursor, settings.signedInUname)
+    allUsers = db.getAllOtherUsers(dbCursor, settings.signedInUname)
     choice = "A"
     users = friends
     while(True):

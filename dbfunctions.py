@@ -111,6 +111,14 @@ def initTables(cursor):
         FOREIGN KEY(receiver_uname) REFERENCES users(uname)
     )""")
 
+def getUserFriends(cursor, uname): #### NEW EPIC 7 ####
+    cursor.execute("SELECT * FROM users WHERE uname IN (SELECT uname FROM user_friends WHERE uname=?)", [uname])
+    return cursor.fetchall()
+
+def getAllOtherUsers(cursor, uname): #### NEW EPIC 7 ####
+    cursor.execute("SELECT * FROM users WHERE uname !=?", [uname])
+    return cursor.fetchall()
+
 def insertMessage(cursor, senderUname, receiverUname, body): #### NEW EPIC 7 ####
     cursor.execute("INSERT INTO messages VALUES(?,?,?,?,?)", [None, senderUname, receiverUname, body, 0]) # last element is boolean read/unread
 
