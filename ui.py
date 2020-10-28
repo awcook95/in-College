@@ -639,6 +639,7 @@ def messageCenterMenu(dbCursor, dbConnection): #### NEW EPIC 7 ####
     print("Select a messaging option: \n")
     choice = input("A. Inbox\n"  
                 "B. Send a message\n"
+                "Z. Return to previous menu\n"
                 "input: ")
 
     utils.clear()
@@ -646,9 +647,75 @@ def messageCenterMenu(dbCursor, dbConnection): #### NEW EPIC 7 ####
         settings.currentState = states.inbox    # returns to incollege.py's main() w/ currentState = inbox
     elif choice.upper() == "B":
         settings.currentState = states.sendMessage     # returns to incollege.py's main() w/ currentState = sendMessage
+    elif choice.upper() == "Z":
+        settings.currentState = states.mainMenu     # returns to incollege.py's main() w/ currentState = mainMenu
 
 def inboxMenu(dbCursor, dbConnection): #### NEW EPIC 7 ####
     settings.currentState = states.messageCenter    # returns to incollege.py's main() w/ currentState = messageCenter
         
 def sendMessageMenu(dbCursor, dbConnection): #### NEW EPIC 7 ####
-    settings.currentState = states.messageCenter    # returns to incollege.py's main() w/ currentState = messageCenter
+    friends = db.getUserFriends(dbCursor, settings.signedInUname)
+    allUsers = db.getAllOtherUsers(dbCursor, settings.signedInUname)
+    choice = "A"
+    users = friends
+    while(True):
+        if choice.upper() == "A":
+            print("Your friends:")
+        elif choice.upper() == "B":
+            print("All InCollege users:")
+        if len(users) > 0:
+            for i in range(0, len(users)):
+                user = namedtuple('user', 'uname pword firstname lastname plus_member')
+                selectedUser = user._make(users[i])
+                print(f"{i+1}. {selectedUser.uname}")
+        else:
+            if choice.upper() == "A":
+                print("None, go add some friends!:\n")
+            elif choice.upper() == "B":
+                print("No InCollege users found.\n")
+
+        if len(users) > 0:
+            choice = input("Select a user 1 - " + str(len(users)) + " to message: \n\n"
+                "A. View my friends\n"
+                "B. View all InCollege users\n"
+                "Z. Return to previous menu\n")
+        else:
+            choice = input(
+                "A. View my friends\n"
+                "B. View all InCollege users\n"
+                "Z. Return to previous menu\n")
+
+        if choice.upper() == "A":
+            users = friends
+            continue
+        elif choice.upper() == "B":
+            users = allUsers
+            continue
+        elif choice.upper() == "Z":
+            settings.currentState = states.messageCenter
+            return
+        try:
+            int(choice)
+        except ValueError:
+            print("Invalid input")
+            continue
+
+        if len(users) == 0:
+            print("Invalid input")
+            continue
+            
+        if int(choice) not in range(1, len(users)+1):
+            print(f"Input must be 1 through {len(users)+1}")
+            continue
+
+        user = namedtuple('user', 'uname pword firstname lastname plus_member')
+        selectedUser = user._make(users[int(choice)-1])
+        
+        if not db.checkUserFriendRelation(dbCursor, settings.signedInUname, selectedUser.uname) and not db.userIsPlusMember(dbCursor, settings.signedInUname):
+            print("I'm sorry, you are not friends with that person -- Only InCollege Plus members may send messages to non-friends.")
+            continue
+
+        message = input(f"Enter your message you would like to send to {selectedUser.uname}:")
+        db.insertMessage(dbCursor, settings.signedInUname, selectedUser.uname, message)
+        dbConnection.commit()
+        print("Message sent")
