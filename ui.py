@@ -55,6 +55,7 @@ def enterMainMenu(dbCursor, dbConnection):  # presents the user with an introduc
               "E. InCollege Important Links\n"
               "F. View Friends\n"
               "G. Student Profile\n"
+              "H. Message Center\n"
               "Z. Logout\n")
 
         if len(response) > 0:
@@ -78,6 +79,8 @@ def enterMainMenu(dbCursor, dbConnection):  # presents the user with an introduc
             settings.currentState = states.friendsMenu
         elif response.upper() == "G":
             settings.currentState = states.profilePage
+        elif response.upper() == "H":
+            settings.currentState = states.messageCenter
         elif response.upper() == "Z":
             users.logOutUser()  # logs user out: currentState = loggedOut; signedInUname = None; signedIn = False
         else:
@@ -629,3 +632,23 @@ def viewUnappliedJobs(dbCursor, dbConnection):
         print("None")
     input("Press enter to return to previous menu:")
     settings.currentState = states.jobMenu
+
+
+def messageCenterMenu(dbCursor, dbConnection): #### NEW EPIC 7 ####
+    utils.clear()
+    print("Select a messaging option: \n")
+    choice = input("A. Inbox\n"  
+                "B. Send a message\n"
+                "input: ")
+
+    utils.clear()
+    if choice.upper() == "A":
+        settings.currentState = states.inbox    # returns to incollege.py's main() w/ currentState = inbox
+    elif choice.upper() == "B":
+        settings.currentState = states.sendMessage     # returns to incollege.py's main() w/ currentState = sendMessage
+
+def inboxMenu(dbCursor, dbConnection): #### NEW EPIC 7 ####
+    settings.currentState = states.messageCenter    # returns to incollege.py's main() w/ currentState = messageCenter
+        
+def sendMessageMenu(dbCursor, dbConnection): #### NEW EPIC 7 ####
+    settings.currentState = states.messageCenter    # returns to incollege.py's main() w/ currentState = messageCenter

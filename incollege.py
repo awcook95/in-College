@@ -54,22 +54,22 @@ def main(dbCursor, dbConnection):
         if settings.currentState == states.apply:
             users.applyForJob(dbCursor, dbConnection)
              
-        if settings.currentState == states.viewJobs: #### NEW EPIC 6 #####
+        if settings.currentState == states.viewJobs: 
             ui.printJobListings(dbCursor, dbConnection)
         
-        if settings.currentState == states.deleteJob: #### NEW EPIC 6 #####
+        if settings.currentState == states.deleteJob: 
             ui.enterDeleteAJobMenu(dbCursor, dbConnection)
 
-        if settings.currentState == states.favoriteJob: #### NEW EPIC 6 #####
+        if settings.currentState == states.favoriteJob: 
             users.favoriteAJob(dbCursor, dbConnection)
 
-        if settings.currentState == states.viewFavoriteJobs: #### NEW EPIC 6 #####
+        if settings.currentState == states.viewFavoriteJobs: 
             ui.viewFavoriteJobs(dbCursor, dbConnection)
 
-        if settings.currentState == states.viewAppliedJobs: #### NEW EPIC 6 #####
+        if settings.currentState == states.viewAppliedJobs: 
             ui.viewAppliedJobs(dbCursor, dbConnection)
 
-        if settings.currentState == states.viewUnappliedJobs: #### NEW EPIC 6 #####
+        if settings.currentState == states.viewUnappliedJobs: 
             ui.viewUnappliedJobs(dbCursor, dbConnection)
             
         if settings.currentState == states.jobMenu: 
@@ -101,6 +101,15 @@ def main(dbCursor, dbConnection):
 
         if settings.currentState == states.profilePage:
             ui.enterProfilePageMenu(dbCursor, dbConnection)
+
+        if settings.currentState == states.messageCenter:
+            ui.messageCenterMenu(dbCursor, dbConnection) #### NEW EPIC 7 ####
+
+        if settings.currentState == states.inbox:
+            ui.inboxMenu(dbCursor, dbConnection) #### NEW EPIC 7 ####
+        
+        if settings.currentState == states.sendMessage:
+            ui.sendMessageMenu(dbCursor, dbConnection) #### NEW EPIC 7 ####
 
     print("Ending Program")
 

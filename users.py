@@ -28,7 +28,18 @@ def createUser(dbCursor, connection):
     fname = input("Enter your first name: ")
     lname = input("Enter your last name: ")
 
-    db.insertUser(dbCursor, uname, pword, fname, lname)
+    plusMember = input("Sign up for InCollege-Plus membership? (Enter Y for Plus, N for Standard): ")
+    while True:
+        if plusMember.upper() == "Y":
+            plusMember = 1
+            break
+        elif plusMember.upper() == "N":
+            plusMember = 0
+            break
+        else:
+            plusMember = input("Invalid option\nSign up for InCollege-Plus membership? (Enter Y for Plus, N for Standard): ")
+
+    db.insertUser(dbCursor, uname, pword, fname, lname, plusMember)
     db.insertUserSettings(dbCursor, uname, settings.emailNotif, settings.smsNotif, settings.targetAdvert, settings.language)
     db.insertProfilePage(dbCursor, uname, "", "", "")
     connection.commit()  # commits the new account and settings to the database (ensures account and settings are saved)
