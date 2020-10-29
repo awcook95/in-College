@@ -122,15 +122,15 @@ def getAllOtherUsers(cursor, uname): #### NEW EPIC 7 ####
 def insertMessage(cursor, senderUname, receiverUname, body): #### NEW EPIC 7 ####
     cursor.execute("INSERT INTO messages VALUES(?,?,?,?,?)", [None, senderUname, receiverUname, body, 0]) # last element is boolean read/unread
     
-def deleteMessage(cursor, message_id): #### NEW EPIC 7 ####
-    cursor.execute("DELETE FROM messages WHERE message_id=?", [message_id])
+def deleteMessage(cursor, messageID): #### NEW EPIC 7 ####
+    cursor.execute("DELETE FROM messages WHERE message_id=?", [messageID])
 
 def updateMessageAsRead(cursor, messageID): #### NEW EPIC 7 ####
-    cursor.execute("UPDATE messages read=1 WHERE message_id=?", [messageID])
+    cursor.execute("UPDATE messages SET read=1 WHERE message_id=?", [messageID])
 
 def getMessageByReceiver(cursor, receiverUname): #### NEW EPIC 7 ####
     cursor.execute("SELECT * FROM messages WHERE receiver_uname=?", [receiverUname])
-    cursor.fetchall()
+    return cursor.fetchall()
 
 def userIsPlusMember(cursor, uname): #### NEW EPIC 7 ####
     cursor.execute("SELECT * FROM users WHERE uname=?", [uname])
