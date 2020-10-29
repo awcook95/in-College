@@ -112,7 +112,7 @@ def initTables(cursor):
     )""")
 
 def getUserFriends(cursor, uname): #### NEW EPIC 7 ####
-    cursor.execute("SELECT * FROM users WHERE uname IN (SELECT uname FROM user_friends WHERE uname=?)", [uname])
+    cursor.execute("SELECT * FROM users WHERE uname IN (SELECT friend_uname FROM user_friends WHERE uname=?)", [uname])
     return cursor.fetchall()
 
 def getAllOtherUsers(cursor, uname): #### NEW EPIC 7 ####
