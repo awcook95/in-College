@@ -140,6 +140,14 @@ def userIsPlusMember(cursor, uname): #### NEW EPIC 7 ####
     else:
         return False
 
+def hasUnreadMessages(cursor, uname): #### NEW EPIC 7 ####
+    cursor.execute("SELECT read FROM messages WHERE receiver_uname=? AND read = 0", [uname])
+    unreadMessages = cursor.fetchall()
+    if len(unreadMessages) > 0:
+        return True
+    else:
+        return False
+
 def getUserFullName(cursor, uname):
     cursor.execute("SELECT firstname, lastname FROM Users WHERE UPPER(uname)=?", [uname.upper()])
     user = cursor.fetchone()

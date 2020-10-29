@@ -55,8 +55,8 @@ def enterMainMenu(dbCursor, dbConnection):  # presents the user with an introduc
               "E. InCollege Important Links\n"
               "F. View Friends\n"
               "G. Student Profile\n"
-              "H. Message Center\n"
-              "Z. Logout\n")
+              "H. Message Center{messages}\n"
+              "Z. Logout\n".format(messages = " (You have unread messages)" if db.hasUnreadMessages(dbCursor, settings.signedInUname) else ""))
 
         if len(response) > 0:
             response = input("You have pending friend requests! Enter 'Y' to view them\nInput: ")
