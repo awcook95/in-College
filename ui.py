@@ -655,7 +655,7 @@ def inboxMenu(dbCursor, dbConnection): #### NEW EPIC 7 ####
     
     # Display list of messages
     messages = db.getMessageByReceiver(dbCursor, settings.signedInUname)
-    if len(messages) < 0:
+    if len(messages) == 0:
         print("You have no messages")
         choice = input("Press enter to return to previous menu: ")
     else:
@@ -681,6 +681,7 @@ def inboxMenu(dbCursor, dbConnection): #### NEW EPIC 7 ####
             print("Invalid input\n")
             return
         
+        selectedMessage = Message._make(messages[int(choice)-1])
         print(f"{selectedMessage.body}\n") # Print Message
         db.updateMessageAsRead(dbCursor, selectedMessage.message_id) # Mark message as read
         dbConnection.commit()
@@ -694,9 +695,7 @@ def inboxMenu(dbCursor, dbConnection): #### NEW EPIC 7 ####
         
         option = input(f"Would you like to delete {selectedMessage.sender_uname}'s message? (Y/N): ")
         if option.upper() == 'Y':
-            selectedMessage = Message._make(messages[int(choice)-1])
-            message_num = selectedMessage.message_id
-            db.deleteMessage(dbCursor, message_num) # Delete Message
+            db.deleteMessage(dbCursor, selectedMessage.message_id) # Delete Message
             dbConnection.commit()
             print("Message Deleted")
         
