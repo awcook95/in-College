@@ -655,17 +655,18 @@ def inboxMenu(dbCursor, dbConnection): #### NEW EPIC 7 ####
     
     # Display list of messages
     messages = db.getMessageByReceiver(dbCursor, settings.signedInUname)
-    if messages == None:
-        print("You have no messages\n")
+    if len(messages) < 0:
+        print("You have no messages")
         choice = input("Press enter to return to previous menu: ")
     else:
         for i in range(0, len(messages)):
                 # first create message object to select from
                 Message = namedtuple('User', 'message_id sender_uname receiver_uname body read')
                 selectedMessage = Message._make(messages[i])
-                print(f"{i+1}. {selectedMessage.sender_uname} ")
                 if selectedMessage.read == 0:
-                    print("(Unread)")
+                    print(f"{i+1}. {selectedMessage.sender_uname} (Unread)")
+                else:
+                    print(f"{i+1}. {selectedMessage.sender_uname} ")
                 
         print("\n")
         choice = input("Select a message 1 - " + str(len(messages)) + " to read: \n(Or press enter to return to previous menu)\n")
@@ -682,19 +683,24 @@ def inboxMenu(dbCursor, dbConnection): #### NEW EPIC 7 ####
         
         print(f"{selectedMessage.body}\n") # Print Message
         db.updateMessageAsRead(dbCursor, selectedMessage.message_id) # Mark message as read
+        dbConnection.commit()
         
-        response = input.upper("Would you like to send a reply? (Y/N): ")
-        if response == 'Y':
-            reply = input("Enter message: ")
+        response = input(f"Would you like to send a reply to {selectedMessage.sender_uname}? (Y/N): ")
+        if response.upper() == 'Y':
+            reply = input(f"Enter message to {selectedMessage.sender_uname}: ")
             db.insertMessage(dbCursor, settings.signedInUname, selectedMessage.sender_uname, reply) # Add new message
             dbConnection.commit()
+            print("Message Sent")
         
-        option = input.upper("Would you like to delete the message? (Y/N): ")
-        if option == 'Y':
+        option = input(f"Would you like to delete {selectedMessage.sender_uname}'s message? (Y/N): ")
+        if option.upper() == 'Y':
             selectedMessage = Message._make(messages[int(choice)-1])
             message_num = selectedMessage.message_id
             db.deleteMessage(dbCursor, message_num) # Delete Message
             dbConnection.commit()
+            print("Message Deleted")
+        
+        choice = input("Press enter to return to previous menu: ")
         
 def sendMessageMenu(dbCursor, dbConnection): #### NEW EPIC 7 ####
     friends = db.getUserFriends(dbCursor, settings.signedInUname)
