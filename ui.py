@@ -715,7 +715,7 @@ def sendMessageMenu(dbCursor, dbConnection): #### NEW EPIC 7 ####
             for i in range(0, len(users)):
                 user = namedtuple('user', 'uname pword firstname lastname plus_member')
                 selectedUser = user._make(users[i])
-                print(f"{i+1}. {selectedUser.uname}")
+                print(f"{i+1}. {selectedUser.firstname} {selectedUser.lastname}")
         else:
             if choice.upper() == "A":
                 print("None, go add some friends!:\n")
