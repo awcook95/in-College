@@ -722,16 +722,12 @@ def sendMessageMenu(dbCursor, dbConnection): #### NEW EPIC 7 ####
             elif choice.upper() == "B":
                 print("No InCollege users found.\n")
 
-        if len(users) > 0:
-            choice = input("Select a user 1 - " + str(len(users)) + " to message: \n\n"
-                "A. View my friends\n"
-                "B. View all InCollege users\n"
-                "Z. Return to previous menu\n")
-        else:
-            choice = input(
-                "A. View my friends\n"
-                "B. View all InCollege users\n"
-                "Z. Return to previous menu\n")
+        choice = input("{selectionRange}"
+            "A. View my friends\n"
+            "B. View all InCollege users\n"
+            "Z. Return to previous menu\n"
+            "input: ".format(selectionRange = "\nSelect a user 1 - " + str(len(users)) + " to message: \n\n" if len(users) > 0 else "")
+        )
 
         if choice.upper() == "A":
             users = friends
