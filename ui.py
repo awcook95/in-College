@@ -651,8 +651,6 @@ def messageCenterMenu(dbCursor, dbConnection): #### NEW EPIC 7 ####
         settings.currentState = states.mainMenu     # returns to incollege.py's main() w/ currentState = mainMenu
 
 def inboxMenu(dbCursor, dbConnection): #### NEW EPIC 7 ####
-    settings.currentState = states.messageCenter    # returns to incollege.py's main() w/ currentState = messageCenter
-    
     # Display list of messages
     messages = db.getMessageByReceiver(dbCursor, settings.signedInUname)
     if len(messages) == 0:
@@ -671,6 +669,7 @@ def inboxMenu(dbCursor, dbConnection): #### NEW EPIC 7 ####
         print("\n")
         choice = input("Select a message 1 - " + str(len(messages)) + " to read: \n(Or press enter to return to previous menu)\n")
         if choice == "":
+            settings.currentState = states.messageCenter    # returns to incollege.py's main() w/ currentState = messageCenter
             return
         try:
             int(choice)
@@ -759,7 +758,7 @@ def sendMessageMenu(dbCursor, dbConnection): #### NEW EPIC 7 ####
             print("I'm sorry, you are not friends with that person -- Only InCollege Plus members may send messages to non-friends.")
             continue
 
-        message = input(f"Enter your message you would like to send to {selectedUser.uname}:")
+        message = input(f"Enter your message you would like to send to {selectedUser.uname}: ")
         db.insertMessage(dbCursor, settings.signedInUname, selectedUser.uname, message)
         dbConnection.commit()
         print("Message sent")
