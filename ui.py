@@ -667,7 +667,10 @@ def inboxMenu(dbCursor, dbConnection): #### NEW EPIC 7 ####
                     print(f"{i+1}. {selectedMessage.sender_uname} ")
                 
         print("\n")
-        choice = input("Select a message 1 - " + str(len(messages)) + " to read: \n(Or press enter to return to previous menu)\n")
+        if len(messages) > 1:
+            choice = input("Select a message 1 - " + str(len(messages)) + " to read: \n(Or press enter to return to previous menu)\n")
+        else:
+            choice = input("Enter '1' to read this message\n(Or press enter to return to previous menu)\n")
         if choice == "":
             settings.currentState = states.messageCenter    # returns to incollege.py's main() w/ currentState = messageCenter
             return
