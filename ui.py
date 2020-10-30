@@ -701,8 +701,6 @@ def inboxMenu(dbCursor, dbConnection): #### NEW EPIC 7 ####
             dbConnection.commit()
             print("Message Deleted")
         
-        choice = input("Press enter to return to previous menu: ")
-        
 def sendMessageMenu(dbCursor, dbConnection): #### NEW EPIC 7 ####
     friends = db.getUserFriends(dbCursor, settings.signedInUname)
     allUsers = db.getAllOtherUsers(dbCursor, settings.signedInUname)
