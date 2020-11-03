@@ -28,8 +28,12 @@ BRAND_POLICY = "Brand Policy:\n" \
                "InCollege permits its members, third party developers, partners and the media to use its name,\n" \
                "logos, screenshots and other brand features only in limited circumstances."
 
-SUCCESS_STORY = "Nathan Cooper had always dreamed about getting a software engineering job after graduating from college.\n" \
+SUCCESS_STORY = "\nNathan Cooper had always dreamed about getting a software engineering job after graduating from college.\n" \
                 "However, with no work history and no connections, he feared that finding a company to hire him after graduation\n" \
                 "would be difficult. After using inCollege, Nathan was able to connect with other students in the same major to\n" \
                 "discuss school, jobs, salaries, offers, and projects. He was also able to learn new skills that would increase\n" \
                 "his experience and improve the look of his resume."
+
+MAX_USER_ACCOUNTS = 10
+MAX_POSTED_JOBS = 10
+MAX_USER_PROFILE_JOBS = 3

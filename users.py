@@ -4,14 +4,15 @@ import dbfunctions as db
 import settings
 import states
 import utils
+import constants
 
 
 def createUser(dbCursor, connection):
     # todo: possibly add exit option in case user wants to cancel account creation
 
-    if db.getNumUsers(dbCursor) >= 10:  # checks if number of accounts in database is at max limit
+    if db.getNumUsers(dbCursor) >= constants.MAX_USER_ACCOUNTS:  # checks if number of accounts in database is at max limit
         print("All permitted accounts have been created, please come back later")
-        settings.currentState = states.loggedOut  # returns to incollege.py's main() w/ currentState = loggedOut
+        settings.currentState = states.loggedOut  # returns to main() w/ currentState = loggedOut
         return
 
     uname = input("Enter your desired username: ")
@@ -44,12 +45,12 @@ def createUser(dbCursor, connection):
     db.insertProfilePage(dbCursor, uname, "", "", "")
     connection.commit()  # commits the new account and settings to the database (ensures account and settings are saved)
 
-    settings.currentState = states.loggedOut  # returns to incollege.py's main() w/ currentState = loggedOut
+    settings.currentState = states.loggedOut  # returns to main() w/ currentState = loggedOut
 
     print("Account has been created")
 
 
-def loginUser(dbCursor):
+def loginUser(dbCursor, dbConnection):
     # todo: possibly add exit option in case user wants to cancel account login
 
     uname = input("Enter your username: ")
@@ -61,7 +62,7 @@ def loginUser(dbCursor):
         pword = input("Enter your password: ")
 
     # read in user settings on login
-    settings.signedInUname = uname # tracks the logged in user's username
+    settings.signedInUname = uname  # tracks the logged in user's username
     User = namedtuple('User', 'uname emailnotif smsnotif targetadvert languagepref')
     currentUser = User._make(db.getUserSettingsByName(dbCursor, settings.signedInUname))
 
@@ -85,6 +86,7 @@ def logOutUser():
 
 
 def findUser(dbCursor, connection):
+    result = None
     while settings.currentState == states.userSearch:
         # Added the user prompt for searched person within this function
         print("Which search term do you want to find users by?")
@@ -108,7 +110,7 @@ def findUser(dbCursor, connection):
             first = name[0]
             last = name[1]
 
-            result = db.getUserByFullName(dbCursor, first, last) # Find receiver for friend request
+            result = db.getUserByFullName(dbCursor, first, last)  # Find receiver for friend request
             break
         elif response.upper() == 'B':
             name = input("Enter the last name of the person you might know: ")
@@ -120,8 +122,8 @@ def findUser(dbCursor, connection):
                 while settings.currentState == states.userSearch:
                     response = input("Choose a person you might know: ")
                     if response.isdigit() and int(response) <= len(users_found):
-                        first_name = (users_found[int(response) - 1])[2]            # parse first name from user object
-                        last_name = (users_found[int(response) - 1])[3]             # parse last name from user object
+                        first_name = (users_found[int(response) - 1])[2]  # parse first name from user object
+                        last_name = (users_found[int(response) - 1])[3]   # parse last name from user object
                         result = db.getUserByFullName(dbCursor, first_name, last_name)
                         break
                     else:
@@ -163,7 +165,7 @@ def findUser(dbCursor, connection):
             if settings.signedIn:
                 settings.currentState = states.mainMenu
             else:
-                settings.currentState = states.loggedOut  # returns to incollege.py's main() w/ currentState = loggedOut
+                settings.currentState = states.loggedOut  # returns to main() w/ currentState = loggedOut
             return False  # Didn't find user
         else:
             print("Invalid Option, enter the valid letter option")
@@ -178,12 +180,12 @@ def findUser(dbCursor, connection):
             # If this person is already your friend,return
             if friend_exists:
                 print(receiver.uname + " is already your friend!")
-                settings.currentState = states.mainMenu   # returns to incollege.py's main() w/ currentState = mainMenu
+                settings.currentState = states.mainMenu   # returns to main() w/ currentState = mainMenu
                 return True
         
         print("They are a part of the InCollege system!")
-        if settings.signedIn:         # if a user is signed in
-            if settings.signedInUname != receiver.uname: # Person you are requesting is not yourself
+        if settings.signedIn:  # if a user is signed in
+            if settings.signedInUname != receiver.uname:  # Person you are requesting is not yourself
                 response = input("Would you like to add them as a friend? Enter 'Y' for yes: ")
                 request_exists = utils.checkExistingFriendRequest(dbCursor, settings.signedInUname, receiver.uname)
                 
@@ -196,15 +198,15 @@ def findUser(dbCursor, connection):
                     else: 
                         print(receiver.uname + " has already been sent a request! They will show up in your friends list once they accept!")
             
-            settings.currentState = states.mainMenu   # returns to incollege.py's main() w/ currentState = mainMenu
+            settings.currentState = states.mainMenu   # returns to main() w/ currentState = mainMenu
             return True
         else:                                         # else a user is not signed in
-            settings.currentState = states.loggedOut  # returns to incollege.py's main() w/ currentState = loggedOut
+            settings.currentState = states.loggedOut  # returns to main() w/ currentState = loggedOut
             return True
     else:
         while settings.currentState == states.userSearch:
             print("They are not yet a part of the InCollege system yet.")
-            print("Options:\n")
+            print("Options:")
             print("A. Search for another user")
             print("Z. Return to previous menu")
             response = input()
@@ -214,14 +216,14 @@ def findUser(dbCursor, connection):
                 if settings.signedIn:
                     settings.currentState = states.mainMenu
                 else:
-                    settings.currentState = states.loggedOut  # returns to incollege.py's main() w/ currentState = loggedOut
+                    settings.currentState = states.loggedOut  # returns to main() w/ currentState = loggedOut
                 return False  # Didn't find user
             else:
                 print("Invalid input")
 
 
 def postJob(dbCursor, dbConnection):
-    if db.getNumJobs(dbCursor) >= 10:  # checks if number of jobs in database is at max limit
+    if db.getNumJobs(dbCursor) >= constants.MAX_POSTED_JOBS:  # checks if number of jobs in database is at max limit
         print("All permitted jobs have been created, please come back later")
         settings.currentState = states.jobMenu
         return
@@ -242,7 +244,7 @@ def postJob(dbCursor, dbConnection):
     db.insertJob(dbCursor, title, desc, emp, loc, sal, author)
     dbConnection.commit()
     print("Job has been posted\n")
-    settings.currentState = states.jobMenu  # returns to incollege.py's main() w/ currentState = jobMenu
+    settings.currentState = states.jobMenu  # returns to main() w/ currentState = jobMenu
 
 
 def changeUserSettings(dbCursor, connection):
@@ -282,6 +284,7 @@ def changeUserSettings(dbCursor, connection):
         else:
             print("Invalid Option, enter the letter option you want and press enter")
 
+
 def applyForJob(dbCursor, dbConnection):
     print("Jobs currently listed in the system:\n")
     jobs = db.getAllJobs(dbCursor)
@@ -295,9 +298,8 @@ def applyForJob(dbCursor, dbConnection):
         input("No jobs have been posted\nPress enter to return to previous menu.")
         settings.currentState = states.jobMenu
         return
-    
-    global job_index
-    while(True):
+
+    while True:
         job_index = input("Select a job 1 - " + str(len(jobs)) + " to apply for: \n(Or press enter to return to previous menu)\n")
         if job_index == "":
             settings.currentState = states.jobMenu
@@ -307,14 +309,14 @@ def applyForJob(dbCursor, dbConnection):
         except ValueError:
             print("Invalid input")
             continue
-        if int(job_index) not in range(1, int(str(len(jobs)))+1):
+        if int(job_index) not in range(1, len(jobs) + 1):
             print("Invalid input")
             continue
         else:
             break
 
     Job = namedtuple('User', 'jobID title description employer location salary author')
-    selectedJob = Job._make(jobs[int(job_index)-1])
+    selectedJob = Job._make(jobs[int(job_index) - 1])
     job_title = selectedJob.title
 
     # check if there are any existing applications to this job
@@ -329,6 +331,7 @@ def applyForJob(dbCursor, dbConnection):
         db.insertUserJobApplication(dbCursor, settings.signedInUname, job_title, grad, start, credentials)
         dbConnection.commit()
         print("Successfully applied for job")
+
 
 def favoriteAJob(dbCursor, dbConnection):
     print("Jobs not yet favorited:\n")
@@ -364,4 +367,3 @@ def favoriteAJob(dbCursor, dbConnection):
     db.insertFavoriteJob(dbCursor, settings.signedInUname, job_title)
     dbConnection.commit()
     settings.currentState = states.jobMenu
-

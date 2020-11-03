@@ -18,88 +18,42 @@ db.initTables(cursor)
 
 def main(dbCursor, dbConnection):
     # This menu will run all main functionality
-    print("Welcome to inCollege!\n")
+    print("Welcome to inCollege!")
+
+    # dictionary to hold states and their corresponding function names
+    # every state added must have their corresponding function take (dbCursor, dbConnection) as arguments
+    options = {
+        states.loggedOut:          ui.enterInitialMenu,
+        states.login:              users.loginUser,
+        states.createAccount:      users.createUser,
+        states.mainMenu:           ui.enterMainMenu,
+        states.selectSkill:        ui.enterSkillMenu,
+        states.userSearch:         users.findUser,
+        states.createJob:          users.postJob,
+        states.apply:              users.applyForJob,
+        states.viewJobs:           ui.printJobListings,
+        states.deleteJob:          ui.enterDeleteAJobMenu,
+        states.favoriteJob:        users.favoriteAJob,
+        states.viewFavoriteJobs:   ui.viewFavoriteJobs,
+        states.viewAppliedJobs:    ui.viewAppliedJobs,
+        states.viewUnappliedJobs:  ui.viewUnappliedJobs,
+        states.jobMenu:            ui.enterJobMenu,
+        states.usefulLinks:        ui.usefulLinksMenu,
+        states.general:            ui.generalMenu,
+        states.browseInCollege:    ui.browseMenu,
+        states.businessSolutions:  ui.solutionsMenu,
+        states.directories:        ui.directoriesMenu,
+        states.importantLinks:     ui.enterImportantLinksMenu,
+        states.modifyUserSettings: users.changeUserSettings,
+        states.friendsMenu:        ui.enterFriendsMenu,
+        states.profilePage:        ui.enterProfilePageMenu,
+        states.messageCenter:      ui.messageCenterMenu,
+        states.inbox:              ui.inboxMenu,
+        states.sendMessage:        ui.sendMessageMenu
+    }
+
     while settings.currentState != states.quit:  # this while loop handles every state and calls corresponding methods
-        if settings.currentState == states.loggedOut:
-            ui.enterInitialMenu()
-
-        if settings.currentState == states.login:
-            users.loginUser(dbCursor)
-
-        if settings.currentState == states.createAccount:
-            users.createUser(dbCursor, dbConnection)
-
-        if settings.currentState == states.mainMenu:
-            ui.enterMainMenu(dbCursor, dbConnection)
-
-        if settings.currentState == states.selectSkill:
-            ui.enterSkillMenu()
-            
-        if settings.currentState == states.userSearch:
-            users.findUser(dbCursor, dbConnection)
-                  
-        if settings.currentState == states.createJob:
-            users.postJob(dbCursor, dbConnection)
-
-        if settings.currentState == states.apply:
-            users.applyForJob(dbCursor, dbConnection)
-             
-        if settings.currentState == states.viewJobs: 
-            ui.printJobListings(dbCursor, dbConnection)
-        
-        if settings.currentState == states.deleteJob: 
-            ui.enterDeleteAJobMenu(dbCursor, dbConnection)
-
-        if settings.currentState == states.favoriteJob: 
-            users.favoriteAJob(dbCursor, dbConnection)
-
-        if settings.currentState == states.viewFavoriteJobs: 
-            ui.viewFavoriteJobs(dbCursor, dbConnection)
-
-        if settings.currentState == states.viewAppliedJobs: 
-            ui.viewAppliedJobs(dbCursor, dbConnection)
-
-        if settings.currentState == states.viewUnappliedJobs: 
-            ui.viewUnappliedJobs(dbCursor, dbConnection)
-            
-        if settings.currentState == states.jobMenu: 
-            ui.enterJobMenu()
-            
-        if settings.currentState == states.usefulLinks:
-            ui.usefulLinksMenu()
-        
-        if settings.currentState == states.general:
-            ui.generalMenu()
-            
-        if settings.currentState == states.browseInCollege:
-            ui.browseMenu()
-            
-        if settings.currentState == states.businessSolutions:
-            ui.solutionsMenu()
-            
-        if settings.currentState == states.directories:
-            ui.directoriesMenu()
-
-        if settings.currentState == states.importantLinks:
-            ui.enterImportantLinksMenu(dbCursor, dbConnection)
-
-        if settings.currentState == states.modifyUserSettings:
-            users.changeUserSettings(dbCursor, dbConnection)
-
-        if settings.currentState == states.friendsMenu:
-            ui.enterFriendsMenu(dbCursor, dbConnection)
-
-        if settings.currentState == states.profilePage:
-            ui.enterProfilePageMenu(dbCursor, dbConnection)
-
-        if settings.currentState == states.messageCenter:
-            ui.messageCenterMenu(dbCursor, dbConnection) #### NEW EPIC 7 ####
-
-        if settings.currentState == states.inbox:
-            ui.inboxMenu(dbCursor, dbConnection) #### NEW EPIC 7 ####
-        
-        if settings.currentState == states.sendMessage:
-            ui.sendMessageMenu(dbCursor, dbConnection) #### NEW EPIC 7 ####
+        options[settings.currentState](dbCursor, dbConnection)
 
     print("Ending Program")
 

@@ -22,12 +22,12 @@ def printUserFriends(dbCursor, uname):
         count = 1
         for f in friends:
             name = db.getUserByName(dbCursor, f[0])
-            # print(f"{count}. {f[0]}") #original prints out uname instead of full name
             print(f"{count}. {name[2]} {name[3]}")
             count += 1
         return friends
     else:
         return None
+
 
 def printUsersFoundLastName(dbCursor, lastname):
     users = db.getUsersByLastName(dbCursor, lastname)
@@ -40,11 +40,11 @@ def printUsersFoundLastName(dbCursor, lastname):
     else:
         return None
 
-# Search by University or Major
-def printUsersFoundParameter(dbCursor, param, param_type):
-    if param_type == 0: #Search by University
+
+def printUsersFoundParameter(dbCursor, param, param_type):  # Search by University or Major
+    if param_type == 0:  # Search by University
         param_string = "UPPER(university)= '" + param.upper() + "'"
-    elif param_type == 1: #Search by Major
+    elif param_type == 1:  # Search by Major
         param_string = "UPPER(major)= '" + param.upper() + "'"
     users = db.getUsersByParameter(dbCursor, param_string)
     if users:
@@ -58,15 +58,15 @@ def printUsersFoundParameter(dbCursor, param, param_type):
         return None
 
 
-def handleUserFriendRequests(dbCursor, dbConnection, reciever):
-    requests = db.getUserFriendRequests(dbCursor, reciever) # Check for pending request
+def handleUserFriendRequests(dbCursor, dbConnection, receiver):
+    requests = db.getUserFriendRequests(dbCursor, receiver)  # Check for pending request
 
     if len(requests) > 0: 
         for r in requests: 
-            print("Request from: " + r[0] + "\n" )
+            print("Request from: " + r[0] + "\n")
             response = input("Would you like to Accept (A), Ignore (I) or Return to previous menu (Z): ")
-            while(response.upper() != 'A' or response != 'I'):
-                if(response.upper() == 'A'):
+            while response.upper() != 'A' or response != 'I':
+                if response.upper() == 'A':
                     # To accept will add friend relation to both users
                     db.insertUserFriend(dbCursor, settings.signedInUname, r[0])
                     db.insertUserFriend(dbCursor, r[0], settings.signedInUname)
@@ -74,12 +74,12 @@ def handleUserFriendRequests(dbCursor, dbConnection, reciever):
                     db.deleteFriendRequest(dbCursor, r[0], settings.signedInUname)
                     dbConnection.commit()
                     break
-                elif(response.upper() == 'I'):
+                elif response.upper() == 'I':
                     # Should also delete friend request
                     db.deleteFriendRequest(dbCursor, r[0], settings.signedInUname)
                     dbConnection.commit()
                     break
-                elif(response.upper() == 'Z'):
+                elif response.upper() == 'Z':
                     return None
                 else: 
                     print("Invalid input: enter either A to accept , I to ignore or Z to return to previous menu")
@@ -90,17 +90,18 @@ def handleUserFriendRequests(dbCursor, dbConnection, reciever):
         print("You have no incoming friend requests")
         return None
 
+
 # Searches through existing friend requests to determine if the one you are attempting to send 
 # has already been sent, to avoid duplicate records
-def checkExistingFriendRequest(dbCursor, sender, reciever):
-    requests = db.getUserFriendRequests(dbCursor, reciever)
+def checkExistingFriendRequest(dbCursor, sender, receiver):
+    requests = db.getUserFriendRequests(dbCursor, receiver)
     exists = False
     if len(requests) > 0:
         for r in requests:
             Request = namedtuple('Request', 'sender_uname reciever_uname')
             f = Request._make(r)
             # Found matching request, shouldn't create a duplicate
-            if f.sender_uname == sender and f.reciever_uname == reciever:
+            if f.sender_uname == sender and f.reciever_uname == receiver:
                 exists = True
 
     return exists 

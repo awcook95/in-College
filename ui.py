@@ -7,26 +7,26 @@ import dbfunctions as db
 import constants
 
 
-def enterInitialMenu():
+def enterInitialMenu(dbCursor, dbConnection):
     while settings.currentState == states.loggedOut:  # change from currentState = loggedOut will result in return to incollege.py's main()
         # success story
         print(constants.SUCCESS_STORY)
 
-        print("\nSelect Option:")
-        print("A. Log in with existing account")
-        print("B. Create new account")
-        print("C. Find someone you know")
-        print("D. Play success story video")
-        print("E. InCollege Useful Links")
-        print("F. InCollege Important Links")
-        print("Z. Quit")
+        print("\nSelect Option:\n"
+              "A. Log in with existing account\n"
+              "B. Create new account\n"
+              "C. Find someone you know\n"
+              "D. Play success story video\n"
+              "E. InCollege Useful Links\n"
+              "F. InCollege Important Links\n"
+              "Z. Quit")
         response = input("Input: ")
         if response.upper() == "A":
-            settings.currentState = states.login          # returns to incollege.py's main() w/ currentState = login
+            settings.currentState = states.login          # returns to main() w/ currentState = login
         elif response.upper() == "B":
-            settings.currentState = states.createAccount  # returns to incollege.py's main() w/ currentState = createAccount
+            settings.currentState = states.createAccount  # returns to main() w/ currentState = createAccount
         elif response.upper() == "C":
-            settings.currentState = states.userSearch     # returns to incollege.py's main() w/ currentState = userSearch
+            settings.currentState = states.userSearch     # returns to main() w/ currentState = userSearch
         elif response.upper() == "D":
             print("Video is now playing")
         elif response.upper() == 'E':
@@ -34,16 +34,18 @@ def enterInitialMenu():
         elif response.upper() == "F":
             settings.currentState = states.importantLinks
         elif response.upper() == "Z":
-            settings.currentState = states.quit           # returns to incollege.py's main() w/ currentState = quit
+            settings.currentState = states.quit           # returns to main() w/ currentState = quit
         else:
             print("Invalid Option, enter the letter option you want and press enter")
 
 
 def enterMainMenu(dbCursor, dbConnection):  # presents the user with an introductory menu if logged in
     while settings.currentState == states.mainMenu:  # change from currentState = mainMenu will result in return to incollege.py's main()
-        
+
         # Check for any pending friend requests
         response = db.getUserFriendRequests(dbCursor, settings.signedInUname)
+
+        messages = " (You have unread messages)" if db.hasUnreadMessages(dbCursor, settings.signedInUname) else ""
 
         print("Options:\n"
               "A. Jobs\n"
@@ -53,22 +55,22 @@ def enterMainMenu(dbCursor, dbConnection):  # presents the user with an introduc
               "E. InCollege Important Links\n"
               "F. View Friends\n"
               "G. Student Profile\n"
-              "H. Message Center{messages}\n"
-              "Z. Logout\n".format(messages = " (You have unread messages)" if db.hasUnreadMessages(dbCursor, settings.signedInUname) else ""))
+              f"H. Message Center{messages}\n"
+              "Z. Logout")
 
         if len(response) > 0:
-            response = input("You have pending friend requests! Enter 'Y' to view them\nInput: ")
-            if(response.upper() == 'Y'):
+            response = input("You have pending friend requests! Enter 'Y' to view them: ")
+            if response.upper() == 'Y':
                 utils.handleUserFriendRequests(dbCursor, dbConnection, settings.signedInUname)
                 continue
         else:
-            response = input("\nInput: ")
+            response = input("Input: ")
         if response.upper() == "A":
-            enterJobMenu()
+            settings.currentState = states.jobMenu
         elif response.upper() == "B":
-            settings.currentState = states.userSearch   # returns to incollege.py's main() w/ currentState = userSearch
+            settings.currentState = states.userSearch   # returns to main() w/ currentState = userSearch
         elif response.upper() == "C":
-            settings.currentState = states.selectSkill  # returns to incollege.py's main() w/ currentState = selectSkill
+            settings.currentState = states.selectSkill  # returns to main() w/ currentState = selectSkill
         elif response.upper() == "D":
             settings.currentState = states.usefulLinks
         elif response.upper() == "E":
@@ -85,9 +87,8 @@ def enterMainMenu(dbCursor, dbConnection):  # presents the user with an introduc
             print("Invalid Option, enter the letter option you want and press enter")
 
 
-def enterSkillMenu():
-    # Skills menu will display under construction menus and return status
-    while settings.currentState == states.selectSkill:  # change from currentState = selectSkill will result in return to incollege.py's main()
+def enterSkillMenu(dbCursor, dbConnection):
+    while settings.currentState == states.selectSkill:  # change from currentState = selectSkill will result in return to main()
         print("What skill would you like to learn?:\n"
               "A. Python\n"
               "B. How to make a resume\n"
@@ -113,13 +114,12 @@ def enterSkillMenu():
             return True  # Searched for skill successfully
         elif response.upper() == "Z":
             if not settings.signedIn:                     # if a user is not signed in
-                settings.currentState = states.loggedOut  # returns to incollege.py's main() w/ currentState = loggedOut
+                settings.currentState = states.loggedOut  # returns to main() w/ currentState = loggedOut
             else:                                         # else a user is signed in
-                settings.currentState = states.mainMenu   # returns to incollege.py's main() w/ currentState = mainMenu
+                settings.currentState = states.mainMenu   # returns to main() w/ currentState = mainMenu
             return False  # Don't learn skill
         else:
             print("Invalid Option, enter the number option you want and press enter")
-            continue
 
 
 def enterFriendsMenu(dbCursor, dbConnection):
@@ -155,8 +155,8 @@ def enterFriendsMenu(dbCursor, dbConnection):
         else:
             print("Invalid input, try again.")
 
-         
-def usefulLinksMenu():
+
+def usefulLinksMenu(dbCursor, dbConnection):
     while settings.currentState == states.usefulLinks:
         print("Useful Links:")
         print("A. General")
@@ -165,7 +165,6 @@ def usefulLinksMenu():
         print("D. Directories")
         print("Z. Return to Previous Menu")
         response = input()
-        
         if response.upper() == 'A':
             settings.currentState = states.general
             return True
@@ -186,10 +185,9 @@ def usefulLinksMenu():
             return False  # No links chosen
         else:
             print("Invalid Option, enter the letter option you want and press enter")
-            continue
-        
-        
-def generalMenu():
+
+
+def generalMenu(dbCursor, dbConnection):
     while settings.currentState == states.general:
         print("Links:")
         print("A. Sign Up")
@@ -201,7 +199,7 @@ def generalMenu():
         print("G. Developers")
         print("Z. Return to Previous Menu")
         response = input()
-        
+
         if response.upper() == 'A':
             if not settings.signedIn:
                 settings.currentState = states.createAccount
@@ -231,24 +229,23 @@ def generalMenu():
             return False  # No links chosen
         else:
             print("Invalid Option, enter the letter option you want and press enter")
-            continue
 
-            
-def browseMenu():
+
+def browseMenu(dbCursor, dbConnection):
     while settings.currentState == states.browseInCollege:
         print("Under Construction")
         settings.currentState = states.usefulLinks
         return True
-        
-        
-def solutionsMenu():
+
+
+def solutionsMenu(dbCursor, dbConnection):
     while settings.currentState == states.businessSolutions:
         print("Under Construction")
         settings.currentState = states.usefulLinks
         return True
-    
-    
-def directoriesMenu():
+
+
+def directoriesMenu(dbCursor, dbConnection):
     while settings.currentState == states.directories:
         print("Under Construction")
         settings.currentState = states.usefulLinks
@@ -324,11 +321,11 @@ def enterProfilePageMenu(dbCursor, dbConnection):
             settings.currentState = states.profilePageEdit
             while settings.currentState == states.profilePageEdit:
                 print("Edit Profile")
-                print("A. Major")  # major
-                print("B. University")  # uni name
-                print("C. About")  # paragraph of info about student
-                print("D. Add Job: ")  # experience of jobs if any, dont show if none, up to 3, title, employer, date started, date ended, location, description of what did
-                print("E. Education: ")  # 1 or more lines about education, school name, degree, year start, year end date
+                print("A. Major")
+                print("B. University")
+                print("C. About")
+                print("D. Add Job")
+                print("E. Education")
                 print("Z. Return to Previous Menu")
                 response = input("Enter option: ")
                 if response.upper() == 'A':
@@ -338,7 +335,7 @@ def enterProfilePageMenu(dbCursor, dbConnection):
                 elif response.upper() == 'C':
                     about = input("About: ")
                 elif response.upper() == 'D':
-                    if len(db.getProfileJobs(dbCursor, settings.signedInUname)) < 3:
+                    if len(db.getProfileJobs(dbCursor, settings.signedInUname)) < constants.MAX_USER_PROFILE_JOBS:
                         print("Add a new job.")
                         title = input("Enter title: ")
                         employer = input("Enter employer: ")
@@ -382,28 +379,28 @@ def printProfilePage(dbCursor, uname):
     jobs = db.getProfileJobs(dbCursor, uname)
     education = db.getProfileEducation(dbCursor, uname)
 
-    print(f"{first} {last}'s Profile Page")  # title
-    print(f"Major: {major}")  # major
-    print(f"University: {university}")  # uni name
-    print(f"About: \n{about}")  # paragraph of info about student
+    print(f"{first} {last}'s Profile Page")
+    print(f"Major: {major}")
+    print(f"University: {university}")
+    print(f"About: \n{about}")
     if jobs is None:
-        print("Career:")  # experience of jobs if any, dont show if none, up to 3, title, employer, date started, date ended, location, description of what did
+        print("Career:")
     else:
         print("Career:")
-        for i in jobs:
-            title = i[2]
-            employer = i[3]
-            date_start = i[4]
-            date_end = i[5]
-            location = i[6]
-            job_desc = i[7]
+        for job in jobs:
+            title = job[2]
+            employer = job[3]
+            date_start = job[4]
+            date_end = job[5]
+            location = job[6]
+            job_desc = job[7]
             print(title)
             print(f"\tEmployer: {employer}")
             print(f"\tDate: {date_start} - {date_end}")
             print(f"\tLocation: {location}")
             print(f"\tDescription: \n\t{job_desc}")
     if education is None:
-        print("Education:")  # 1 or more lines about education, school name, degree, year start, year end date
+        print("Education:")
     else:
         print("Education:")
         for i in education:
@@ -416,6 +413,7 @@ def printProfilePage(dbCursor, uname):
             print(f"\tYear: {year_start} - {year_end}")
     return major, university, about
 
+
 def printJobListings(dbCursor, dbConnection):
     print("Jobs currently listed in the system:\n")
     jobs = db.getAllJobs(dbCursor)
@@ -424,7 +422,7 @@ def printJobListings(dbCursor, dbConnection):
             # first create job object to select from
             Job = namedtuple('User', 'jobID title description employer location salary author')
             selectedJob = Job._make(jobs[i])
-            if len(db.getUserJobApplicationByTitle(dbCursor, settings.signedInUname, selectedJob.title)) > 0: #if user has applied to this job
+            if len(db.getUserJobApplicationByTitle(dbCursor, settings.signedInUname, selectedJob.title)) > 0:  # if user has applied to this job
                 print(f"{i+1}. Job Title: {selectedJob.title} (Applied)")
             else:
                 print(f"{i+1}. Job Title: {selectedJob.title}")
@@ -437,14 +435,14 @@ def printJobListings(dbCursor, dbConnection):
     # print full job details
     while response.upper() == "Y":
         Job = namedtuple('User', 'jobID title description employer location salary author')
-        if len(jobs) != 1: 
+        if len(jobs) != 1:
             job_id = input("Which job 1 - " + str(len(jobs)) + " would you like to view? ")
             try:
                 int(job_id)
             except ValueError:
                 print("Invalid input")
                 continue
-            if int(job_id) not in range(1, len(jobs)+1):
+            if int(job_id) not in range(1, len(jobs) + 1):
                 print("Invalid input")
                 continue
 
@@ -459,14 +457,15 @@ def printJobListings(dbCursor, dbConnection):
         print(f"\tSalary: {selectedJob.salary}")
         print(f"\tJob poster: {selectedJob.author}")
 
-        if len(jobs) != 1: 
+        if len(jobs) != 1:
             response = input("View another job details (Y/N)? ")
         else:
             input("No other jobs to view details of. Press enter to return to job list.")
             return
 
     if response.upper() == "N":
-        settings.currentState = states.jobMenu # Return to main menu with state mainMenu
+        settings.currentState = states.jobMenu  # Return to main menu with state mainMenu
+
 
 def enterDeleteAJobMenu(dbCursor, dbConnection):
     print("Jobs you have posted:\n")
@@ -482,9 +481,8 @@ def enterDeleteAJobMenu(dbCursor, dbConnection):
         input("You have not posted any jobs. You can only delete jobs you have posted.\nPress enter to return to previous menu.")
         settings.currentState = states.jobMenu
         return
-    
-    global job_index
-    while(True):
+
+    while True:
         job_index = input("Select a job 1 - " + str(len(jobs)) + " to delete: \n(Or press enter to return to previous menu)\n")
         if job_index == "":
             settings.currentState = states.jobMenu
@@ -494,20 +492,19 @@ def enterDeleteAJobMenu(dbCursor, dbConnection):
         except ValueError:
             print("Invalid input")
             continue
-        if int(job_index) not in range(1, int(str(len(jobs)))+1):
+        if int(job_index) not in range(1, len(jobs) + 1):
             print("Invalid input")
             continue
         else:
             break
 
     Job = namedtuple('User', 'jobID title description employer location salary author')
-    selectedJob = Job._make(jobs[int(job_index)-1])
-    job_title = selectedJob.title
+    selectedJob = Job._make(jobs[int(job_index) - 1])
 
     db.deleteJob(dbCursor, int(selectedJob.jobID))
     dbConnection.commit()
     print("Successfully deleted job")
-    while(True):
+    while True:
         choice = input("Delete another job? (Y/N)")
         if choice.upper() == "N":
             settings.currentState = states.jobMenu
@@ -517,37 +514,38 @@ def enterDeleteAJobMenu(dbCursor, dbConnection):
         else:
             print("Invalid input")
 
-def enterJobMenu():
-    print("Select a job function: \n")
-    choice = input("A. Post a job\n"  
-                "B. View posted jobs\n"
-                "C. Apply for a job\n"
-                "D. Delete a job\n"
-                "E. Favorite a job\n"
-                "F. View favorited jobs\n"
-                "G. View jobs applied for\n"
-                "H. View jobs not applied for\n"
-                "Z. Return to main menu\n"
 
-                "input: ")
+def enterJobMenu(dbCursor, dbConnection):  # todo: make this menu more concise
+    print("Select a job function:\n"
+          "A. Post Job\n"
+          "B. View Posted Jobs\n"
+          "C. Apply for Job\n"
+          "D. Delete Job\n"
+          "E. Favorite Job\n"
+          "F. View Favorite Jobs\n"
+          "G. View Jobs Applied To\n"
+          "H. View Jobs Not Applied To\n"
+          "Z. Return to Previous Menu")
+    choice = input()
     if choice.upper() == "A":
-        settings.currentState = states.createJob    # returns to incollege.py's main() w/ currentState = createJob
+        settings.currentState = states.createJob          # returns to main() w/ currentState = createJob
     elif choice.upper() == "B":
-        settings.currentState = states.viewJobs     # returns to incollege.py's main() w/ currentState = viewJobs
+        settings.currentState = states.viewJobs           # returns to main() w/ currentState = viewJobs
     elif choice.upper() == "C":
-        settings.currentState = states.apply     # returns to incollege.py's main() w/ currentState = viewJobs
+        settings.currentState = states.apply              # returns to main() w/ currentState = apply
     elif choice.upper() == "D":
-        settings.currentState = states.deleteJob # returns to incollege.py's main() w/ currentState = deleteJob
+        settings.currentState = states.deleteJob          # returns to main() w/ currentState = deleteJob
     elif choice.upper() == "E":
-        settings.currentState = states.favoriteJob # returns to incollege.py's main() w/ currentState = favoriteJob
+        settings.currentState = states.favoriteJob        # returns to main() w/ currentState = favoriteJob
     elif choice.upper() == "F":
-        settings.currentState = states.viewFavoriteJobs # returns to incollege.py's main() w/ currentState = viewFavoriteJobs
+        settings.currentState = states.viewFavoriteJobs   # returns to main() w/ currentState = viewFavoriteJobs
     elif choice.upper() == "G":
-        settings.currentState = states.viewAppliedJobs # returns to incollege.py's main() w/ currentState = viewAppliedJobs
+        settings.currentState = states.viewAppliedJobs    # returns to main() w/ currentState = viewAppliedJobs
     elif choice.upper() == "H":
-        settings.currentState = states.viewUnappliedJobs # returns to incollege.py's main() w/ currentState = viewUnappliedJobs
+        settings.currentState = states.viewUnappliedJobs  # returns to main() w/ currentState = viewUnappliedJobs
     elif choice.upper() == "Z":
-        settings.currentState = states.mainMenu
+        settings.currentState = states.mainMenu           # returns to main() w/ currentState = mainMenu
+
 
 def viewFavoriteJobs(dbCursor, dbConnection):
     print("Your favorited jobs:")
@@ -557,7 +555,7 @@ def viewFavoriteJobs(dbCursor, dbConnection):
             # first create job object to select from
             Job = namedtuple('User', 'jobID title description employer location salary author')
             selectedJob = Job._make(jobs[i])
-            print(f"{i+1}. Job Title: {selectedJob.title}")
+            print(f"{i + 1}. Job Title: {selectedJob.title}")
     else:
         input("You currently have no favorited jobs.\nPress any key return to previous menu")
         settings.currentState = states.jobMenu
@@ -572,119 +570,123 @@ def viewFavoriteJobs(dbCursor, dbConnection):
     except ValueError:
         print("Invalid input")
         return
-    if int(job_index) not in range(1, int(str(len(jobs)))+1):
+    if int(job_index) not in range(1, len(jobs) + 1):
         print("Invalid input")
         return
 
     Job = namedtuple('User', 'jobID title description employer location salary author')
-    selectedJob = Job._make(jobs[int(job_index)-1])
+    selectedJob = Job._make(jobs[int(job_index) - 1])
     job_title = selectedJob.title
 
     db.deleteFavoriteJob(dbCursor, settings.signedInUname, job_title)
     dbConnection.commit()
     print("Job has been removed from favorites list.")
 
+
 def viewAppliedJobs(dbCursor, dbConnection):
     print("Jobs you have applied for:")
     jobs = db.getAppliedJobs(dbCursor, settings.signedInUname)
     if len(jobs) > 0:
         for i in range(0, len(jobs)):
-                # first create job object to select from
-                Job = namedtuple('User', 'jobID title description employer location salary author')
-                selectedJob = Job._make(jobs[i])
-                print(f"{i+1}. Job Title: {selectedJob.title}")
+            # first create job object to select from
+            Job = namedtuple('User', 'jobID title description employer location salary author')
+            selectedJob = Job._make(jobs[i])
+            print(f"{i+1}. Job Title: {selectedJob.title}")
 
-    else:           
+    else:
         print("You have not applied for any jobs yet")
     input("Press enter to return to previous menu:")
     settings.currentState = states.jobMenu
+
 
 def viewUnappliedJobs(dbCursor, dbConnection):
     print("Jobs you have yet to apply for")
     jobs = db.getUnappliedJobs(dbCursor, settings.signedInUname)
     if len(jobs) > 0:
         for i in range(0, len(jobs)):
-                # first create job object to select from
-                Job = namedtuple('User', 'jobID title description employer location salary author')
-                selectedJob = Job._make(jobs[i])
-                print(f"{i+1}. Job Title: {selectedJob.title}")
+            # first create job object to select from
+            Job = namedtuple('User', 'jobID title description employer location salary author')
+            selectedJob = Job._make(jobs[i])
+            print(f"{i+1}. Job Title: {selectedJob.title}")
     else:
         print("None")
     input("Press enter to return to previous menu:")
     settings.currentState = states.jobMenu
 
 
-def messageCenterMenu(dbCursor, dbConnection): #### NEW EPIC 7 ####
-    print("Select a messaging option: \n")
-    choice = input("A. Inbox\n"  
-                "B. Send a message\n"
-                "Z. Return to previous menu\n"
-                "input: ")
+def messageCenterMenu(dbCursor, dbConnection):
+    print("Select a messaging option:\n"
+          "A. Inbox\n"
+          "B. Send Message\n"
+          "Z. Return to Previous Menu\n")
+    choice = input()
 
     if choice.upper() == "A":
-        settings.currentState = states.inbox    # returns to incollege.py's main() w/ currentState = inbox
+        settings.currentState = states.inbox        # returns to main() w/ currentState = inbox
     elif choice.upper() == "B":
-        settings.currentState = states.sendMessage     # returns to incollege.py's main() w/ currentState = sendMessage
+        settings.currentState = states.sendMessage  # returns to main() w/ currentState = sendMessage
     elif choice.upper() == "Z":
-        settings.currentState = states.mainMenu     # returns to incollege.py's main() w/ currentState = mainMenu
+        settings.currentState = states.mainMenu     # returns to main() w/ currentState = mainMenu
 
-def inboxMenu(dbCursor, dbConnection): #### NEW EPIC 7 ####
+
+def inboxMenu(dbCursor, dbConnection):
     # Display list of messages
     messages = db.getMessageByReceiver(dbCursor, settings.signedInUname)
     if len(messages) == 0:
-        print("You have no messages")
-        choice = input("Press enter to return to previous menu: ")
+        print("You have no messages.")
+        settings.currentState = states.messageCenter
     else:
+        Message = namedtuple('User', 'message_id sender_uname receiver_uname body read')
         for i in range(0, len(messages)):
-                # first create message object to select from
-                Message = namedtuple('User', 'message_id sender_uname receiver_uname body read')
-                selectedMessage = Message._make(messages[i])
-                if selectedMessage.read == 0:
-                    print(f"{i+1}. {selectedMessage.sender_uname} (Unread)")
-                else:
-                    print(f"{i+1}. {selectedMessage.sender_uname} ")
-                
+            # first create message object to select from
+            selectedMessage = Message._make(messages[i])
+            if selectedMessage.read == 0:
+                print(f"{i+1}. {selectedMessage.sender_uname} (Unread)")
+            else:
+                print(f"{i+1}. {selectedMessage.sender_uname} ")
+
         print("\n")
         if len(messages) > 1:
             choice = input("Select a message 1 - " + str(len(messages)) + " to read: \n(Or press enter to return to previous menu)\n")
         else:
             choice = input("Enter '1' to read this message\n(Or press enter to return to previous menu)\n")
         if choice == "":
-            settings.currentState = states.messageCenter    # returns to incollege.py's main() w/ currentState = messageCenter
+            settings.currentState = states.messageCenter  # returns to main() w/ currentState = messageCenter
             return
         try:
             int(choice)
         except ValueError:
             print("Invalid input\n")
             return
-        if int(choice) not in range(1, int(str(len(messages)))+1):
+        if int(choice) not in range(1, len(messages) + 1):
             print("Invalid input\n")
             return
-        
-        selectedMessage = Message._make(messages[int(choice)-1])
-        print(f"{selectedMessage.body}\n") # Print Message
-        db.updateMessageAsRead(dbCursor, selectedMessage.message_id) # Mark message as read
+
+        selectedMessage = Message._make(messages[int(choice) - 1])
+        print(f"{selectedMessage.body}\n")  # Print Message
+        db.updateMessageAsRead(dbCursor, selectedMessage.message_id)  # Mark message as read
         dbConnection.commit()
-        
+
         response = input(f"Would you like to send a reply to {selectedMessage.sender_uname}? (Y/N): ")
         if response.upper() == 'Y':
             reply = input(f"Enter message to {selectedMessage.sender_uname}: ")
-            db.insertMessage(dbCursor, settings.signedInUname, selectedMessage.sender_uname, reply) # Add new message
+            db.insertMessage(dbCursor, settings.signedInUname, selectedMessage.sender_uname, reply)  # Add new message
             dbConnection.commit()
             print("Message Sent")
-        
+
         option = input(f"Would you like to delete {selectedMessage.sender_uname}'s message? (Y/N): ")
         if option.upper() == 'Y':
-            db.deleteMessage(dbCursor, selectedMessage.message_id) # Delete Message
+            db.deleteMessage(dbCursor, selectedMessage.message_id)  # Delete Message
             dbConnection.commit()
             print("Message Deleted")
-        
-def sendMessageMenu(dbCursor, dbConnection): #### NEW EPIC 7 ####
+
+
+def sendMessageMenu(dbCursor, dbConnection):
     friends = db.getUserFriends(dbCursor, settings.signedInUname)
     allUsers = db.getAllOtherUsers(dbCursor, settings.signedInUname)
     choice = "A"
     users = friends
-    while(True):
+    while True:
         if choice.upper() == "A":
             print("Your friends:")
         elif choice.upper() == "B":
@@ -693,7 +695,7 @@ def sendMessageMenu(dbCursor, dbConnection): #### NEW EPIC 7 ####
             for i in range(0, len(users)):
                 user = namedtuple('user', 'uname pword firstname lastname plus_member')
                 selectedUser = user._make(users[i])
-                print(f"{i+1}. {selectedUser.firstname} {selectedUser.lastname}")
+                print(f"{i + 1}. {selectedUser.firstname} {selectedUser.lastname}")
         else:
             if choice.upper() == "A":
                 print("None, go add some friends!:\n")
@@ -704,7 +706,7 @@ def sendMessageMenu(dbCursor, dbConnection): #### NEW EPIC 7 ####
             "A. View my friends\n"
             "B. View all InCollege users\n"
             "Z. Return to previous menu\n"
-            "input: ".format(selectionRange = "\nSelect a user 1 - " + str(len(users)) + " to message: \n\n" if len(users) > 1 else "Enter '1' to message this user\n\n" if len(users) == 1 else "")
+            "input: ".format(selectionRange="\nSelect a user 1 - " + str(len(users)) + " to message: \n\n" if len(users) > 1 else "Enter '1' to message this user\n\n" if len(users) == 1 else "")
         )
 
         if choice.upper() == "A":
@@ -725,14 +727,14 @@ def sendMessageMenu(dbCursor, dbConnection): #### NEW EPIC 7 ####
         if len(users) == 0:
             print("Invalid input")
             continue
-            
-        if int(choice) not in range(1, len(users)+1):
-            print(f"Input must be 1 through {len(users)+1}")
+
+        if int(choice) not in range(1, len(users) + 1):
+            print(f"Input must be 1 through {len(users) + 1}")
             continue
 
         user = namedtuple('user', 'uname pword firstname lastname plus_member')
-        selectedUser = user._make(users[int(choice)-1])
-        
+        selectedUser = user._make(users[int(choice) - 1])
+
         if not db.checkUserFriendRelation(dbCursor, settings.signedInUname, selectedUser.uname) and not db.userIsPlusMember(dbCursor, settings.signedInUname):
             print("I'm sorry, you are not friends with that person -- Only InCollege Plus members may send messages to non-friends.")
             continue
