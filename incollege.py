@@ -5,16 +5,6 @@ import settings
 import states
 import ui
 import users
-import os           # These are used to clear the console when switching between menus
-import subprocess   #
-
-def clear(): # Clear console to print menu on blank page
-    if os.name in ('nt','dos'): # Windows
-        subprocess.call("cls")
-    elif os.name in ('linux','osx','posix'): # Mac/linux
-        subprocess.call("clear")
-    else: # if unrecognized just print many new lines 
-        print("\n") * 120
 
 # connect to database
 connection = sqlite3.connect('inCollege.db')

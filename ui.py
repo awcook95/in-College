@@ -434,7 +434,6 @@ def printProfilePage(dbCursor, uname):
     return major, university, about
 
 def printJobListings(dbCursor, dbConnection):
-    utils.clear()
     print("Jobs currently listed in the system:\n")
     jobs = db.getAllJobs(dbCursor)
     if len(jobs) > 0:
@@ -536,7 +535,6 @@ def enterDeleteAJobMenu(dbCursor, dbConnection):
             print("Invalid input")
 
 def enterJobMenu():
-    utils.clear()
     print("Select a job function: \n")
     choice = input("A. Post a job\n"  
                 "B. View posted jobs\n"
@@ -549,7 +547,6 @@ def enterJobMenu():
                 "Z. Return to main menu\n"
 
                 "input: ")
-    utils.clear()
     if choice.upper() == "A":
         settings.currentState = states.createJob    # returns to incollege.py's main() w/ currentState = createJob
     elif choice.upper() == "B":
@@ -635,14 +632,12 @@ def viewUnappliedJobs(dbCursor, dbConnection):
 
 
 def messageCenterMenu(dbCursor, dbConnection): #### NEW EPIC 7 ####
-    utils.clear()
     print("Select a messaging option: \n")
     choice = input("A. Inbox\n"  
                 "B. Send a message\n"
                 "Z. Return to previous menu\n"
                 "input: ")
 
-    utils.clear()
     if choice.upper() == "A":
         settings.currentState = states.inbox    # returns to incollege.py's main() w/ currentState = inbox
     elif choice.upper() == "B":
