@@ -4,17 +4,15 @@ import states
 import users
 import utils
 import dbfunctions as db
+import constants
+
 
 def enterInitialMenu():
     while settings.currentState == states.loggedOut:  # change from currentState = loggedOut will result in return to incollege.py's main()
         # success story
-        print("\nNathan Cooper had always dreamed about getting a software engineering job after graduating from college.\n"
-              "However, with no work history and no connections, he feared that finding a company to hire him after graduation\n"
-              "would be difficult. After using inCollege, Nathan was able to connect with other students in the same major to\n"
-              "discuss school, jobs, salaries, offers, and projects. He was also able to learn new skills that would increase\n"
-              "his experience and improve the look of his resume.\n")
+        print(constants.SUCCESS_STORY)
 
-        print("Select Option:")
+        print("\nSelect Option:")
         print("A. Log in with existing account")
         print("B. Create new account")
         print("C. Find someone you know")
@@ -214,7 +212,7 @@ def generalMenu():
             print("We're here to help")
             return True
         elif response.upper() == 'C':
-            print("In College: Welcome to In College, the world's largest college student network with many users in many countries and territories worldwide")
+            print(constants.ABOUT)
             return True
         elif response.upper() == 'D':
             print("In College Pressroom: Stay on top of the latest news, updates, and reports")
@@ -273,36 +271,21 @@ def enterImportantLinksMenu(dbCursor, connection):
               "Z. Return to previous menu")
         response = input("Choose an option: ")
         if response.upper() == "A":
-            print("Copyright © InCollege Corporation. All rights reserved.")
+            print(constants.COPYRIGHT_NOTICE)
         elif response.upper() == "B":
-            print("InCollege: Welcome to InCollege, the world's largest college student"
-                  " network with many users in many countries and territories worldwide")
+            print(constants.ABOUT)
         elif response.upper() == "C":
-            print("Accessibility:\n"
-                  "Our goal at InCollege is to make our services accessible to as many college students as possible\n"
-                  "in order to help them achieve their goals for the future.")
+            print(constants.ACCESSIBILITY)
         elif response.upper() == "D":
-            print("User Agreement:\n"
-                  "You agree that by creating an InCollege account, you are agreeing to enter into a legally binding\n"
-                  "contract with InCollege. If you do not agree to this, do not create an InCollege account.")
+            print(constants.USER_AGREEMENT)
         elif response.upper() == "E":
-            print("Privacy Policy:\n"
-                  "To create an account, you need to provide your name and a password. Optionally, you may also provide\n"
-                  "an email and/or phone number. How we use your data depends on which services of ours you decide to\n"
-                  "Email and phone notifications as well as targeted advertising help us to enhance your experience\n"
-                  "with InCollege; these options are able to be turned on or off in your account settings.")
+            print(constants.PRIVACY_POLICY)
         elif response.upper() == "F":
-            print("Cookie Policy:\n"
-                  "InCollege uses cookies to collect and use data for the purposes defined in our Privacy Policy.\n"
-                  "By using our services, you are agreeing to the use of cookies for these purposes.")
+            print(constants.COOKIE_POLICY)
         elif response.upper() == "G":
-            print("Copyright Policy:\n"
-                  "InCollege respects the intellectual property rights of others and desires to offer a platform\n"
-                  "which contains no content that violates those rights.")
+            print(constants.COPYRIGHT_POLICY)
         elif response.upper() == "H":
-            print("Brand Policy:\n"
-                  "InCollege permits its members, third party developers, partners and the media to use its name,\n"
-                  "logos, screenshots and other brand features only in limited circumstances.")
+            print(constants.BRAND_POLICY)
         elif response.upper() == "I":
             settings.currentState = states.modifyUserSettings
         elif response.upper() == "J":
