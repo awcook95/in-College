@@ -45,7 +45,7 @@ def enterMainMenu(dbCursor, dbConnection):  # presents the user with an introduc
         # Check for any pending friend requests
         response = db.getUserFriendRequests(dbCursor, settings.signedInUname)
 
-        messages = " (You have unread messages)" if db.hasUnreadMessages(dbCursor, settings.signedInUname) else ""
+        messages = " (You have messages waiting for you)" if db.hasUnreadMessages(dbCursor, settings.signedInUname) else ""
 
         print("Options:\n"
               "A. Jobs\n"
