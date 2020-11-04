@@ -516,6 +516,9 @@ def enterDeleteAJobMenu(dbCursor, dbConnection):
 
 
 def enterJobMenu(dbCursor, dbConnection):  # todo: make this menu more concise
+    appliedJobs = len(db.getAppliedJobs(dbCursor, settings.signedInUname))
+    numJobNotification = " (You have currently applied for {} jobs)".format(appliedJobs) if db.getAppliedJobs(dbCursor, settings.signedInUname) else ""
+
     print("Select a job function:\n"
           "A. Post Job\n"
           "B. View Posted Jobs\n"
@@ -523,7 +526,7 @@ def enterJobMenu(dbCursor, dbConnection):  # todo: make this menu more concise
           "D. Delete Job\n"
           "E. Favorite Job\n"
           "F. View Favorite Jobs\n"
-          "G. View Jobs Applied To\n"
+          f"G. View Jobs Applied To{numJobNotification}\n"
           "H. View Jobs Not Applied To\n"
           "Z. Return to Previous Menu")
     choice = input()
