@@ -153,6 +153,15 @@ def getUserFullName(cursor, uname):
     user = cursor.fetchone()
     return user[0] + " " + user[1]
 
+
+def profilePageExists(cursor, uname):
+    profile = getProfilePage(cursor, uname)
+    if profile[1] == "" and profile[2] == "" and profile[3] == "":
+        return False
+    else:
+        return True
+
+
 def getProfilePage(cursor, uname):
     cursor.execute("SELECT * FROM profile_page WHERE uname=?", [uname])
     return cursor.fetchone()

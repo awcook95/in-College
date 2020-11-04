@@ -47,6 +47,8 @@ def enterMainMenu(dbCursor, dbConnection):  # presents the user with an introduc
 
         messages = " (You have messages waiting for you)" if db.hasUnreadMessages(dbCursor, settings.signedInUname) else ""
 
+        profileNotification = " (Don't forget to create a profile)" if db.profilePageExists(dbCursor, settings.signedInUname) == False else ""
+
         print("Options:\n"
               "A. Jobs\n"
               "B. Find someone you know\n"
@@ -54,7 +56,7 @@ def enterMainMenu(dbCursor, dbConnection):  # presents the user with an introduc
               "D. InCollege Useful Links\n"
               "E. InCollege Important Links\n"
               "F. View Friends\n"
-              "G. Student Profile\n"
+              f"G. Student Profile{profileNotification}\n"
               f"H. Message Center{messages}\n"
               "Z. Logout")
 
