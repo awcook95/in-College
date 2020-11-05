@@ -360,3 +360,17 @@ def insertFavoriteJob(cursor, uname, jobTitle):
 
 def deleteFavoriteJob(cursor, uname, jobTitle):
     cursor.execute("DELETE FROM favorited_jobs WHERE UPPER(uname)=? AND job_title=?", [uname.upper(), jobTitle])
+
+
+def insertNotification(cursor, notification_type, body, receiver):
+    cursor.execute("INSERT INTO notifications VALUES(?,?,?,?)", [None, notification_type, body, receiver])
+
+
+def deleteNotification(cursor, notification_type, body, receiver):
+    cursor.execute("DELETE FROM notifications WHERE type=? AND body=? AND receiver_uname=?",
+                   [notification_type, body, receiver])
+
+
+def getNotificationsForUserByType(cursor, notification_type, receiver):
+    cursor.execute("SELECT * FROM notifications WHERE type=? AND receiver_uname=?", [notification_type, receiver])
+    return cursor.fetchall()
