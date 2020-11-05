@@ -113,6 +113,14 @@ def initTables(cursor):
         FOREIGN KEY(receiver_uname) REFERENCES users(uname)
     )""")
 
+    cursor.execute("""CREATE TABLE IF NOT EXISTS
+    notifications(
+        notification_id INTEGER PRIMARY KEY,
+        type TEXT,
+        body TEXT,
+        receiver_uname TEXT,
+    )""")
+
 def getUserFriends(cursor, uname): #### NEW EPIC 7 ####
     cursor.execute("SELECT * FROM users WHERE uname IN (SELECT friend_uname FROM user_friends WHERE uname=?)", [uname])
     return cursor.fetchall()
