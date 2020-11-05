@@ -548,6 +548,14 @@ def enterJobMenu(dbCursor, dbConnection):  # todo: make this menu more concise
     else:
         numJobNotification = " (You have currently applied for 0 jobs)"
 
+    # notifications for new jobs posted
+    new_jobs_notifications = db.getNotificationsForUserByType(dbCursor, "new_job", settings.signedInUname)
+    if len(new_jobs_notifications) > 0:
+        for n in new_jobs_notifications:
+            print(f"A new job '{n[2]}' has been posted.")
+            db.deleteNotification(dbCursor, n[1], n[2], n[3])
+            dbConnection.commit()
+
     print("Select a job function:\n"
           "A. Post Job\n"
           "B. View Posted Jobs\n"
