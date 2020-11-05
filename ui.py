@@ -68,9 +68,20 @@ def enterMainMenu(dbCursor, dbConnection):  # presents the user with an introduc
             
             if newestJobAge.days >=7:
                 noJobNotification = "Remember – you're going to want to have a job when you graduate. Make sure that you start to apply for jobs today!"
-        
+
+        print("Notifications:")
+
+        # notifications for new students joined
+        new_students_notifications = db.getNotificationsForUserByType(dbCursor, "new_student", settings.signedInUname)
+        if len(new_students_notifications) > 0:
+            for n in new_students_notifications:
+                print(f"{n[2]} has joined InCollege.")
+                db.deleteNotification(dbCursor, n[1], n[2], n[3])
+                dbConnection.commit()
+
         print(noJobNotification)
-        print("Options:\n"
+
+        print("\nOptions:\n"
               "A. Jobs\n"
               "B. Find someone you know\n"
               "C. Learn a new skill\n"
@@ -548,6 +559,8 @@ def enterJobMenu(dbCursor, dbConnection):  # todo: make this menu more concise
     else:
         numJobNotification = " (You have currently applied for 0 jobs)"
 
+    print("Notifications:")
+
     # notifications for new jobs posted
     new_jobs_notifications = db.getNotificationsForUserByType(dbCursor, "new_job", settings.signedInUname)
     if len(new_jobs_notifications) > 0:
@@ -555,8 +568,10 @@ def enterJobMenu(dbCursor, dbConnection):  # todo: make this menu more concise
             print(f"A new job '{n[2]}' has been posted.")
             db.deleteNotification(dbCursor, n[1], n[2], n[3])
             dbConnection.commit()
+    else:
+        print("No current notifications.")
 
-    print("Select a job function:\n"
+    print("\nSelect a job function:\n"
           "A. Post Job\n"
           "B. View Posted Jobs\n"
           "C. Apply for Job\n"

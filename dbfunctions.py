@@ -118,7 +118,7 @@ def initTables(cursor):
         notification_id INTEGER PRIMARY KEY,
         type TEXT,
         body TEXT,
-        receiver_uname TEXT,
+        receiver_uname TEXT
     )""")
 
 def getUserFriends(cursor, uname): #### NEW EPIC 7 ####
