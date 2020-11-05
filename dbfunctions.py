@@ -374,3 +374,8 @@ def deleteNotification(cursor, notification_type, body, receiver):
 def getNotificationsForUserByType(cursor, notification_type, receiver):
     cursor.execute("SELECT * FROM notifications WHERE type=? AND receiver_uname=?", [notification_type, receiver])
     return cursor.fetchall()
+
+
+def getJobApplicantsByTitle(cursor, job_title):
+    cursor.execute("SELECT applicant_uname FROM user_job_applications WHERE job_title=?", [job_title])
+    return cursor.fetchall()
