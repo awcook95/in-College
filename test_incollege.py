@@ -19,6 +19,7 @@ import ui
 def testtest(capfd):
     connection = sqlite3.connect("incollege_test.db")
     cursor = connection.cursor()
+    cursor.execute("DROP TABLE IF EXISTS Users") #delete tables to make sure no conflicts when running test multiple times
     db.initTables(cursor)
     db.insertUser(cursor, "username", "password", "first", "last", 0)
     db.insertProfilePage(cursor, "username", "major", "uni", "about")
@@ -178,31 +179,45 @@ def testCreateMaxJobPosts(capfd):
     cursor.execute("DROP TABLE IF EXISTS jobs")
     db.initTables(cursor)
     db.insertUser(cursor, "username1", "password", "first1", "last1", 0)
-    for i in range(10):
-        db.insertJob(cursor, "title", "desc", "emp", "loc", "sal", "author")
+    for _ in range(10):
+        db.insertJob(cursor, "title", "desc", "emp", "loc", "sal", "username1")
     users.postJob(cursor, connection)
     out, err = capfd.readouterr()
-    assert out == "All permitted jobs have been created, please come back later\n"
+    assert "All permitted jobs have been created, please come back later\n" in out
     assert db.getNumJobs(cursor) == 10
-    assert settings.currentState == states.mainMenu
+    assert settings.currentState == states.jobMenu
 
     
-def testUsefulLinks(monkeypatch):
-    monkeypatch.setattr("sys.stdin", StringIO("e\n"))
+def testUsefulLinks(monkeypatch, capfd):
+    monkeypatch.setattr("sys.stdin", StringIO("e\nz\nz\nz\n"))
+    settings.signedInUname = "username1"
     connection = sqlite3.connect("incollege_test.db")
     cursor = connection.cursor()
+    cursor.execute("DROP TABLE IF EXISTS Users") #delete tables to make sure no conflicts when running test multiple times
+    cursor.execute("DROP TABLE IF EXISTS profile_page")
+    db.initTables(cursor)
+    db.insertUser(cursor, "username1", "password", "first1", "last1", 0)
+    db.insertProfilePage(cursor, "username1", "major", "university", "about")
     settings.currentState = states.mainMenu
     ui.enterMainMenu(cursor, connection)
-    assert settings.currentState == states.usefulLinks
+    out, err = capfd.readouterr()
+    assert "Useful Links" in out
     
 
-def testImportantLinks(monkeypatch):
-    monkeypatch.setattr("sys.stdin", StringIO("f\n"))
+def testImportantLinks(monkeypatch, capfd):
+    monkeypatch.setattr("sys.stdin", StringIO("f\nz\nz\nz\n"))
+    settings.signedInUname = "username1"
     connection = sqlite3.connect("incollege_test.db")
     cursor = connection.cursor()
+    cursor.execute("DROP TABLE IF EXISTS Users") #delete tables to make sure no conflicts when running test multiple times
+    cursor.execute("DROP TABLE IF EXISTS profile_page")
+    db.initTables(cursor)
+    db.insertUser(cursor, "username1", "password", "first1", "last1", 0)
+    db.insertProfilePage(cursor, "username1", "major", "university", "about")
     settings.currentState = states.mainMenu
     ui.enterMainMenu(cursor, connection)
-    assert settings.currentState == states.importantLinks
+    out, err = capfd.readouterr()
+    assert "Important Links" in out
     
 
 def testInsertUserSettings():
@@ -277,7 +292,10 @@ def testAddFriend():
 def testViewFriendList(monkeypatch, capfd):
     connection = sqlite3.connect("incollege_test.db")
     cursor = connection.cursor()
+    cursor.execute("DROP TABLE IF EXISTS Users") #delete tables to make sure no conflicts when running test multiple times
     db.initTables(cursor)
+    db.insertUser(cursor, "uname", "password", "first", "last", 0)
+    db.insertUser(cursor, "friend_uname", "password", "first2", "last2", 0)
     db.insertUserFriend(cursor, "uname", "friend_uname")
     settings.currentState = states.friendsMenu
     settings.signedInUname = "uname"
@@ -290,23 +308,27 @@ def testViewFriendList(monkeypatch, capfd):
 
     
 def testRemoveFriend(monkeypatch):
+    monkeypatch.setattr("sys.stdin", StringIO("A\n1\nZ\n"))
     connection = sqlite3.connect("incollege_test.db")
     cursor = connection.cursor()
+    cursor.execute("DROP TABLE IF EXISTS Users") #delete tables to make sure no conflicts when running test multiple times
+    cursor.execute("DROP TABLE IF EXISTS user_friends")
     db.initTables(cursor)
+    db.insertUser(cursor, "uname", "password", "first", "last", 0)
+    db.insertUser(cursor, "friend_uname", "password", "first2", "last2", 0)
     db.insertUserFriend(cursor, "uname", "friend_uname")
     db.insertUserFriend(cursor, "friend_uname", "uname")
     settings.currentState = states.friendsMenu
     settings.signedInUname = "uname"
-    monkeypatch.setattr("sys.stdin", StringIO("A\n1\nZ\n"))
     ui.enterFriendsMenu(cursor, connection)
     assert settings.currentState == states.mainMenu
-    assert db.getUserFriendsByName(cursor, "uname") is None
-    assert db.getUserFriendsByName(cursor, "friend_uname") is None
+    assert len(db.getUserFriendsByName(cursor, "uname")) == 0
     
     
 def testSendFriendRequest(monkeypatch):
     connection = sqlite3.connect("incollege_test.db")
     cursor = connection.cursor()
+    cursor.execute("DROP TABLE IF EXISTS Users") #delete tables to make sure no conflicts when running test multiple times
     db.initTables(cursor)
     db.insertUser(cursor, "username1", "password", "first1", "last1", 0)
     db.insertUser(cursor, "username2", "password", "first2", "last2", 0)
@@ -319,14 +341,17 @@ def testSendFriendRequest(monkeypatch):
 
 
 def testAcceptFriendRequest(monkeypatch):
+    monkeypatch.setattr("sys.stdin", StringIO("A\n"))
     connection = sqlite3.connect("incollege_test.db")
     cursor = connection.cursor()
+    cursor.execute("DROP TABLE IF EXISTS Users") #delete tables to make sure no conflicts when running test multiple times
+    cursor.execute("DROP TABLE IF EXISTS friend_requests")
+    cursor.execute("DROP TABLE IF EXISTS user_friends")
     db.initTables(cursor)
     db.insertUser(cursor, "username1", "password", "first1", "last1", 0)
     db.insertUser(cursor, "username2", "password", "first2", "last2", 0)
     db.insertFriendRequest(cursor, "username1", "username2")
     settings.signedInUname = "username2"
-    monkeypatch.setattr("sys.stdin", StringIO("A\n"))
     utils.handleUserFriendRequests(cursor, connection, settings.signedInUname)
     assert len(db.getUserFriendsByName(cursor, "username1")) == 1
     assert len(db.getUserFriendsByName(cursor, "username2")) == 1
@@ -337,6 +362,7 @@ def testAcceptFriendRequest(monkeypatch):
 def testDeleteJobPost(monkeypatch):
     connection = sqlite3.connect("incollege_test.db")
     cursor = connection.cursor()
+    cursor.execute("DROP TABLE IF EXISTS Users") #delete tables to make sure no conflicts when running test multiple times
     db.initTables(cursor)
     db.insertUser(cursor, "username1", "password", "first1", "last1", 0)
     db.insertUser(cursor, "username2", "password", "first2", "last2", 0)
@@ -354,6 +380,8 @@ def testDeleteJobPost(monkeypatch):
 def testApplyForJob(monkeypatch):
     connection = sqlite3.connect("incollege_test.db")
     cursor = connection.cursor()
+    cursor.execute("DROP TABLE IF EXISTS Users") #delete tables to make sure no conflicts when running test multiple times
+    cursor.execute("DROP TABLE IF EXISTS user_job_applications")
     db.initTables(cursor)
     db.insertUser(cursor, "username1", "password", "first1", "last1", 0)
     db.insertUser(cursor, "username2", "password", "first2", "last2", 0)
@@ -367,6 +395,8 @@ def testApplyForJob(monkeypatch):
 def testFavoriteAJob(monkeypatch):
     connection = sqlite3.connect("incollege_test.db")
     cursor = connection.cursor()
+    cursor.execute("DROP TABLE IF EXISTS Users") #delete tables to make sure no conflicts when running test multiple times
+    cursor.execute("DROP TABLE IF EXISTS favorited_jobs")
     db.initTables(cursor)
     db.insertUser(cursor, "username1", "password", "first1", "last1", 0)
     db.insertUser(cursor, "username2", "password", "first2", "last2", 0)
@@ -378,15 +408,18 @@ def testFavoriteAJob(monkeypatch):
 
 
 def testApplyForJobAlreadyAppliedFor(monkeypatch):
+    monkeypatch.setattr("sys.stdin", StringIO("1\n\n"))
     connection = sqlite3.connect("incollege_test.db")
     cursor = connection.cursor()
+    cursor.execute("DROP TABLE IF EXISTS Users") #delete tables to make sure no conflicts when running test multiple times
+    cursor.execute("DROP TABLE IF EXISTS jobs")
+    cursor.execute("DROP TABLE IF EXISTS user_job_applications")
     db.initTables(cursor)
     db.insertUser(cursor, "username1", "password", "first1", "last1", 0)
     db.insertUser(cursor, "username2", "password", "first2", "last2", 0)
     db.insertJob(cursor, "title1", "desc1", "emp1", "loc1", "sal1", "first1 last1")
     db.insertUserJobApplication(cursor, "username2", "title1", "01/01/1234", "01/02/1234", "credentials")
     settings.signedInUname = "username2"
-    monkeypatch.setattr("sys.stdin", StringIO("1\n\n"))
     users.applyForJob(cursor, connection)
     assert len(db.getAppliedJobs(cursor, "username2")) == 1
 
