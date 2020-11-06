@@ -1,4 +1,6 @@
 from collections import namedtuple
+from datetime import datetime
+from datetime import date
 import settings
 import states
 import users
@@ -46,9 +48,28 @@ def enterMainMenu(dbCursor, dbConnection):  # presents the user with an introduc
         response = db.getUserFriendRequests(dbCursor, settings.signedInUname)
 
         messages = " (You have messages waiting for you)" if db.hasUnreadMessages(dbCursor, settings.signedInUname) else ""
-
         profileNotification = " (Don't forget to create a profile)" if db.profilePageExists(dbCursor, settings.signedInUname) == False else ""
 
+        today = date.today() # Get today's date
+        date_format = "%m/%d/%Y"
+        todayDate = today.strftime(date_format) # Format date mm/dd/yyyy
+        currentDate = datetime.strptime(todayDate, date_format) # Today's date as a string
+        noJobNotification = ""
+
+        if db.getJobAppliedDate(dbCursor, settings.signedInUname) == None:
+            accountAge = datetime.strptime(db.getUserCreatedDate(dbCursor, settings.signedInUname), date_format) # Date account was created
+            age = currentDate - accountAge # Length of time from account creation and today
+            
+            if age.days >= 7:
+                noJobNotification = "Remember – you're going to want to have a job when you graduate. Make sure that you start to apply for jobs today!"
+        else:
+            newestJob = datetime.strptime(db.getJobAppliedDate(dbCursor, settings.signedInUname), date_format) # Date of newest applied job
+            newestJobAge = currentDate - newestJob # Length of time from newest applied job and today
+            
+            if newestJobAge.days >=7:
+                noJobNotification = "Remember – you're going to want to have a job when you graduate. Make sure that you start to apply for jobs today!"
+        
+        print(noJobNotification)
         print("Options:\n"
               "A. Jobs\n"
               "B. Find someone you know\n"
@@ -519,7 +540,13 @@ def enterDeleteAJobMenu(dbCursor, dbConnection):
 
 def enterJobMenu(dbCursor, dbConnection):  # todo: make this menu more concise
     appliedJobs = len(db.getAppliedJobs(dbCursor, settings.signedInUname))
-    numJobNotification = " (You have currently applied for {} jobs)".format(appliedJobs) if db.getAppliedJobs(dbCursor, settings.signedInUname) else ""
+    if db.getAppliedJobs(dbCursor, settings.signedInUname):
+        if appliedJobs == 1:
+            numJobNotification = " (You have currently applied for 1 job)"
+        else:
+            numJobNotification = " (You have currently applied for {} jobs)".format(appliedJobs)
+    else:
+        numJobNotification = " (You have currently applied for 0 jobs)"
 
     print("Select a job function:\n"
           "A. Post Job\n"
@@ -531,7 +558,7 @@ def enterJobMenu(dbCursor, dbConnection):  # todo: make this menu more concise
           f"G. View Jobs Applied To{numJobNotification}\n"
           "H. View Jobs Not Applied To\n"
           "Z. Return to Previous Menu")
-    choice = input()
+    choice = input("Input: ")
     if choice.upper() == "A":
         settings.currentState = states.createJob          # returns to main() w/ currentState = createJob
     elif choice.upper() == "B":
@@ -623,8 +650,8 @@ def messageCenterMenu(dbCursor, dbConnection):
     print("Select a messaging option:\n"
           "A. Inbox\n"
           "B. Send Message\n"
-          "Z. Return to Previous Menu\n")
-    choice = input()
+          "Z. Return to Previous Menu")
+    choice = input("Input: ")
 
     if choice.upper() == "A":
         settings.currentState = states.inbox        # returns to main() w/ currentState = inbox

@@ -6,6 +6,7 @@ def initTables(cursor):
         firstname TEXT NOT NULL,
         lastname TEXT NOT NULL,
         plus_member INTEGER,
+        date_created TEXT,
         UNIQUE(firstname, lastname)
         )""")
 
@@ -87,6 +88,7 @@ def initTables(cursor):
         graduation_date TEXT,
         start_date TEXT, 
         credentials TEXT,
+        applied_date TEXT,
         FOREIGN KEY(job_title) REFERENCES jobs(title)
     )""")
 
@@ -214,6 +216,10 @@ def getUsersByParameter(cursor, param_string):
     cursor.execute(query)
     return cursor.fetchall()
 
+def getUserCreatedDate(cursor, uname):
+    cursor.execute("SELECT date_created FROM users WHERE UPPER(uname)=?", [uname.upper()])
+    d = cursor.fetchone()
+    return d[0]
 
 def insertJob(cursor, title, desc, emp, loc, sal, author):
     cursor.execute("INSERT INTO jobs VALUES (?, ?, ?, ?, ?, ?, ?)", [None, title, desc, emp, loc, sal, author])
@@ -234,8 +240,8 @@ def getJobByTitle(cursor, title):
     cursor.execute("SELECT * FROM jobs WHERE Title like ?", [title])
     return cursor.fetchone()
     
-def insertUser(cursor, uname, pword, fname, lname, plusMember):
-    cursor.execute("INSERT INTO users VALUES (?, ?, ?, ?, ?)", [uname, pword, fname, lname, plusMember]) #plusMember is boolean
+def insertUser(cursor, uname, pword, fname, lname, plusMember, date_created):
+    cursor.execute("INSERT INTO users VALUES (?, ?, ?, ?, ?, ?)", [uname, pword, fname, lname, plusMember, date_created]) #plusMember is boolean
 
 
 def insertUserSettings(cursor, uname, email, sms, advert, language):
@@ -322,8 +328,16 @@ def getJobsPostedByUser(cursor, authorName):
     cursor.execute("SELECT * FROM jobs WHERE UPPER(author)=?", [authorName.upper()])
     return cursor.fetchall()
 
-def insertUserJobApplication(cursor, aplicant_uname, job_title, graduation_date, start_date, credentials):
-    cursor.execute("INSERT INTO user_job_applications VALUES(?,?,?,?,?,?)", [None, aplicant_uname, job_title, graduation_date, start_date, credentials])
+def insertUserJobApplication(cursor, applicant_uname, job_title, graduation_date, start_date, credentials, applied_date):
+    cursor.execute("INSERT INTO user_job_applications VALUES(?,?,?,?,?,?,?)", [None, applicant_uname, job_title, graduation_date, start_date, credentials, applied_date])
+
+def getJobAppliedDate(cursor, uname):
+    cursor.execute("SELECT applied_date FROM user_job_applications WHERE UPPER(applicant_uname)=? ORDER BY applied_date DESC", [uname.upper()])
+    d = cursor.fetchone()
+    if d == None:
+        return None
+    else:
+        return d[0]
 
 def getFavoriteJobsByUser(cursor, uname):
     cursor.execute("SELECT * FROM jobs WHERE title IN (SELECT job_title FROM favorited_jobs WHERE uname=?)", [uname])
