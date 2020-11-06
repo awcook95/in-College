@@ -45,6 +45,13 @@ def createUser(dbCursor, connection):
     db.insertUser(dbCursor, uname, pword, fname, lname, plusMember, date)
     db.insertUserSettings(dbCursor, uname, settings.emailNotif, settings.smsNotif, settings.targetAdvert, settings.language)
     db.insertProfilePage(dbCursor, uname, "", "", "")
+
+    # add notification to let other users know a new student has joined
+    other_users = db.getAllOtherUsers(dbCursor, uname)
+    if len(other_users) > 0:
+        for user in other_users:
+            db.insertNotification(dbCursor, "new_student", fname + " " + lname, user[0])
+
     connection.commit()  # commits the new account and settings to the database (ensures account and settings are saved)
 
     settings.currentState = states.loggedOut  # returns to main() w/ currentState = loggedOut
@@ -244,6 +251,13 @@ def postJob(dbCursor, dbConnection):
     sal = input("Enter salary: ")
 
     db.insertJob(dbCursor, title, desc, emp, loc, sal, author)
+
+    # add notification to let other users know a job has been posted
+    other_users = db.getAllOtherUsers(dbCursor, settings.signedInUname)
+    if len(other_users) > 0:
+        for user in other_users:
+            db.insertNotification(dbCursor, "new_job", title, user[0])
+
     dbConnection.commit()
     print("Job has been posted\n")
     settings.currentState = states.jobMenu  # returns to main() w/ currentState = jobMenu

@@ -68,9 +68,20 @@ def enterMainMenu(dbCursor, dbConnection):  # presents the user with an introduc
             
             if newestJobAge.days >=7:
                 noJobNotification = "Remember – you're going to want to have a job when you graduate. Make sure that you start to apply for jobs today!"
-        
+
+        print("Notifications:")
+
+        # notifications for new students joined
+        new_students_notifications = db.getNotificationsForUserByType(dbCursor, "new_student", settings.signedInUname)
+        if len(new_students_notifications) > 0:
+            for n in new_students_notifications:
+                print(f"{n[2]} has joined InCollege.")
+                db.deleteNotification(dbCursor, n[1], n[2], n[3])
+                dbConnection.commit()
+
         print(noJobNotification)
-        print("Options:\n"
+
+        print("\nOptions:\n"
               "A. Jobs\n"
               "B. Find someone you know\n"
               "C. Learn a new skill\n"
@@ -119,7 +130,7 @@ def enterSkillMenu(dbCursor, dbConnection):
               "D. Jira\n"
               "E. Software Engineering\n"
               "Z. None - return to menu")
-        response = input()
+        response = input("Input: ")
         if response.upper() == "A":
             print("Under Construction")
             return True  # Searched for skill successfully
@@ -187,7 +198,7 @@ def usefulLinksMenu(dbCursor, dbConnection):
         print("C. Business Solutions")
         print("D. Directories")
         print("Z. Return to Previous Menu")
-        response = input()
+        response = input("Input: ")
         if response.upper() == 'A':
             settings.currentState = states.general
             return True
@@ -221,7 +232,7 @@ def generalMenu(dbCursor, dbConnection):
         print("F. Careers")
         print("G. Developers")
         print("Z. Return to Previous Menu")
-        response = input()
+        response = input("Input: ")
 
         if response.upper() == 'A':
             if not settings.signedIn:
@@ -524,6 +535,12 @@ def enterDeleteAJobMenu(dbCursor, dbConnection):
     Job = namedtuple('User', 'jobID title description employer location salary author')
     selectedJob = Job._make(jobs[int(job_index) - 1])
 
+    # add notification to let job applicants that the job was deleted
+    job_applicants = db.getJobApplicantsByTitle(dbCursor, selectedJob.title)
+    if len(job_applicants) > 0:
+        for applicant in job_applicants:
+            db.insertNotification(dbCursor, "job_deleted", selectedJob.title, applicant[0])
+
     db.deleteJob(dbCursor, int(selectedJob.jobID))
     dbConnection.commit()
     print("Successfully deleted job")
@@ -548,7 +565,27 @@ def enterJobMenu(dbCursor, dbConnection):  # todo: make this menu more concise
     else:
         numJobNotification = " (You have currently applied for 0 jobs)"
 
-    print("Select a job function:\n"
+    print("Notifications:")
+    new_jobs_notifications = db.getNotificationsForUserByType(dbCursor, "new_job", settings.signedInUname)
+    jobs_deleted_notifications = db.getNotificationsForUserByType(dbCursor, "job_deleted", settings.signedInUname)
+    if len(new_jobs_notifications) == 0 and len(jobs_deleted_notifications) == 0:
+        print("No current notifications.")
+
+    # notifications for new jobs posted
+    if len(new_jobs_notifications) > 0:
+        for n in new_jobs_notifications:
+            print(f"A new job '{n[2]}' has been posted.")
+            db.deleteNotification(dbCursor, n[1], n[2], n[3])
+            dbConnection.commit()
+
+    # notifications for applied-for jobs getting deleted
+    if len(jobs_deleted_notifications) > 0:
+        for n in jobs_deleted_notifications:
+            print(f"A job that you applied for has been deleted - '{n[2]}'.")
+            db.deleteNotification(dbCursor, n[1], n[2], n[3])
+            dbConnection.commit()
+
+    print("\nSelect a job function:\n"
           "A. Post Job\n"
           "B. View Posted Jobs\n"
           "C. Apply for Job\n"
