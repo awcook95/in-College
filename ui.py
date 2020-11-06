@@ -130,7 +130,7 @@ def enterSkillMenu(dbCursor, dbConnection):
               "D. Jira\n"
               "E. Software Engineering\n"
               "Z. None - return to menu")
-        response = input()
+        response = input("Input: ")
         if response.upper() == "A":
             print("Under Construction")
             return True  # Searched for skill successfully
@@ -198,7 +198,7 @@ def usefulLinksMenu(dbCursor, dbConnection):
         print("C. Business Solutions")
         print("D. Directories")
         print("Z. Return to Previous Menu")
-        response = input()
+        response = input("Input: ")
         if response.upper() == 'A':
             settings.currentState = states.general
             return True
@@ -232,7 +232,7 @@ def generalMenu(dbCursor, dbConnection):
         print("F. Careers")
         print("G. Developers")
         print("Z. Return to Previous Menu")
-        response = input()
+        response = input("Input: ")
 
         if response.upper() == 'A':
             if not settings.signedIn:
