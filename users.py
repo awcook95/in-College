@@ -40,7 +40,9 @@ def createUser(dbCursor, connection):
         else:
             plusMember = input("Invalid option\nSign up for InCollege-Plus membership? (Enter Y for Plus, N for Standard): ")
 
-    db.insertUser(dbCursor, uname, pword, fname, lname, plusMember)
+    date = input("Enter the current date (mm/dd/yy): ")
+
+    db.insertUser(dbCursor, uname, pword, fname, lname, plusMember, date)
     db.insertUserSettings(dbCursor, uname, settings.emailNotif, settings.smsNotif, settings.targetAdvert, settings.language)
     db.insertProfilePage(dbCursor, uname, "", "", "")
     connection.commit()  # commits the new account and settings to the database (ensures account and settings are saved)
@@ -328,7 +330,8 @@ def applyForJob(dbCursor, dbConnection):
         grad = input("Please enter a graduation date (mm/dd/yyyy): ")
         start = input("Please enter the earliest date you can start (mm/dd/yyyy): ")
         credentials = input("Please briefly describe why you are fit for this job: ")
-        db.insertUserJobApplication(dbCursor, settings.signedInUname, job_title, grad, start, credentials)
+        date = input("Please enter the current date (mm/dd/yyyy): ")
+        db.insertUserJobApplication(dbCursor, settings.signedInUname, job_title, grad, start, credentials, date)
         dbConnection.commit()
         print("Successfully applied for job")
 

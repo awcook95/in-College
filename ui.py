@@ -1,4 +1,6 @@
 from collections import namedtuple
+from datetime import datetime
+from datetime import date
 import settings
 import states
 import users
@@ -46,9 +48,26 @@ def enterMainMenu(dbCursor, dbConnection):  # presents the user with an introduc
         response = db.getUserFriendRequests(dbCursor, settings.signedInUname)
 
         messages = " (You have messages waiting for you)" if db.hasUnreadMessages(dbCursor, settings.signedInUname) else ""
-
         profileNotification = " (Don't forget to create a profile)" if db.profilePageExists(dbCursor, settings.signedInUname) == False else ""
 
+        today = date.today() # Get today's date
+        date_format = "%m/%d/%Y"
+        todayDate = today.strftime(date_format) # Format date mm/dd/yy
+        currentDate = datetime.strptime(todayDate, date_format) # Today's date as a string
+        accountAge = datetime.strptime(db.getUserCreatedDate(dbCursor, settings.signedInUname), date_format) # Date account was created
+        newestJob = datetime.strptime(db.getJobAppliedDate(dbCursor, settings.signedInUname), date_format) # Date of newest applied job
+        age = currentDate - accountAge # Length of time from account creation and today
+        newestJobAge = currentDate - newestJob # Length of time from newest applied job and today
+
+        if db.getJobAppliedDate(dbCursor, settings.signedInUname) == None and age.days >= 7:
+            noJobNotification = "Remember – you're going to want to have a job when you graduate. Make sure that you start to apply for jobs today!"
+        elif newestJobAge.days >= 7:
+            noJobNotification = "Remember – you're going to want to have a job when you graduate. Make sure that you start to apply for jobs today!"
+        else:
+            noJobNotification = ""
+        
+        print(noJobNotification)
+        print("\n")
         print("Options:\n"
               "A. Jobs\n"
               "B. Find someone you know\n"
