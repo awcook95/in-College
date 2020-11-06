@@ -40,7 +40,7 @@ def createUser(dbCursor, connection):
         else:
             plusMember = input("Invalid option\nSign up for InCollege-Plus membership? (Enter Y for Plus, N for Standard): ")
 
-    date = input("Enter the current date (mm/dd/yy): ")
+    date = input("Enter the current date (mm/dd/yyyy): ")
 
     db.insertUser(dbCursor, uname, pword, fname, lname, plusMember, date)
     db.insertUserSettings(dbCursor, uname, settings.emailNotif, settings.smsNotif, settings.targetAdvert, settings.language)
@@ -231,7 +231,7 @@ def postJob(dbCursor, dbConnection):
         return
 
     # Take input from user and create job in DB
-    User = namedtuple('User', 'uname pword firstname lastname plusMember')
+    User = namedtuple('User', 'uname pword firstname lastname plusMember date_created')
     currentUser = User._make(db.getUserByName(dbCursor, settings.signedInUname))
  
     first = currentUser.firstname

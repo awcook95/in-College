@@ -328,13 +328,16 @@ def getJobsPostedByUser(cursor, authorName):
     cursor.execute("SELECT * FROM jobs WHERE UPPER(author)=?", [authorName.upper()])
     return cursor.fetchall()
 
-def insertUserJobApplication(cursor, aplicant_uname, job_title, graduation_date, start_date, credentials, date):
-    cursor.execute("INSERT INTO user_job_applications VALUES(?,?,?,?,?,?,?)", [None, aplicant_uname, job_title, graduation_date, start_date, credentials, applied_date])
+def insertUserJobApplication(cursor, applicant_uname, job_title, graduation_date, start_date, credentials, applied_date):
+    cursor.execute("INSERT INTO user_job_applications VALUES(?,?,?,?,?,?,?)", [None, applicant_uname, job_title, graduation_date, start_date, credentials, applied_date])
 
 def getJobAppliedDate(cursor, uname):
     cursor.execute("SELECT applied_date FROM user_job_applications WHERE UPPER(applicant_uname)=? ORDER BY applied_date DESC", [uname.upper()])
     d = cursor.fetchone()
-    return d[0]
+    if d == None:
+        return None
+    else:
+        return d[0]
 
 def getFavoriteJobsByUser(cursor, uname):
     cursor.execute("SELECT * FROM jobs WHERE title IN (SELECT job_title FROM favorited_jobs WHERE uname=?)", [uname])
