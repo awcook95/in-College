@@ -1,4 +1,6 @@
 from collections import namedtuple
+from datetime import datetime
+from datetime import date
 
 import dbfunctions as db
 import settings
@@ -40,9 +42,12 @@ def createUser(dbCursor, connection):
         else:
             plusMember = input("Invalid option\nSign up for InCollege-Plus membership? (Enter Y for Plus, N for Standard): ")
 
-    date = input("Enter the current date (mm/dd/yyyy): ")
+    today = date.today() # Get today's date
+    date_format = "%m/%d/%Y"
+    todayDate = today.strftime(date_format) # Format date mm/dd/yyyy
+    currentDate = datetime.strptime(todayDate, date_format) # Today's date as a string
 
-    db.insertUser(dbCursor, uname, pword, fname, lname, plusMember, date)
+    db.insertUser(dbCursor, uname, pword, fname, lname, plusMember, currentDate)
     db.insertUserSettings(dbCursor, uname, settings.emailNotif, settings.smsNotif, settings.targetAdvert, settings.language)
     db.insertProfilePage(dbCursor, uname, "", "", "")
 
@@ -66,9 +71,13 @@ def loginUser(dbCursor, dbConnection):
     pword = input("Enter your password: ")
 
     while not db.tryLogin(dbCursor, uname, pword):
-        print("Incorrect username / password, please try again\n")
+        print("Incorrect username / password, please try again or press enter twice to return to previous menu\n")
         uname = input("Enter your username: ")
         pword = input("Enter your password: ")
+
+        if uname == "" and pword == "":
+            settings.currentState = states.loggedOut
+            return
 
     # read in user settings on login
     settings.signedInUname = uname  # tracks the logged in user's username
@@ -344,8 +353,11 @@ def applyForJob(dbCursor, dbConnection):
         grad = input("Please enter a graduation date (mm/dd/yyyy): ")
         start = input("Please enter the earliest date you can start (mm/dd/yyyy): ")
         credentials = input("Please briefly describe why you are fit for this job: ")
-        date = input("Please enter the current date (mm/dd/yyyy): ")
-        db.insertUserJobApplication(dbCursor, settings.signedInUname, job_title, grad, start, credentials, date)
+        today = date.today() # Get today's date
+        date_format = "%m/%d/%Y"
+        todayDate = today.strftime(date_format) # Format date mm/dd/yyyy
+        currentDate = datetime.strptime(todayDate, date_format) # Today's date as a string
+        db.insertUserJobApplication(dbCursor, settings.signedInUname, job_title, grad, start, credentials, currentDate)
         dbConnection.commit()
         print("Successfully applied for job")
 
