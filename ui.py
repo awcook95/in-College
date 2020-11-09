@@ -51,13 +51,14 @@ def enterMainMenu(dbCursor, dbConnection):  # presents the user with an introduc
         profileNotification = " (Don't forget to create a profile)" if db.profilePageExists(dbCursor, settings.signedInUname) == False else ""
 
         today = date.today() # Get today's date
-        date_format = "%m/%d/%Y"
+        date_format = "%Y-%m-%d %H:%M:%S"
         todayDate = today.strftime(date_format) # Format date mm/dd/yyyy
         currentDate = datetime.strptime(todayDate, date_format) # Today's date as a string
         noJobNotification = ""
 
         if db.getJobAppliedDate(dbCursor, settings.signedInUname) == None:
-            accountAge = datetime.strptime(db.getUserCreatedDate(dbCursor, settings.signedInUname), date_format) # Date account was created
+            createdDate = db.getUserCreatedDate(dbCursor, settings.signedInUname)
+            accountAge = datetime.strptime(createdDate, date_format) # Date account was created
             age = currentDate - accountAge # Length of time from account creation and today
             
             if age.days >= 7:
