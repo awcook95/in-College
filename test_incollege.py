@@ -3,7 +3,7 @@ from io import StringIO
 import pytest
 from collections import namedtuple
 
-import dbfunctions as db
+import database as db
 import settings
 import states
 import users

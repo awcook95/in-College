@@ -1,6 +1,6 @@
 import sqlite3
 
-import dbfunctions as db
+import database as db
 import settings
 import states
 import ui

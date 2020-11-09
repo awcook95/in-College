@@ -5,7 +5,7 @@ import settings
 import states
 import users
 import utils
-import dbfunctions as db
+import database as db
 import constants
 
 

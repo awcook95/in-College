@@ -2,7 +2,7 @@ from collections import namedtuple
 from datetime import datetime
 from datetime import date
 
-import dbfunctions as db
+import database as db
 import settings
 import states
 import utils
