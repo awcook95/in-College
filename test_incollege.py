@@ -100,7 +100,7 @@ def testInvalidUserLogin(monkeypatch, capfd):
     settings.signedIn = False  # fix
     users.loginUser(cursor, connection)  # Fails because it gets trapped in while loop
     out, err = capfd.readouterr()
-    assert "Enter your username: Enter your password: Incorrect username / password, please try again\n" in out
+    assert "Incorrect username / password, please try again or press enter twice to return to previous menu\n" in out
     assert settings.signedIn
 
 
@@ -196,7 +196,7 @@ def testUsefulLinks(monkeypatch, capfd):
     cursor.execute("DROP TABLE IF EXISTS Users") #delete tables to make sure no conflicts when running test multiple times
     cursor.execute("DROP TABLE IF EXISTS profile_page")
     db.initTables(cursor)
-    db.insertUser(cursor, "username1", "password", "first1", "last1", 0, "01/01/2020")
+    db.insertUser(cursor, "username1", "password", "first1", "last1", 0, "2020-01-01 12:30:00")
     db.insertProfilePage(cursor, "username1", "major", "university", "about")
     settings.currentState = states.mainMenu
     ui.enterMainMenu(cursor, connection)
@@ -212,7 +212,7 @@ def testImportantLinks(monkeypatch, capfd):
     cursor.execute("DROP TABLE IF EXISTS Users") #delete tables to make sure no conflicts when running test multiple times
     cursor.execute("DROP TABLE IF EXISTS profile_page")
     db.initTables(cursor)
-    db.insertUser(cursor, "username1", "password", "first1", "last1", 0, "01/01/2020")
+    db.insertUser(cursor, "username1", "password", "first1", "last1", 0, "2020-01-01 12:30:00")
     db.insertProfilePage(cursor, "username1", "major", "university", "about")
     settings.currentState = states.mainMenu
     ui.enterMainMenu(cursor, connection)
@@ -326,16 +326,16 @@ def testRemoveFriend(monkeypatch):
     
     
 def testSendFriendRequest(monkeypatch):
+    monkeypatch.setattr("sys.stdin", StringIO("A\nfirst2 last2\nY\n"))
     connection = sqlite3.connect("incollege_test.db")
     cursor = connection.cursor()
     cursor.execute("DROP TABLE IF EXISTS Users") #delete tables to make sure no conflicts when running test multiple times
     db.initTables(cursor)
-    db.insertUser(cursor, "username1", "password", "first1", "last1", 0, "01/01/2020")
-    db.insertUser(cursor, "username2", "password", "first2", "last2", 0, "01/01/2020")
+    db.insertUser(cursor, "username1", "password", "first1", "last1", 0, "2020-01-01 12:30:00")
+    db.insertUser(cursor, "username2", "password", "first2", "last2", 0, "2020-01-01 12:30:00")
     settings.signedInUname = "username1"
     settings.signedIn = True
     settings.currentState = states.userSearch
-    monkeypatch.setattr("sys.stdin", StringIO("A\nfirst2 last2\nY\n"))
     users.findUser(cursor, connection)
     assert len(db.getUserFriendRequests(cursor, "username2")) == 1
 
@@ -364,13 +364,13 @@ def testDeleteJobPost(monkeypatch):
     cursor = connection.cursor()
     cursor.execute("DROP TABLE IF EXISTS Users") #delete tables to make sure no conflicts when running test multiple times
     db.initTables(cursor)
-    db.insertUser(cursor, "username1", "password", "first1", "last1", 0, "01/01/2020")
-    db.insertUser(cursor, "username2", "password", "first2", "last2", 0, "01/01/2020")
+    db.insertUser(cursor, "username1", "password", "first1", "last1", 0, "2020-01-01 12:30:00")
+    db.insertUser(cursor, "username2", "password", "first2", "last2", 0, "2020-01-01 12:30:00")
     settings.signedInUname = "username1"
     db.insertJob(cursor, "title1", "desc1", "emp1", "loc1", "sal1", "first1 last1")
     db.insertJob(cursor, "title2", "desc2", "emp2", "loc2", "sal2", "first1 last1")
     assert db.getNumJobs(cursor) == 2
-    db.insertUserJobApplication(cursor, "username2", "title1", "01/01/1243", "01/02/1243", "credentials")
+    db.insertUserJobApplication(cursor, "username2", "title1", "01/01/1243", "01/02/1243", "credentials", "2020-01-01 12:30:00")
     monkeypatch.setattr("sys.stdin", StringIO("1\nN\n"))
     ui.enterDeleteAJobMenu(cursor, connection)
     assert db.getNumJobs(cursor) == 1
@@ -398,8 +398,8 @@ def testFavoriteAJob(monkeypatch):
     cursor.execute("DROP TABLE IF EXISTS Users") #delete tables to make sure no conflicts when running test multiple times
     cursor.execute("DROP TABLE IF EXISTS favorited_jobs")
     db.initTables(cursor)
-    db.insertUser(cursor, "username1", "password", "first1", "last1", 0, "01/01/2020")
-    db.insertUser(cursor, "username2", "password", "first2", "last2", 0, "01/01/2020")
+    db.insertUser(cursor, "username1", "password", "first1", "last1", 0, "2020-01-01 12:30:00")
+    db.insertUser(cursor, "username2", "password", "first2", "last2", 0, "2020-01-01 12:30:00")
     db.insertJob(cursor, "title1", "desc1", "emp1", "loc1", "sal1", "first1 last1")
     settings.signedInUname = "username2"
     monkeypatch.setattr("sys.stdin", StringIO("1\n"))
@@ -415,10 +415,10 @@ def testApplyForJobAlreadyAppliedFor(monkeypatch):
     cursor.execute("DROP TABLE IF EXISTS jobs")
     cursor.execute("DROP TABLE IF EXISTS user_job_applications")
     db.initTables(cursor)
-    db.insertUser(cursor, "username1", "password", "first1", "last1", 0, "01/01/2020")
-    db.insertUser(cursor, "username2", "password", "first2", "last2", 0, "01/01/2020")
+    db.insertUser(cursor, "username1", "password", "first1", "last1", 0, "2020-01-01 12:30:00")
+    db.insertUser(cursor, "username2", "password", "first2", "last2", 0, "2020-01-01 12:30:00")
     db.insertJob(cursor, "title1", "desc1", "emp1", "loc1", "sal1", "first1 last1")
-    db.insertUserJobApplication(cursor, "username2", "title1", "01/01/1234", "01/02/1234", "credentials")
+    db.insertUserJobApplication(cursor, "username2", "title1", "01/01/1234", "01/02/1234", "credentials", "2020-01-01 12:30:00")
     settings.signedInUname = "username2"
     users.applyForJob(cursor, connection)
     assert len(db.getAppliedJobs(cursor, "username2")) == 1

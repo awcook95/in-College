@@ -190,7 +190,7 @@ def findUser(dbCursor, connection):
 
     # If the desired user is found successfully, return their data and jump to appropriate menu
     if result is not None:
-        User = namedtuple('User', 'uname pword firstname lastname plus_member')
+        User = namedtuple('User', 'uname pword firstname lastname plus_member date_created')
         receiver = User._make(result)
         if settings.signedIn:
             friend_exists = db.checkUserFriendRelation(dbCursor, settings.signedInUname, receiver.uname)
