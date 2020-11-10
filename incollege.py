@@ -1,6 +1,9 @@
 import sqlite3
 
 import database as db
+import jobs
+import messages
+import profiles
 import settings
 import states
 import ui
@@ -31,13 +34,13 @@ def main(dbCursor, dbConnection):
         states.userSearch:         users.findUser,
         states.createJob:          users.postJob,
         states.apply:              users.applyForJob,
-        states.viewJobs:           ui.printJobListings,
-        states.deleteJob:          ui.enterDeleteAJobMenu,
+        states.viewJobs:           jobs.printJobListings,
+        states.deleteJob:          jobs.enterDeleteAJobMenu,
         states.favoriteJob:        users.favoriteAJob,
-        states.viewFavoriteJobs:   ui.viewFavoriteJobs,
-        states.viewAppliedJobs:    ui.viewAppliedJobs,
-        states.viewUnappliedJobs:  ui.viewUnappliedJobs,
-        states.jobMenu:            ui.enterJobMenu,
+        states.viewFavoriteJobs:   jobs.viewFavoriteJobs,
+        states.viewAppliedJobs:    jobs.viewAppliedJobs,
+        states.viewUnappliedJobs:  jobs.viewUnappliedJobs,
+        states.jobMenu:            jobs.enterJobMenu,
         states.usefulLinks:        ui.usefulLinksMenu,
         states.general:            ui.generalMenu,
         states.browseInCollege:    ui.browseMenu,
@@ -46,10 +49,10 @@ def main(dbCursor, dbConnection):
         states.importantLinks:     ui.enterImportantLinksMenu,
         states.modifyUserSettings: users.changeUserSettings,
         states.friendsMenu:        ui.enterFriendsMenu,
-        states.profilePage:        ui.enterProfilePageMenu,
-        states.messageCenter:      ui.messageCenterMenu,
-        states.inbox:              ui.inboxMenu,
-        states.sendMessage:        ui.sendMessageMenu
+        states.profilePage:        profiles.enterProfilePageMenu,
+        states.messageCenter:      messages.messageCenterMenu,
+        states.inbox:              messages.inboxMenu,
+        states.sendMessage:        messages.sendMessageMenu
     }
 
     while settings.currentState != states.quit:  # this while loop handles every state and calls corresponding methods
