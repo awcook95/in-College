@@ -18,6 +18,7 @@ def createUser(dbCursor, connection):
     uname = input("Enter your desired username: ")
     if uname == "":
         print("Account creation canceled.")
+        settings.currentState = states.loggedOut
         return
 
     while db.getUserByName(dbCursor, uname):
@@ -25,11 +26,13 @@ def createUser(dbCursor, connection):
         uname = input("Enter your desired username: ")
         if uname == "":
             print("Account creation canceled.")
+            settings.currentState = states.loggedOut
             return
 
     pword = input("Enter your desired password: ")
     if pword == "":
         print("Account creation canceled.")
+        settings.currentState = states.loggedOut
         return
 
     while not utils.validatePassword(pword):
@@ -37,16 +40,19 @@ def createUser(dbCursor, connection):
         pword = input("Enter your desired password: ")
         if pword == "":
             print("Account creation canceled.")
+            settings.currentState = states.loggedOut
             return
 
     fname = input("Enter your first name: ")
     if fname == "":
         print("Account creation canceled.")
+        settings.currentState = states.loggedOut
         return
 
     lname = input("Enter your last name: ")
     if lname == "":
         print("Account creation canceled.")
+        settings.currentState = states.loggedOut
         return
 
     plusMember = input("Sign up for InCollege-Plus membership? (Enter Y for Plus, N for Standard): ")
