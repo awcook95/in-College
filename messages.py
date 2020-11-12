@@ -6,7 +6,7 @@ import states
 
 
 def messageCenterMenu(dbCursor, dbConnection):
-    print("Select a messaging option:\n"
+    print("\nSelect a messaging option:\n"
           "A. Inbox\n"
           "B. Send Message\n"
           "Z. Return to Previous Menu")
@@ -28,50 +28,67 @@ def inboxMenu(dbCursor, dbConnection):
     if len(messages) == 0:
         print("You have no messages.")
         settings.currentState = states.messageCenter
-    else:
-        Message = namedtuple('User', 'message_id sender_uname receiver_uname body read')
-        for i in range(0, len(messages)):
-            # first create message object to select from
-            selectedMessage = Message._make(messages[i])
-            if selectedMessage.read == 0:
-                print(f"{i+1}. {selectedMessage.sender_uname} (Unread)")
-            else:
-                print(f"{i+1}. {selectedMessage.sender_uname} ")
+        return
 
-        print("\n")
-        if len(messages) > 1:
-            choice = input("Select a message 1 - " + str(len(messages)) + " to read: \n(Or press enter to return to previous menu)\n")
+    Message = namedtuple('User', 'message_id sender_uname receiver_uname body read')
+
+    print()
+    for i in range(0, len(messages)):
+        # first create message object to select from
+        currentMessage = Message._make(messages[i])
+        if currentMessage.read == 0:
+            print(f"{i + 1}. {currentMessage.sender_uname} (Unread)")
         else:
-            choice = input("Enter '1' to read this message\n(Or press enter to return to previous menu)\n")
-        if choice == "":
-            settings.currentState = states.messageCenter  # returns to main() w/ currentState = messageCenter
-            return
-        try:
-            int(choice)
-        except ValueError:
-            print("Invalid input\n")
-            return
-        if int(choice) not in range(1, len(messages) + 1):
-            print("Invalid input\n")
-            return
+            print(f"{i + 1}. {currentMessage.sender_uname}")
 
-        selectedMessage = Message._make(messages[int(choice) - 1])
-        print(f"{selectedMessage.body}\n")  # Print Message
-        db.updateMessageAsRead(dbCursor, selectedMessage.message_id)  # Mark message as read
-        dbConnection.commit()
+    print("#. Choose one of the above messages to read")
+    print("Z. Return to Previous Menu")
 
-        response = input(f"Would you like to send a reply to {selectedMessage.sender_uname}? (Y/N): ")
-        if response.upper() == 'Y':
-            reply = input(f"Enter message to {selectedMessage.sender_uname}: ")
-            db.insertMessage(dbCursor, settings.signedInUname, selectedMessage.sender_uname, reply)  # Add new message
+    while True:
+        response = input("Input: ")
+        if response.isdigit() and 1 <= int(response) <= len(messages):
+            selectedMessage = messages[int(response) - 1]
+            viewMessage(dbCursor, dbConnection, selectedMessage)
+            break
+        elif response.upper() == "Z":
+            settings.currentState = states.messageCenter
+            break
+        else:
+            print(constants.INVALID_INPUT)
+
+
+def viewMessage(dbCursor, dbConnection, selectedMessage):
+    Message = namedtuple('User', 'message_id sender_uname receiver_uname body read')
+    selectedMessage = Message._make(selectedMessage)
+
+    while True:
+        print(f"\n{selectedMessage.sender_uname}'s Message:")
+        print(selectedMessage.body)
+        if selectedMessage.read == 0:  # if message was previously unread
+            db.updateMessageAsRead(dbCursor, selectedMessage.message_id)  # mark message as read
             dbConnection.commit()
-            print("Message Sent")
 
-        option = input(f"Would you like to delete {selectedMessage.sender_uname}'s message? (Y/N): ")
-        if option.upper() == 'Y':
-            db.deleteMessage(dbCursor, selectedMessage.message_id)  # Delete Message
-            dbConnection.commit()
-            print("Message Deleted")
+        print("A. Reply")
+        print("B. Delete Message")
+        print("Z. Return to Previous Menu")
+
+        while True:
+            response = input("Input: ")
+            if response.upper() == "A":
+                reply = input(f"Enter message to {selectedMessage.sender_uname}: ")
+                db.insertMessage(dbCursor, settings.signedInUname, selectedMessage.sender_uname, reply)
+                dbConnection.commit()
+                print("Reply successfully sent.")
+                break
+            elif response.upper() == "B":
+                db.deleteMessage(dbCursor, selectedMessage.message_id)
+                dbConnection.commit()
+                print("Message successfully deleted, returning to previous menu.")
+                return
+            elif response.upper() == "Z":
+                return
+            else:
+                print(constants.INVALID_INPUT)
 
 
 def sendMessageMenu(dbCursor, dbConnection):
