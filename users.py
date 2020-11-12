@@ -138,7 +138,7 @@ def findUser(dbCursor, connection):
     result = None
     while settings.currentState == states.userSearch:
         # Added the user prompt for searched person within this function
-        print("Which search term do you want to find users by?")
+        print("\nWhich search term do you want to find users by?")
         print("A. By Full Name")
         print("B. By Last Name")
         print("C. By University")
@@ -165,7 +165,6 @@ def findUser(dbCursor, connection):
             name = input("Enter the last name of the person you might know: ")
             users_found = utils.printUsersFoundLastName(dbCursor, name)
             if users_found is None:
-                print("No users found under that criteria.")
                 result = None
             else:
                 while settings.currentState == states.userSearch:
@@ -182,7 +181,6 @@ def findUser(dbCursor, connection):
             university = input("Enter the University of the person you might know goes to: ")
             users_found = utils.printUsersFoundParameter(dbCursor, university, 0)
             if users_found is None:
-                print("No users found under that criteria.")
                 result = None
             else:
                 while settings.currentState == states.userSearch:
@@ -198,7 +196,6 @@ def findUser(dbCursor, connection):
             major = input("Enter the major of the person you might know has: ")
             users_found = utils.printUsersFoundParameter(dbCursor, major, 1)
             if users_found is None:
-                print("No users found under that criteria.")
                 result = None
             else:
                 while settings.currentState == states.userSearch:
@@ -229,7 +226,7 @@ def findUser(dbCursor, connection):
             # If this person is already your friend,return
             if friend_exists:
                 print(receiver.uname + " is already your friend!")
-                settings.currentState = states.mainMenu   # returns to main() w/ currentState = mainMenu
+                settings.currentState = states.userSearch  # returns to main() w/ currentState = userSearch
                 return True
         
         print("They are a part of the InCollege system!")
@@ -247,15 +244,16 @@ def findUser(dbCursor, connection):
                     else: 
                         print(receiver.uname + " has already been sent a request! They will show up in your friends list once they accept!")
             
-            settings.currentState = states.mainMenu   # returns to main() w/ currentState = mainMenu
+            settings.currentState = states.userSearch  # returns to main() w/ currentState = userSearch
             return True
         else:                                         # else a user is not signed in
-            settings.currentState = states.loggedOut  # returns to main() w/ currentState = loggedOut
+            print("You must be logged in to connect with other users!")
+            settings.currentState = states.userSearch  # returns to main() w/ currentState = userSearch
             return True
     else:
+        print("No users found; they are not a part of the InCollege system yet.")
         while settings.currentState == states.userSearch:
-            print("They are not yet a part of the InCollege system yet.")
-            print("Options:")
+            print("\nOptions:")
             print("A. Search for another user")
             print("Z. Return to previous menu")
             response = input("Input: ")
