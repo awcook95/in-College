@@ -1,12 +1,11 @@
 from collections import namedtuple
-from datetime import datetime
-from datetime import date
+from datetime import datetime, date
 
+import constants
 import database as db
 import settings
 import states
 import utils
-import constants
 
 
 def createUser(dbCursor, connection):
@@ -264,38 +263,6 @@ def findUser(dbCursor, connection):
                 return False  # Didn't find user
             else:
                 print(constants.INVALID_INPUT)
-
-
-def postJob(dbCursor, dbConnection):
-    if db.getNumJobs(dbCursor) >= constants.MAX_POSTED_JOBS:  # checks if number of jobs in database is at max limit
-        print("All permitted jobs have been created, please come back later")
-        settings.currentState = states.jobMenu
-        return
-
-    # Take input from user and create job in DB
-    User = namedtuple('User', 'uname pword firstname lastname plusMember date_created')
-    currentUser = User._make(db.getUserByName(dbCursor, settings.signedInUname))
- 
-    first = currentUser.firstname
-    last = currentUser.lastname
-    author = first + " " + last
-    title = input("Enter job title: ")
-    desc = input("Enter job description: ")
-    emp = input("Enter employer name: ")
-    loc = input("Enter job location: ")
-    sal = input("Enter salary: ")
-
-    db.insertJob(dbCursor, title, desc, emp, loc, sal, author)
-
-    # add notification to let other users know a job has been posted
-    other_users = db.getAllOtherUsers(dbCursor, settings.signedInUname)
-    if len(other_users) > 0:
-        for user in other_users:
-            db.insertNotification(dbCursor, "new_job", title, user[0])
-
-    dbConnection.commit()
-    print("Job has been posted.")
-    settings.currentState = states.jobMenu  # returns to main() w/ currentState = jobMenu
 
 
 def changeUserSettings(dbCursor, connection):
