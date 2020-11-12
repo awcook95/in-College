@@ -8,6 +8,7 @@ import settings
 import states
 import ui
 import users
+import utils
 
 # connect to database
 connection = sqlite3.connect('inCollege.db')

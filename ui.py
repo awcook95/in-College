@@ -1,28 +1,26 @@
-from collections import namedtuple
-from datetime import datetime
-from datetime import date
+import constants
+import database as db
+import notifications
 import profiles
 import settings
 import states
 import users
 import utils
-import database as db
-import constants
 
 
 def enterInitialMenu(dbCursor, dbConnection):
-    while settings.currentState == states.loggedOut:  # change from currentState = loggedOut will result in return to main()
-        # success story
-        print(constants.SUCCESS_STORY)
+    print(constants.SUCCESS_STORY)  # student success story
 
-        print("\nSelect Option:\n"
-              "A. Log in with existing account\n"
-              "B. Create new account\n"
-              "C. Find someone you know\n"
-              "D. Play success story video\n"
-              "E. InCollege Useful Links\n"
-              "F. InCollege Important Links\n"
-              "Z. Quit")
+    print("\nSelect Option:\n"
+          "A. Log in with existing account\n"
+          "B. Create new account\n"
+          "C. Find someone you know\n"
+          "D. Play success story video\n"
+          "E. InCollege Useful Links\n"
+          "F. InCollege Important Links\n"
+          "Z. Quit")
+
+    while settings.currentState == states.loggedOut:  # change from currentState = loggedOut will result in return to main()
         response = input("Input: ")
         if response.upper() == "A":
             settings.currentState = states.login          # returns to main() w/ currentState = login
@@ -39,68 +37,37 @@ def enterInitialMenu(dbCursor, dbConnection):
         elif response.upper() == "Z":
             settings.currentState = states.quit           # returns to main() w/ currentState = quit
         else:
-            print("Invalid Option, enter the letter option you want and press enter")
+            print(constants.INVALID_INPUT)
 
 
 def enterMainMenu(dbCursor, dbConnection):  # presents the user with an introductory menu if logged in
+    # Check for any pending friend requests
+    friendRequests = db.getUserFriendRequests(dbCursor, settings.signedInUname)
+
+    messages = " (You have messages waiting for you)" if db.hasUnreadMessages(dbCursor, settings.signedInUname) else ""
+    profileNotification = " (Don't forget to create a profile)" if db.profilePageExists(dbCursor, settings.signedInUname) is False else ""
+
+    notifications.printMainMenuNotifications(dbCursor, dbConnection)
+
+    print("\nOptions:\n"
+          "A. Jobs\n"
+          "B. Find someone you know\n"
+          "C. Learn a new skill\n"
+          "D. InCollege Useful Links\n"
+          "E. InCollege Important Links\n"
+          "F. View Friends\n"
+          f"G. Student Profile{profileNotification}\n"
+          f"H. Message Center{messages}\n"
+          "Z. Logout")
+    if len(friendRequests) > 0:
+        print("You have pending friend requests! Enter 'Y' to view them.")
+
     while settings.currentState == states.mainMenu:  # change from currentState = mainMenu will result in return to main()
-
-        # Check for any pending friend requests
-        response = db.getUserFriendRequests(dbCursor, settings.signedInUname)
-
-        messages = " (You have messages waiting for you)" if db.hasUnreadMessages(dbCursor, settings.signedInUname) else ""
-        profileNotification = " (Don't forget to create a profile)" if db.profilePageExists(dbCursor, settings.signedInUname) is False else ""
-
-        today = date.today()  # Get today's date
-        date_format = "%Y-%m-%d %H:%M:%S"
-        todayDate = today.strftime(date_format)  # Format date mm/dd/yyyy
-        currentDate = datetime.strptime(todayDate, date_format)  # Today's date as a string
-        noJobNotification = ""
-
-        if db.getJobAppliedDate(dbCursor, settings.signedInUname) is None:
-            createdDate = db.getUserCreatedDate(dbCursor, settings.signedInUname)
-            accountAge = datetime.strptime(createdDate, date_format)  # Date account was created
-            age = currentDate - accountAge  # Length of time from account creation and today
-            
-            if age.days >= 7:
-                noJobNotification = "Remember – you're going to want to have a job when you graduate. Make sure that you start to apply for jobs today!"
-        else:
-            newestJob = datetime.strptime(db.getJobAppliedDate(dbCursor, settings.signedInUname), date_format)  # Date of newest applied job
-            newestJobAge = currentDate - newestJob  # Length of time from newest applied job and today
-            
-            if newestJobAge.days >= 7:
-                noJobNotification = "Remember – you're going to want to have a job when you graduate. Make sure that you start to apply for jobs today!"
-
-        print("Notifications:")
-
-        # notifications for new students joined
-        new_students_notifications = db.getNotificationsForUserByType(dbCursor, "new_student", settings.signedInUname)
-        if len(new_students_notifications) > 0:
-            for n in new_students_notifications:
-                print(f"{n[2]} has joined InCollege.")
-                db.deleteNotification(dbCursor, n[1], n[2], n[3])
-                dbConnection.commit()
-
-        print(noJobNotification)
-
-        print("\nOptions:\n"
-              "A. Jobs\n"
-              "B. Find someone you know\n"
-              "C. Learn a new skill\n"
-              "D. InCollege Useful Links\n"
-              "E. InCollege Important Links\n"
-              "F. View Friends\n"
-              f"G. Student Profile{profileNotification}\n"
-              f"H. Message Center{messages}\n"
-              "Z. Logout")
-
-        if len(response) > 0:
-            response = input("You have pending friend requests! Enter 'Y' to view them: ")
+        response = input("Input: ")
+        if len(friendRequests) > 0:
             if response.upper() == 'Y':
                 utils.handleUserFriendRequests(dbCursor, dbConnection, settings.signedInUname)
                 continue
-        else:
-            response = input("Input: ")
         if response.upper() == "A":
             settings.currentState = states.jobMenu
         elif response.upper() == "B":
@@ -120,18 +87,19 @@ def enterMainMenu(dbCursor, dbConnection):  # presents the user with an introduc
         elif response.upper() == "Z":
             users.logOutUser()  # logs user out: currentState = loggedOut; signedInUname = None; signedIn = False
         else:
-            print("Invalid Option, enter the letter option you want and press enter")
+            print(constants.INVALID_INPUT)
 
 
 def enterSkillMenu(dbCursor, dbConnection):
+    print("What skill would you like to learn?:\n"
+          "A. Python\n"
+          "B. How to make a resume\n"
+          "C. Scrum\n"
+          "D. Jira\n"
+          "E. Software Engineering\n"
+          "Z. None - return to menu")
+
     while settings.currentState == states.selectSkill:  # change from currentState = selectSkill will result in return to main()
-        print("What skill would you like to learn?:\n"
-              "A. Python\n"
-              "B. How to make a resume\n"
-              "C. Scrum\n"
-              "D. Jira\n"
-              "E. Software Engineering\n"
-              "Z. None - return to menu")
         response = input("Input: ")
         if response.upper() == "A":
             print("Under Construction")
@@ -155,7 +123,7 @@ def enterSkillMenu(dbCursor, dbConnection):
                 settings.currentState = states.mainMenu   # returns to main() w/ currentState = mainMenu
             return False  # Don't learn skill
         else:
-            print("Invalid Option, enter the number option you want and press enter")
+            print(constants.INVALID_INPUT)
 
 
 def enterFriendsMenu(dbCursor, dbConnection):
@@ -189,17 +157,18 @@ def enterFriendsMenu(dbCursor, dbConnection):
         elif response.upper() == "Z":
             settings.currentState = states.mainMenu
         else:
-            print("Invalid input, try again.")
+            print(constants.INVALID_INPUT)
 
 
 def usefulLinksMenu(dbCursor, dbConnection):
+    print("Useful Links:")
+    print("A. General")
+    print("B. Browse InCollege")
+    print("C. Business Solutions")
+    print("D. Directories")
+    print("Z. Return to Previous Menu")
+
     while settings.currentState == states.usefulLinks:
-        print("Useful Links:")
-        print("A. General")
-        print("B. Browse InCollege")
-        print("C. Business Solutions")
-        print("D. Directories")
-        print("Z. Return to Previous Menu")
         response = input("Input: ")
         if response.upper() == 'A':
             settings.currentState = states.general
@@ -220,27 +189,27 @@ def usefulLinksMenu(dbCursor, dbConnection):
                 settings.currentState = states.mainMenu
             return False  # No links chosen
         else:
-            print("Invalid Option, enter the letter option you want and press enter")
+            print(constants.INVALID_INPUT)
 
 
 def generalMenu(dbCursor, dbConnection):
-    while settings.currentState == states.general:
-        print("Links:")
-        print("A. Sign Up")
-        print("B. Help Center")
-        print("C. About")
-        print("D. Press")
-        print("E. Blog")
-        print("F. Careers")
-        print("G. Developers")
-        print("Z. Return to Previous Menu")
-        response = input("Input: ")
+    print("Links:")
+    print("A. Sign Up")
+    print("B. Help Center")
+    print("C. About")
+    print("D. Press")
+    print("E. Blog")
+    print("F. Careers")
+    print("G. Developers")
+    print("Z. Return to Previous Menu")
 
+    while settings.currentState == states.general:
+        response = input("Input: ")
         if response.upper() == 'A':
             if not settings.signedIn:
                 settings.currentState = states.createAccount
             else:
-                print("Already logged in as: " + settings.signedInUname + ", logout to create a new account!")
+                print(f"Already logged in as: {settings.signedInUname}, logout to create a new account!")
             return True
         elif response.upper() == 'B':
             print("We're here to help")
@@ -264,7 +233,7 @@ def generalMenu(dbCursor, dbConnection):
             settings.currentState = states.usefulLinks
             return False  # No links chosen
         else:
-            print("Invalid Option, enter the letter option you want and press enter")
+            print(constants.INVALID_INPUT)
 
 
 def browseMenu(dbCursor, dbConnection):
@@ -289,20 +258,21 @@ def directoriesMenu(dbCursor, dbConnection):
 
 
 def enterImportantLinksMenu(dbCursor, connection):
+    print("\nInCollege Important Links:\n"
+          "A. Copyright Notice\n"
+          "B. About\n"
+          "C. Accessibility\n"
+          "D. User Agreement\n"
+          "E. Privacy Policy\n"
+          "F. Cookie Policy\n"
+          "G. Copyright Policy\n"
+          "H. Brand Policy\n"
+          "I. Guest Controls\n"
+          "J. Languages\n"
+          "Z. Return to previous menu")
+
     while settings.currentState == states.importantLinks:
-        print("\nInCollege Important Links:\n"
-              "A. Copyright Notice\n"
-              "B. About\n"
-              "C. Accessibility\n"
-              "D. User Agreement\n"
-              "E. Privacy Policy\n"
-              "F. Cookie Policy\n"
-              "G. Copyright Policy\n"
-              "H. Brand Policy\n"
-              "I. Guest Controls\n"
-              "J. Languages\n"
-              "Z. Return to previous menu")
-        response = input("Choose an option: ")
+        response = input("Input: ")
         if response.upper() == "A":
             print(constants.COPYRIGHT_NOTICE)
         elif response.upper() == "B":
@@ -331,7 +301,7 @@ def enterImportantLinksMenu(dbCursor, connection):
             elif option.upper() == "B":
                 settings.language = "Spanish"
             else:
-                print("Invalid input, try again.")
+                print(constants.INVALID_INPUT)
                 continue
 
             if settings.signedIn:
@@ -344,4 +314,4 @@ def enterImportantLinksMenu(dbCursor, connection):
             else:
                 settings.currentState = states.loggedOut
         else:
-            print("Invalid Option, enter the letter option you want and press enter")
+            print(constants.INVALID_INPUT)

@@ -34,6 +34,8 @@ SUCCESS_STORY = "\nNathan Cooper had always dreamed about getting a software eng
                 "discuss school, jobs, salaries, offers, and projects. He was also able to learn new skills that would increase\n" \
                 "his experience and improve the look of his resume."
 
+INVALID_INPUT = "Invalid input, try again."
+
 MAX_USER_ACCOUNTS = 10
 MAX_POSTED_JOBS = 10
 MAX_USER_PROFILE_JOBS = 3

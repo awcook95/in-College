@@ -1,4 +1,5 @@
 from collections import namedtuple
+import constants
 import database as db
 import settings
 
@@ -64,7 +65,7 @@ def handleUserFriendRequests(dbCursor, dbConnection, receiver):
     if len(requests) > 0: 
         for r in requests: 
             print("Request from: " + r[0] + "\n")
-            response = input("Would you like to Accept (A), Ignore (I) or Return to previous menu (Z): ")
+            response = input("Would you like to Accept (A), Ignore (I) or Return to Previous Menu (Z): ")
             while response.upper() != 'A' or response != 'I':
                 if response.upper() == 'A':
                     # To accept will add friend relation to both users
@@ -82,8 +83,8 @@ def handleUserFriendRequests(dbCursor, dbConnection, receiver):
                 elif response.upper() == 'Z':
                     return None
                 else: 
-                    print("Invalid input: enter either A to accept , I to ignore or Z to return to previous menu")
-                    response = input("Would you like to Accept (A), Ignore (I) or Return (Z): ")
+                    print(constants.INVALID_INPUT)
+                    response = input("Would you like to Accept (A), Ignore (I) or Return to Previous Menu (Z): ")
 
         return requests
     else:

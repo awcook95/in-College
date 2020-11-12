@@ -1,4 +1,5 @@
 from collections import namedtuple
+import constants
 import database as db
 import settings
 import states
@@ -9,14 +10,16 @@ def messageCenterMenu(dbCursor, dbConnection):
           "A. Inbox\n"
           "B. Send Message\n"
           "Z. Return to Previous Menu")
-    choice = input("Input: ")
-
-    if choice.upper() == "A":
-        settings.currentState = states.inbox        # returns to main() w/ currentState = inbox
-    elif choice.upper() == "B":
-        settings.currentState = states.sendMessage  # returns to main() w/ currentState = sendMessage
-    elif choice.upper() == "Z":
-        settings.currentState = states.mainMenu     # returns to main() w/ currentState = mainMenu
+    while settings.currentState == states.messageCenter:
+        choice = input("Input: ")
+        if choice.upper() == "A":
+            settings.currentState = states.inbox        # returns to main() w/ currentState = inbox
+        elif choice.upper() == "B":
+            settings.currentState = states.sendMessage  # returns to main() w/ currentState = sendMessage
+        elif choice.upper() == "Z":
+            settings.currentState = states.mainMenu     # returns to main() w/ currentState = mainMenu
+        else:
+            print(constants.INVALID_INPUT)
 
 
 def inboxMenu(dbCursor, dbConnection):

@@ -51,59 +51,44 @@ def enterProfilePageMenu(dbCursor, dbConnection):
                     db.updateProfilePage(dbCursor, settings.signedInUname, major, university, about)
                     dbConnection.commit()
                 else:
-                    print("Invalid Option, enter the letter option you want and press enter")
+                    print(constants.INVALID_INPUT)
                     continue
         elif response.upper() == 'Z':
             settings.currentState = states.mainMenu
             return False  # No links chosen
         else:
-            print("Invalid Option, enter the letter option you want and press enter")
+            print(constants.INVALID_INPUT)
             continue
 
 
 def printProfilePage(dbCursor, uname):
     name = db.getUserByName(dbCursor, uname)
-    first = name[2]
-    last = name[3]
     page = db.getProfilePage(dbCursor, uname)
-    major = page[1]
-    university = page[2]
-    about = page[3]
     jobs = db.getProfileJobs(dbCursor, uname)
     education = db.getProfileEducation(dbCursor, uname)
 
-    print(f"{first} {last}'s Profile Page")
-    print(f"Major: {major}")
-    print(f"University: {university}")
-    print(f"About: \n{about}")
+    print(f"{name[2]} {name[3]}'s Profile Page")  # name[2] = user first name; name[3] = user last name
+    print(f"Major: {page[1]}")                    # page[1] = user major
+    print(f"University: {page[2]}")               # page[2] = user university
+    print(f"About: \n{page[3]}")                  # page[3] = user about
     if jobs is None:
         print("Career:")
     else:
         print("Career:")
         for job in jobs:
-            title = job[2]
-            employer = job[3]
-            date_start = job[4]
-            date_end = job[5]
-            location = job[6]
-            job_desc = job[7]
-            print(title)
-            print(f"\tEmployer: {employer}")
-            print(f"\tDate: {date_start} - {date_end}")
-            print(f"\tLocation: {location}")
-            print(f"\tDescription: \n\t{job_desc}")
+            print(job[2])                          # job[2] = job title
+            print(f"\tEmployer: {job[3]}")         # job[3] = job employer
+            print(f"\tDate: {job[4]} - {job[5]}")  # job[4] = job start date; job[5] = job end date
+            print(f"\tLocation: {job[6]}")         # job[6] = job location
+            print(f"\tDescription: \n\t{job[7]}")  # job[7] = job description
 
     if education is None:
         print("Education:")
     else:
         print("Education:")
         for i in education:
-            university_name = i[2]
-            user_degree = i[3]
-            year_start = i[4]
-            year_end = i[5]
-            print(f"University: {university_name}")
-            print(f"\tDegree: {user_degree}")
-            print(f"\tYear: {year_start} - {year_end}")
+            print(f"University: {i[2]}")       # i[2] = university name
+            print(f"\tDegree: {i[3]}")         # i[3] = degree
+            print(f"\tYear: {i[4]} - {i[5]}")  # i[4] = start year; i[5] = end year
 
-    return major, university, about
+    return page[1], page[2], page[3]
