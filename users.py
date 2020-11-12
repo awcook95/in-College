@@ -307,36 +307,3 @@ def changeUserSettings(dbCursor, connection):
             settings.currentState = states.importantLinks
         else:
             print(constants.INVALID_INPUT)
-
-
-def favoriteAJob(dbCursor, dbConnection):
-    print("Jobs not yet favorited:")
-    jobs = db.getJobsNotFavorited(dbCursor, settings.signedInUname)
-    if len(jobs) > 0:
-        for i in range(0, len(jobs)):
-            # first create job object to select from
-            Job = namedtuple('User', 'jobID title description employer location salary author')
-            selectedJob = Job._make(jobs[i])
-            print(f"{i+1}. Job Title: {selectedJob.title}")
-    else:
-        print("No unfavorited jobs, returning to previous menu.")
-        settings.currentState = states.jobMenu
-        return
-
-    print("Z. Return to Previous Menu")
-    while True:
-        job_index = input("Enter one of the above options: ")
-        if job_index.isdigit() and 1 <= int(job_index) <= len(jobs):
-            Job = namedtuple('User', 'jobID title description employer location salary author')
-            selectedJob = Job._make(jobs[int(job_index) - 1])
-            job_title = selectedJob.title
-
-            db.insertFavoriteJob(dbCursor, settings.signedInUname, job_title)
-            dbConnection.commit()
-            print("Job favorited.")
-            break
-        elif job_index.upper() == "Z":
-            settings.currentState = states.jobMenu
-            break
-        else:
-            print(constants.INVALID_INPUT)
