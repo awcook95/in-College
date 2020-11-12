@@ -1,3 +1,5 @@
+from collections import namedtuple
+
 COPYRIGHT_NOTICE = "Copyright © InCollege Corporation. All rights reserved."
 
 ABOUT = "InCollege: Welcome to InCollege, the world's largest college student network with many users in many countries and territories worldwide"
@@ -39,3 +41,5 @@ INVALID_INPUT = "Invalid input, try again."
 MAX_USER_ACCOUNTS = 10
 MAX_POSTED_JOBS = 10
 MAX_USER_PROFILE_JOBS = 3
+
+USER_TUPLE = namedtuple('user', 'uname pword firstname lastname plus_member date_created')

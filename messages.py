@@ -98,58 +98,48 @@ def sendMessageMenu(dbCursor, dbConnection):
     users = friends
     while True:
         if choice.upper() == "A":
-            print("Your friends:")
+            print("\nYour Friends:")
         elif choice.upper() == "B":
-            print("All InCollege users:")
+            print("\nAll InCollege Users:")
+
         if len(users) > 0:
             for i in range(0, len(users)):
-                user = namedtuple('user', 'uname pword firstname lastname plus_member')
-                selectedUser = user._make(users[i])
+                selectedUser = constants.USER_TUPLE._make(users[i])
                 print(f"{i + 1}. {selectedUser.firstname} {selectedUser.lastname}")
         else:
             if choice.upper() == "A":
-                print("None, go add some friends!:\n")
+                print("None, go add some friends!")
             elif choice.upper() == "B":
-                print("No InCollege users found.\n")
+                print("No other InCollege users found.")
 
-        choice = input("{selectionRange}"
-            "A. View my friends\n"
-            "B. View all InCollege users\n"
-            "Z. Return to previous menu\n"
-            "input: ".format(selectionRange="\nSelect a user 1 - " + str(len(users)) + " to message: \n\n" if len(users) > 1 else "Enter '1' to message this user\n\n" if len(users) == 1 else "")
-        )
+        print("\n#. Choose a user to message")
+        print("A. View Friends")
+        print("B. View All InCollege Users")
+        print("Z. Return to Previous Menu")
 
-        if choice.upper() == "A":
-            users = friends
-            continue
-        elif choice.upper() == "B":
-            users = allUsers
-            continue
-        elif choice.upper() == "Z":
-            settings.currentState = states.messageCenter
-            return
-        try:
-            int(choice)
-        except ValueError:
-            print("Invalid input")
-            continue
+        while True:
+            response = input("Input: ")
+            if response.isdigit() and 1 <= int(response) <= len(users):
+                selectedUser = constants.USER_TUPLE._make(users[int(response) - 1])
+                if not db.checkUserFriendRelation(dbCursor, settings.signedInUname, selectedUser.uname) and not db.userIsPlusMember(dbCursor, settings.signedInUname):
+                    print("I'm sorry, you are not friends with that person -- Only InCollege Plus members may send messages to non-friends.")
+                    continue
 
-        if len(users) == 0:
-            print("Invalid input")
-            continue
-
-        if int(choice) not in range(1, len(users) + 1):
-            print(f"Input must be 1 through {len(users) + 1}")
-            continue
-
-        user = namedtuple('user', 'uname pword firstname lastname plus_member')
-        selectedUser = user._make(users[int(choice) - 1])
-
-        if not db.checkUserFriendRelation(dbCursor, settings.signedInUname, selectedUser.uname) and not db.userIsPlusMember(dbCursor, settings.signedInUname):
-            print("I'm sorry, you are not friends with that person -- Only InCollege Plus members may send messages to non-friends.")
-            continue
-
-        message = input(f"Enter your message you would like to send to {selectedUser.uname}: ")
-        db.insertMessage(dbCursor, settings.signedInUname, selectedUser.uname, message)
-        dbConnection.commit()
-        print("Message sent")
+                message = input(f"Enter message to {selectedUser.uname}: ")
+                db.insertMessage(dbCursor, settings.signedInUname, selectedUser.uname, message)
+                dbConnection.commit()
+                print("Message successfully sent.")
+                break
+            elif response.upper() == "A":
+                users = friends
+                choice = "A"
+                break
+            elif response.upper() == "B":
+                users = allUsers
+                choice = "B"
+                break
+            elif response.upper() == "Z":
+                settings.currentState = states.messageCenter
+                return
+            else:
+                print(constants.INVALID_INPUT)
