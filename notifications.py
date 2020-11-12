@@ -5,7 +5,7 @@ import settings
 
 
 def printJobMenuNotifications(dbCursor, dbConnection):
-    print("Notifications:")
+    print("\nNotifications:")
     new_jobs_notifications = db.getNotificationsForUserByType(dbCursor, "new_job", settings.signedInUname)
     jobs_deleted_notifications = db.getNotificationsForUserByType(dbCursor, "job_deleted", settings.signedInUname)
     if len(new_jobs_notifications) == 0 and len(jobs_deleted_notifications) == 0:
@@ -53,7 +53,7 @@ def printMainMenuNotifications(dbCursor, dbConnection):
         if newestJobAge.days >= 7:
             noJobNotification = "Remember – you're going to want to have a job when you graduate. Make sure that you start to apply for jobs today!"
 
-    print("Notifications:")
+    print("\nNotifications:")
 
     # notifications for new students joined
     new_students_notifications = db.getNotificationsForUserByType(dbCursor, "new_student", settings.signedInUname)

@@ -8,7 +8,6 @@ import settings
 import states
 import ui
 import users
-import utils
 
 # connect to database
 connection = sqlite3.connect('inCollege.db')
@@ -34,13 +33,8 @@ def main(dbCursor, dbConnection):
         states.selectSkill:        ui.enterSkillMenu,
         states.userSearch:         users.findUser,
         states.createJob:          users.postJob,
-        states.apply:              users.applyForJob,
-        states.viewJobs:           jobs.printJobListings,
+        states.viewJobs:           jobs.enterViewJobsMenu,
         states.deleteJob:          jobs.enterDeleteAJobMenu,
-        states.favoriteJob:        users.favoriteAJob,
-        states.viewFavoriteJobs:   jobs.viewFavoriteJobs,
-        states.viewAppliedJobs:    jobs.viewAppliedJobs,
-        states.viewUnappliedJobs:  jobs.viewUnappliedJobs,
         states.jobMenu:            jobs.enterJobMenu,
         states.usefulLinks:        ui.usefulLinksMenu,
         states.general:            ui.generalMenu,

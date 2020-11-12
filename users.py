@@ -118,7 +118,7 @@ def loginUser(dbCursor, dbConnection):
     settings.signedIn = True                 # flags that a user is now signed in
     settings.currentState = states.mainMenu  # returns to incollege.py's main() w/ currentState = mainMenu
 
-    print("You have successfully logged in.\n")
+    print("You have successfully logged in.")
 
 
 def logOutUser():
@@ -294,7 +294,7 @@ def postJob(dbCursor, dbConnection):
             db.insertNotification(dbCursor, "new_job", title, user[0])
 
     dbConnection.commit()
-    print("Job has been posted\n")
+    print("Job has been posted.")
     settings.currentState = states.jobMenu  # returns to main() w/ currentState = jobMenu
 
 
