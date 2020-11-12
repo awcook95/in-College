@@ -32,7 +32,7 @@ def main(dbCursor, dbConnection):
         states.mainMenu:           ui.enterMainMenu,
         states.selectSkill:        ui.enterSkillMenu,
         states.userSearch:         users.findUser,
-        states.createJob:          users.postJob,
+        states.createJob:          jobs.postJob,
         states.viewJobs:           jobs.enterViewJobsMenu,
         states.deleteJob:          jobs.enterDeleteAJobMenu,
         states.jobMenu:            jobs.enterJobMenu,
