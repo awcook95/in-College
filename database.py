@@ -120,6 +120,13 @@ def initTables(cursor):
         receiver_uname TEXT
     )""")
 
+    cursor.execute("""CREATE TABLE IF NOT EXISTS
+    user_completed_courses(
+        course_id INTEGER PRIMARY KEY,
+        uname TEXT,
+        course_name TEXT
+    )""")
+
 
 # ========================================= USERS =========================================
 
@@ -411,4 +418,15 @@ def deleteNotification(cursor, notification_type, body, receiver):
 
 def getNotificationsForUserByType(cursor, notification_type, receiver):
     cursor.execute("SELECT * FROM notifications WHERE type=? AND receiver_uname=?", [notification_type, receiver])
+    return cursor.fetchall()
+
+
+# ========================================= COURSES =========================================
+
+def insertUserCompletedCourse(cursor, uname, course_name):
+    cursor.execute("INSERT INTO user_completed_courses VALUES(?,?,?)", [None, uname, course_name])
+
+
+def getUserCompletedCourseByTitle(cursor, uname, course_name):
+    cursor.execute("SELECT * FROM user_completed_courses WHERE uname=? AND course_name=?", [uname, course_name])
     return cursor.fetchall()
