@@ -43,3 +43,4 @@ MAX_POSTED_JOBS = 10
 MAX_USER_PROFILE_JOBS = 3
 
 USER_TUPLE = namedtuple('user', 'uname pword firstname lastname plus_member date_created')
+MESSAGE_TUPLE = namedtuple('User', 'message_id sender_uname receiver_uname body read')

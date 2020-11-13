@@ -1,4 +1,3 @@
-from collections import namedtuple
 import constants
 import database as db
 import settings
@@ -30,12 +29,10 @@ def inboxMenu(dbCursor, dbConnection):
         settings.currentState = states.messageCenter
         return
 
-    Message = namedtuple('User', 'message_id sender_uname receiver_uname body read')
-
     print()
     for i in range(0, len(messages)):
         # first create message object to select from
-        currentMessage = Message._make(messages[i])
+        currentMessage = constants.MESSAGE_TUPLE._make(messages[i])
         if currentMessage.read == 0:
             print(f"{i + 1}. {currentMessage.sender_uname} (Unread)")
         else:
@@ -58,8 +55,7 @@ def inboxMenu(dbCursor, dbConnection):
 
 
 def viewMessage(dbCursor, dbConnection, selectedMessage):
-    Message = namedtuple('User', 'message_id sender_uname receiver_uname body read')
-    selectedMessage = Message._make(selectedMessage)
+    selectedMessage = constants.MESSAGE_TUPLE._make(selectedMessage)
 
     while True:
         print(f"\n{selectedMessage.sender_uname}'s Message:")
