@@ -136,21 +136,29 @@ def enterFriendsMenu(dbCursor, dbConnection):
         friend_requests = db.getUserFriendRequests(dbCursor, settings.signedInUname)
         if len(friend_requests) > 0:
             print("You have pending friend requests!")
+        print("#. Choose a friend to view their profile")
         print("A. Delete a Friend")
         print("B. View Friend Requests")
         print("Z. Return to Previous Menu")
-        response = input("Choose a friend to view their profile or enter another option: ")
+        response = input("Input: ")
         if response.isdigit() and int(response) <= len(friends):
             profiles.printProfilePage(dbCursor, (friends[int(response) - 1])[0])
         elif response.upper() == "A":
             if friends is None:
                 print("No friends found.")
             else:
-                response = input("Choose a friend you want to delete from your friends list or 'Z' to return to previous menu: ")
-                # if response.isdigit() and int(response) <= len(friends):
-                db.deleteUserFriend(dbCursor, settings.signedInUname, (friends[int(response) - 1])[0])
-                db.deleteUserFriend(dbCursor, (friends[int(response) - 1])[0], settings.signedInUname)
-                dbConnection.commit()
+                while True:
+                    response = input("Choose a friend you want to delete from your friends list or 'Z' to return: ")
+                    if response.isdigit() and 1 <= int(response) <= len(friends):
+                        db.deleteUserFriend(dbCursor, settings.signedInUname, (friends[int(response) - 1])[0])
+                        db.deleteUserFriend(dbCursor, (friends[int(response) - 1])[0], settings.signedInUname)
+                        dbConnection.commit()
+                        print(f"{(friends[int(response) - 1])[0]} has been deleted.")
+                        break
+                    elif response.upper() == "Z":
+                        break
+                    else:
+                        print(constants.INVALID_INPUT)
         elif response.upper() == "B":
             utils.handleUserFriendRequests(dbCursor, dbConnection, settings.signedInUname)
             dbConnection.commit()

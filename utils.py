@@ -90,7 +90,7 @@ def handleUserFriendRequests(dbCursor, dbConnection, receiver):
 
         return requests
     else:
-        print("You have no incoming friend requests")
+        print("You have no incoming friend requests.")
         return None
 
 
