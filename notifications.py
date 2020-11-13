@@ -62,6 +62,8 @@ def printMainMenuNotifications(dbCursor, dbConnection):
             print(f"{n[2]} has joined InCollege.")
             db.deleteNotification(dbCursor, n[1], n[2], n[3])
             dbConnection.commit()
+    else:
+        print("No current notifications.")
 
     if noJobNotification != "":
         print(f"\n{noJobNotification}")
