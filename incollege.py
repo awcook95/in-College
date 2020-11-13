@@ -8,6 +8,7 @@ import settings
 import states
 import ui
 import users
+import training
 
 # connect to database
 connection = sqlite3.connect('inCollege.db')
@@ -47,7 +48,8 @@ def main(dbCursor, dbConnection):
         states.profilePage:        profiles.enterProfilePageMenu,
         states.messageCenter:      messages.messageCenterMenu,
         states.inbox:              messages.inboxMenu,
-        states.sendMessage:        messages.sendMessageMenu
+        states.sendMessage:        messages.sendMessageMenu,
+        states.training:           training.trainingMenu
     }
 
     while settings.currentState != states.quit:  # this while loop handles every state and calls corresponding methods

@@ -23,3 +23,4 @@ viewJobs = 20
 messageCenter = 21
 inbox = 22
 sendMessage = 23
+training = 24

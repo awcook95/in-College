@@ -18,6 +18,7 @@ def enterInitialMenu(dbCursor, dbConnection):
           "D. Play success story video\n"
           "E. InCollege Useful Links\n"
           "F. InCollege Important Links\n"
+          "G. Training\n"
           "Z. Quit")
 
     while settings.currentState == states.loggedOut:  # change from currentState = loggedOut will result in return to main()
@@ -34,6 +35,8 @@ def enterInitialMenu(dbCursor, dbConnection):
             settings.currentState = states.usefulLinks
         elif response.upper() == "F":
             settings.currentState = states.importantLinks
+        elif response.upper() == "G":
+            settings.currentState = states.training       # returns to main() w/ currentState = training
         elif response.upper() == "Z":
             settings.currentState = states.quit           # returns to main() w/ currentState = quit
         else:
