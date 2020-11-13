@@ -91,7 +91,7 @@ def enterMainMenu(dbCursor, dbConnection):  # presents the user with an introduc
 
 
 def enterSkillMenu(dbCursor, dbConnection):
-    print("What skill would you like to learn?:\n"
+    print("\nWhat skill would you like to learn?:\n"
           "A. Python\n"
           "B. How to make a resume\n"
           "C. Scrum\n"
@@ -169,7 +169,7 @@ def enterFriendsMenu(dbCursor, dbConnection):
 
 
 def usefulLinksMenu(dbCursor, dbConnection):
-    print("Useful Links:")
+    print("\nUseful Links:")
     print("A. General")
     print("B. Browse InCollege")
     print("C. Business Solutions")
@@ -201,7 +201,7 @@ def usefulLinksMenu(dbCursor, dbConnection):
 
 
 def generalMenu(dbCursor, dbConnection):
-    print("Links:")
+    print("\nLinks:")
     print("A. Sign Up")
     print("B. Help Center")
     print("C. About")
