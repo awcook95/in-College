@@ -4,10 +4,12 @@ import pytest
 from collections import namedtuple
 
 import database as db
+import profiles
 import settings
 import states
 import users
 import utils
+import jobs
 import ui
 
 # Notes:
@@ -85,7 +87,7 @@ def testInvalidUserLogin(monkeypatch, capfd):
     settings.signedIn = False  # fix
     users.loginUser(cursor, connection)  # Fails because it gets trapped in while loop
     out, err = capfd.readouterr()
-    assert "Incorrect username / password, please try again or press enter twice to return to previous menu\n" in out
+    assert "Enter your password: Incorrect" in out
     assert settings.signedIn
 
 
@@ -152,7 +154,7 @@ def testValidJobPost(monkeypatch):
     db.initTables(cursor)
     db.insertUser(cursor, "username1", "password", "first", "last", 0, "01/01/2020")
     settings.signedInUname = "username1"
-    users.postJob(cursor, connection)
+    jobs.postJob(cursor, connection)
     out = db.getJobByTitle(cursor, "Title")  # Confirms that job has been added into DB correctly
     assert out is not None
 
@@ -166,9 +168,9 @@ def testCreateMaxJobPosts(capfd):
     db.insertUser(cursor, "username1", "password", "first1", "last1", 0, "01/01/2020")
     for _ in range(10):
         db.insertJob(cursor, "title", "desc", "emp", "loc", "sal", "username1")
-    users.postJob(cursor, connection)
+    jobs.postJob(cursor, connection)
     out, err = capfd.readouterr()
-    assert "All permitted jobs have been created, please come back later\n" in out
+    assert "All permitted jobs have been created, please come back later.\n" in out
     assert db.getNumJobs(cursor) == 10
     assert settings.currentState == states.jobMenu
 
@@ -259,7 +261,7 @@ def testProfileAddFourJobs(monkeypatch, capfd):
     settings.currentState = states.profilePage #settings needed for enterProfilePageMenu to work
     settings.signedInUname = "uname"
     monkeypatch.setattr("sys.stdin", StringIO("a\nd\nz\nz\n")) #navigate menu. pressing d tries to add a new job which should fail
-    ui.enterProfilePageMenu(cursor, connection)
+    profiles.enterProfilePageMenu(cursor, connection)
     out, err = capfd.readouterr()
     assert out is not None
     assert len(db.getProfileJobs(cursor, settings.signedInUname)) == 3
@@ -357,7 +359,7 @@ def testDeleteJobPost(monkeypatch):
     assert db.getNumJobs(cursor) == 2
     db.insertUserJobApplication(cursor, "username2", "title1", "01/01/1243", "01/02/1243", "credentials", "2020-01-01 12:30:00")
     monkeypatch.setattr("sys.stdin", StringIO("1\nN\n"))
-    ui.enterDeleteAJobMenu(cursor, connection)
+    jobs.enterDeleteAJobMenu(cursor, connection)
     assert db.getNumJobs(cursor) == 1
     assert len(db.getAppliedJobs(cursor, "username2")) == 0
 
@@ -371,9 +373,10 @@ def testApplyForJob(monkeypatch):
     db.insertUser(cursor, "username1", "password", "first1", "last1", 0, "01/01/2020")
     db.insertUser(cursor, "username2", "password", "first2", "last2", 0, "01/01/2020")
     db.insertJob(cursor, "title1", "desc1", "emp1", "loc1", "sal1", "first1 last1")
+    selectedJob = db.getAllJobs(cursor)[0]
     settings.signedInUname = "username2"
     monkeypatch.setattr("sys.stdin", StringIO("1\n01/01/1234\n01/02/1234\ncredentials\n"))
-    users.applyForJob(cursor, connection)
+    jobs.applyForJob(cursor, connection, selectedJob)
     assert len(db.getAppliedJobs(cursor, "username2")) == 1
 
 
@@ -386,9 +389,10 @@ def testFavoriteAJob(monkeypatch):
     db.insertUser(cursor, "username1", "password", "first1", "last1", 0, "2020-01-01 12:30:00")
     db.insertUser(cursor, "username2", "password", "first2", "last2", 0, "2020-01-01 12:30:00")
     db.insertJob(cursor, "title1", "desc1", "emp1", "loc1", "sal1", "first1 last1")
+    selectedJob = db.getAllJobs(cursor)[0]
     settings.signedInUname = "username2"
-    monkeypatch.setattr("sys.stdin", StringIO("1\n"))
-    users.favoriteAJob(cursor, connection)
+    monkeypatch.setattr("sys.stdin", StringIO("b\nz\n"))
+    jobs.viewJobDetails(cursor, connection, selectedJob)
     assert len(db.getFavoriteJobsByUser(cursor, "username2")) == 1
 
 
@@ -403,8 +407,9 @@ def testApplyForJobAlreadyAppliedFor(monkeypatch):
     db.insertUser(cursor, "username1", "password", "first1", "last1", 0, "2020-01-01 12:30:00")
     db.insertUser(cursor, "username2", "password", "first2", "last2", 0, "2020-01-01 12:30:00")
     db.insertJob(cursor, "title1", "desc1", "emp1", "loc1", "sal1", "first1 last1")
+    selectedJob = db.getAllJobs(cursor)[0]
     db.insertUserJobApplication(cursor, "username2", "title1", "01/01/1234", "01/02/1234", "credentials", "2020-01-01 12:30:00")
     settings.signedInUname = "username2"
-    users.applyForJob(cursor, connection)
+    jobs.applyForJob(cursor, connection, selectedJob)
     assert len(db.getAppliedJobs(cursor, "username2")) == 1
 
