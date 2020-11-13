@@ -1,35 +1,59 @@
 from collections import namedtuple
-from datetime import datetime
-from datetime import date
+from datetime import datetime, date
 
-import dbfunctions as db
+import constants
+import database as db
 import settings
 import states
 import utils
-import constants
 
 
 def createUser(dbCursor, connection):
-    # todo: possibly add exit option in case user wants to cancel account creation
-
     if db.getNumUsers(dbCursor) >= constants.MAX_USER_ACCOUNTS:  # checks if number of accounts in database is at max limit
         print("All permitted accounts have been created, please come back later")
         settings.currentState = states.loggedOut  # returns to main() w/ currentState = loggedOut
         return
 
+    print("Enter desired account credentials, or only press enter at any time to cancel account creation.")
     uname = input("Enter your desired username: ")
-    # added below if statement to return back to main menu if username is taken
+    if uname == "":
+        print("Account creation canceled.")
+        settings.currentState = states.loggedOut
+        return
+
     while db.getUserByName(dbCursor, uname):
-        print("Sorry, that username has already been taken\n")
+        print("Sorry, that username has already been taken.")
         uname = input("Enter your desired username: ")
+        if uname == "":
+            print("Account creation canceled.")
+            settings.currentState = states.loggedOut
+            return
 
     pword = input("Enter your desired password: ")
+    if pword == "":
+        print("Account creation canceled.")
+        settings.currentState = states.loggedOut
+        return
+
     while not utils.validatePassword(pword):
-        print("Invalid password. Must be length 8-12 characters, contain one digit, one uppercase character, and one non-alphanumeric")
+        print("Invalid password. Must be length 8-12 characters, contain one digit, one uppercase character, and one non-alphanumeric.")
         pword = input("Enter your desired password: ")
+        if pword == "":
+            print("Account creation canceled.")
+            settings.currentState = states.loggedOut
+            return
 
     fname = input("Enter your first name: ")
+    if fname == "":
+        print("Account creation canceled.")
+        settings.currentState = states.loggedOut
+        return
+
     lname = input("Enter your last name: ")
+    if lname == "":
+        print("Account creation canceled.")
+        settings.currentState = states.loggedOut
+        return
 
     plusMember = input("Sign up for InCollege-Plus membership? (Enter Y for Plus, N for Standard): ")
     while True:
@@ -40,12 +64,13 @@ def createUser(dbCursor, connection):
             plusMember = 0
             break
         else:
-            plusMember = input("Invalid option\nSign up for InCollege-Plus membership? (Enter Y for Plus, N for Standard): ")
+            print(constants.INVALID_INPUT)
+            plusMember = input("Sign up for InCollege-Plus membership? (Enter Y for Plus, N for Standard): ")
 
-    today = date.today() # Get today's date
+    today = date.today()  # Get today's date
     date_format = "%m/%d/%Y"
-    todayDate = today.strftime(date_format) # Format date mm/dd/yyyy
-    currentDate = datetime.strptime(todayDate, date_format) # Today's date as a string
+    todayDate = today.strftime(date_format)  # Format date mm/dd/yyyy
+    currentDate = datetime.strptime(todayDate, date_format)  # Today's date as a string
 
     db.insertUser(dbCursor, uname, pword, fname, lname, plusMember, currentDate)
     db.insertUserSettings(dbCursor, uname, settings.emailNotif, settings.smsNotif, settings.targetAdvert, settings.language)
@@ -61,21 +86,27 @@ def createUser(dbCursor, connection):
 
     settings.currentState = states.loggedOut  # returns to main() w/ currentState = loggedOut
 
-    print("Account has been created")
+    print("Account has been created.")
 
 
 def loginUser(dbCursor, dbConnection):
-    # todo: possibly add exit option in case user wants to cancel account login
-
+    print("Enter login information, or press enter twice to cancel.")
     uname = input("Enter your username: ")
     pword = input("Enter your password: ")
 
+    if uname == "" and pword == "":
+        print("Account login canceled.")
+        settings.currentState = states.loggedOut
+        return
+
     while not db.tryLogin(dbCursor, uname, pword):
-        print("Incorrect username / password, please try again or press enter twice to return to previous menu\n")
+        print("Incorrect username / password, please try again.")
+        print("Enter login information, or press enter twice to cancel.")
         uname = input("Enter your username: ")
         pword = input("Enter your password: ")
 
         if uname == "" and pword == "":
+            print("Account login canceled.")
             settings.currentState = states.loggedOut
             return
 
@@ -92,7 +123,7 @@ def loginUser(dbCursor, dbConnection):
     settings.signedIn = True                 # flags that a user is now signed in
     settings.currentState = states.mainMenu  # returns to incollege.py's main() w/ currentState = mainMenu
 
-    print("You have successfully logged in.\n")
+    print("You have successfully logged in.")
 
 
 def logOutUser():
@@ -107,18 +138,18 @@ def findUser(dbCursor, connection):
     result = None
     while settings.currentState == states.userSearch:
         # Added the user prompt for searched person within this function
-        print("Which search term do you want to find users by?")
+        print("\nWhich search term do you want to find users by?")
         print("A. By Full Name")
         print("B. By Last Name")
         print("C. By University")
         print("D. By Major")
-        print("Z. Return to the previous menu")
+        print("Z. Return to Previous Menu")
         response = input("Enter how you wish to search for a user: ")
         if response.upper() == 'A':
             name = input("Enter the name of a person you know: ").split(" ")
 
             # If the user enters an extra spaces at the end of first or last name they will be removed
-            while("" in name):
+            while "" in name:
                 name.remove("")
 
             while len(name) != 2:
@@ -134,7 +165,6 @@ def findUser(dbCursor, connection):
             name = input("Enter the last name of the person you might know: ")
             users_found = utils.printUsersFoundLastName(dbCursor, name)
             if users_found is None:
-                print("No users found under that criteria.")
                 result = None
             else:
                 while settings.currentState == states.userSearch:
@@ -145,13 +175,12 @@ def findUser(dbCursor, connection):
                         result = db.getUserByFullName(dbCursor, first_name, last_name)
                         break
                     else:
-                        print("Invalid input, try again.")
+                        print(constants.INVALID_INPUT)
             break
         elif response.upper() == 'C':
             university = input("Enter the University of the person you might know goes to: ")
             users_found = utils.printUsersFoundParameter(dbCursor, university, 0)
             if users_found is None:
-                print("No users found under that criteria.")
                 result = None
             else:
                 while settings.currentState == states.userSearch:
@@ -161,13 +190,12 @@ def findUser(dbCursor, connection):
                         result = db.getUserByFullName(dbCursor, name[2], name[3])
                         break
                     else:
-                        print("Invalid input, try again.")
+                        print(constants.INVALID_INPUT)
             break
         elif response.upper() == 'D':
             major = input("Enter the major of the person you might know has: ")
             users_found = utils.printUsersFoundParameter(dbCursor, major, 1)
             if users_found is None:
-                print("No users found under that criteria.")
                 result = None
             else:
                 while settings.currentState == states.userSearch:
@@ -177,7 +205,7 @@ def findUser(dbCursor, connection):
                         result = db.getUserByFullName(dbCursor, name[2], name[3])
                         break
                     else:
-                        print("Invalid input, try again.")
+                        print(constants.INVALID_INPUT)
             break
         elif response.upper() == 'Z':
             if settings.signedIn:
@@ -186,7 +214,7 @@ def findUser(dbCursor, connection):
                 settings.currentState = states.loggedOut  # returns to main() w/ currentState = loggedOut
             return False  # Didn't find user
         else:
-            print("Invalid Option, enter the valid letter option")
+            print(constants.INVALID_INPUT)
 
     # If the desired user is found successfully, return their data and jump to appropriate menu
     if result is not None:
@@ -198,7 +226,7 @@ def findUser(dbCursor, connection):
             # If this person is already your friend,return
             if friend_exists:
                 print(receiver.uname + " is already your friend!")
-                settings.currentState = states.mainMenu   # returns to main() w/ currentState = mainMenu
+                settings.currentState = states.userSearch  # returns to main() w/ currentState = userSearch
                 return True
         
         print("They are a part of the InCollege system!")
@@ -216,18 +244,19 @@ def findUser(dbCursor, connection):
                     else: 
                         print(receiver.uname + " has already been sent a request! They will show up in your friends list once they accept!")
             
-            settings.currentState = states.mainMenu   # returns to main() w/ currentState = mainMenu
+            settings.currentState = states.userSearch  # returns to main() w/ currentState = userSearch
             return True
         else:                                         # else a user is not signed in
-            settings.currentState = states.loggedOut  # returns to main() w/ currentState = loggedOut
+            print("You must be logged in to connect with other users!")
+            settings.currentState = states.userSearch  # returns to main() w/ currentState = userSearch
             return True
     else:
+        print("No users found; they are not a part of the InCollege system yet.")
         while settings.currentState == states.userSearch:
-            print("They are not yet a part of the InCollege system yet.")
-            print("Options:")
+            print("\nOptions:")
             print("A. Search for another user")
             print("Z. Return to previous menu")
-            response = input()
+            response = input("Input: ")
             if response.upper() == "A":
                 break
             elif response.upper() == "Z":
@@ -237,39 +266,7 @@ def findUser(dbCursor, connection):
                     settings.currentState = states.loggedOut  # returns to main() w/ currentState = loggedOut
                 return False  # Didn't find user
             else:
-                print("Invalid input")
-
-
-def postJob(dbCursor, dbConnection):
-    if db.getNumJobs(dbCursor) >= constants.MAX_POSTED_JOBS:  # checks if number of jobs in database is at max limit
-        print("All permitted jobs have been created, please come back later")
-        settings.currentState = states.jobMenu
-        return
-
-    # Take input from user and create job in DB
-    User = namedtuple('User', 'uname pword firstname lastname plusMember date_created')
-    currentUser = User._make(db.getUserByName(dbCursor, settings.signedInUname))
- 
-    first = currentUser.firstname
-    last = currentUser.lastname
-    author = first + " " + last
-    title = input("Enter job title: ")
-    desc = input("Enter job description: ")
-    emp = input("Enter employer name: ")
-    loc = input("Enter job location: ")
-    sal = input("Enter salary: ")
-
-    db.insertJob(dbCursor, title, desc, emp, loc, sal, author)
-
-    # add notification to let other users know a job has been posted
-    other_users = db.getAllOtherUsers(dbCursor, settings.signedInUname)
-    if len(other_users) > 0:
-        for user in other_users:
-            db.insertNotification(dbCursor, "new_job", title, user[0])
-
-    dbConnection.commit()
-    print("Job has been posted\n")
-    settings.currentState = states.jobMenu  # returns to main() w/ currentState = jobMenu
+                print(constants.INVALID_INPUT)
 
 
 def changeUserSettings(dbCursor, connection):
@@ -277,29 +274,35 @@ def changeUserSettings(dbCursor, connection):
         print("A. Email Notifications\n"
               "B. SMS Notifications\n"
               "C. Targeted Advertising\n"
-              "Z. Return to previous menu")
+              "Z. Return to Previous Menu")
         response = input("Select a setting to modify: ")
         if response.upper() == "A":
-            option = input("Email Notifications - enter 1 to turn on or enter 0 to turn off: ")
-            if option == "1" or option == "0":
-                settings.emailNotif = option
-                print("Setting changed; return to previous menu if logged in or create an account to save changes.")
-            else:
-                print("Invalid input, try again.")
+            while True:
+                option = input("Email Notifications - enter 1 to turn on or enter 0 to turn off: ")
+                if option == "1" or option == "0":
+                    settings.emailNotif = option
+                    print("Setting changed; return to previous menu if logged in or create an account to save changes.")
+                    break
+                else:
+                    print(constants.INVALID_INPUT)
         elif response.upper() == "B":
-            option = input("SMS Notifications - enter 1 to turn on or enter 0 to turn off: ")
-            if option == "1" or option == "0":
-                settings.smsNotif = option
-                print("Setting changed; return to previous menu if logged in or create an account to save changes.")
-            else:
-                print("Invalid input, try again.")
+            while True:
+                option = input("SMS Notifications - enter 1 to turn on or enter 0 to turn off: ")
+                if option == "1" or option == "0":
+                    settings.smsNotif = option
+                    print("Setting changed; return to previous menu if logged in or create an account to save changes.")
+                    break
+                else:
+                    print(constants.INVALID_INPUT)
         elif response.upper() == "C":
-            option = input("Targeted Advertising - enter 1 to turn on or enter 0 to turn off: ")
-            if option == "1" or option == "0":
-                settings.targetAdvert = option
-                print("Setting changed; return to previous menu if logged in or create an account to save changes.")
-            else:
-                print("Invalid input, try again.")
+            while True:
+                option = input("Targeted Advertising - enter 1 to turn on or enter 0 to turn off: ")
+                if option == "1" or option == "0":
+                    settings.targetAdvert = option
+                    print("Setting changed; return to previous menu if logged in or create an account to save changes.")
+                    break
+                else:
+                    print(constants.INVALID_INPUT)
         elif response.upper() == "Z":
             if settings.signedIn:
                 db.updateUserSettings(dbCursor, settings.signedInUname, settings.emailNotif, settings.smsNotif, settings.targetAdvert)
@@ -307,92 +310,4 @@ def changeUserSettings(dbCursor, connection):
                 print("Settings successfully saved.")
             settings.currentState = states.importantLinks
         else:
-            print("Invalid Option, enter the letter option you want and press enter")
-
-
-def applyForJob(dbCursor, dbConnection):
-    print("Jobs currently listed in the system:\n")
-    jobs = db.getAllJobs(dbCursor)
-    if len(jobs) > 0:
-        for i in range(0, len(jobs)):
-            # first create job object to select from
-            Job = namedtuple('User', 'jobID title description employer location salary author')
-            selectedJob = Job._make(jobs[i])
-            print(f"{i+1}. Job Title: {selectedJob.title}")
-    else:
-        input("No jobs have been posted\nPress enter to return to previous menu.")
-        settings.currentState = states.jobMenu
-        return
-
-    while True:
-        job_index = input("Select a job 1 - " + str(len(jobs)) + " to apply for: \n(Or press enter to return to previous menu)\n")
-        if job_index == "":
-            settings.currentState = states.jobMenu
-            return
-        try:
-            int(job_index)
-        except ValueError:
-            print("Invalid input")
-            continue
-        if int(job_index) not in range(1, len(jobs) + 1):
-            print("Invalid input")
-            continue
-        else:
-            break
-
-    Job = namedtuple('User', 'jobID title description employer location salary author')
-    selectedJob = Job._make(jobs[int(job_index) - 1])
-    job_title = selectedJob.title
-
-    # check if there are any existing applications to this job
-    applied = len(db.getUserJobApplicationByTitle(dbCursor, settings.signedInUname, job_title)) >= 1
-    if applied:
-        print("You have already applied for this job!\n")
-    else:
-        # PRINT APP MENU 
-        grad = input("Please enter a graduation date (mm/dd/yyyy): ")
-        start = input("Please enter the earliest date you can start (mm/dd/yyyy): ")
-        credentials = input("Please briefly describe why you are fit for this job: ")
-        today = date.today() # Get today's date
-        date_format = "%m/%d/%Y"
-        todayDate = today.strftime(date_format) # Format date mm/dd/yyyy
-        currentDate = datetime.strptime(todayDate, date_format) # Today's date as a string
-        db.insertUserJobApplication(dbCursor, settings.signedInUname, job_title, grad, start, credentials, currentDate)
-        dbConnection.commit()
-        print("Successfully applied for job")
-
-
-def favoriteAJob(dbCursor, dbConnection):
-    print("Jobs not yet favorited:\n")
-    jobs = db.getJobsNotFavorited(dbCursor, settings.signedInUname)
-    if len(jobs) > 0:
-        for i in range(0, len(jobs)):
-            # first create job object to select from
-            Job = namedtuple('User', 'jobID title description employer location salary author')
-            selectedJob = Job._make(jobs[i])
-            print(f"{i+1}. Job Title: {selectedJob.title}")
-    else:
-        input("None\nPress any key return to previous menu")
-        settings.currentState = states.jobMenu
-        return
-
-    job_index = input("Select a job 1 - " + str(len(jobs)) + " to favorite: \n(Or press enter to return to previous menu)")
-    if job_index == "":
-        settings.currentState = states.jobMenu
-        return
-    try:
-        int(job_index)
-    except ValueError:
-        print("Invalid input")
-        return
-    if int(job_index) not in range(1, len(jobs)+1):
-        print("Invalid input")
-        return
-
-    Job = namedtuple('User', 'jobID title description employer location salary author')
-    selectedJob = Job._make(jobs[int(job_index)-1])
-    job_title = selectedJob.title
-
-    db.insertFavoriteJob(dbCursor, settings.signedInUname, job_title)
-    dbConnection.commit()
-    settings.currentState = states.jobMenu
+            print(constants.INVALID_INPUT)

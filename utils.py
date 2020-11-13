@@ -1,5 +1,6 @@
 from collections import namedtuple
-import dbfunctions as db
+import constants
+import database as db
 import settings
 
 
@@ -64,7 +65,7 @@ def handleUserFriendRequests(dbCursor, dbConnection, receiver):
     if len(requests) > 0: 
         for r in requests: 
             print("Request from: " + r[0] + "\n")
-            response = input("Would you like to Accept (A), Ignore (I) or Return to previous menu (Z): ")
+            response = input("Would you like to Accept (A), Ignore (I) or Return to Previous Menu (Z): ")
             while response.upper() != 'A' or response != 'I':
                 if response.upper() == 'A':
                     # To accept will add friend relation to both users
@@ -73,21 +74,23 @@ def handleUserFriendRequests(dbCursor, dbConnection, receiver):
                     # Delete existing request and commit changes
                     db.deleteFriendRequest(dbCursor, r[0], settings.signedInUname)
                     dbConnection.commit()
+                    print(f"{r[0]} has been added!")
                     break
                 elif response.upper() == 'I':
                     # Should also delete friend request
                     db.deleteFriendRequest(dbCursor, r[0], settings.signedInUname)
                     dbConnection.commit()
+                    print(f"Request from {r[0]} ignored.")
                     break
                 elif response.upper() == 'Z':
                     return None
                 else: 
-                    print("Invalid input: enter either A to accept , I to ignore or Z to return to previous menu")
-                    response = input("Would you like to Accept (A), Ignore (I) or Return (Z): ")
+                    print(constants.INVALID_INPUT)
+                    response = input("Would you like to Accept (A), Ignore (I) or Return to Previous Menu (Z): ")
 
         return requests
     else:
-        print("You have no incoming friend requests")
+        print("You have no incoming friend requests.")
         return None
 
 
