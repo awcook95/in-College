@@ -74,11 +74,13 @@ def handleUserFriendRequests(dbCursor, dbConnection, receiver):
                     # Delete existing request and commit changes
                     db.deleteFriendRequest(dbCursor, r[0], settings.signedInUname)
                     dbConnection.commit()
+                    print(f"{r[0]} has been added!")
                     break
                 elif response.upper() == 'I':
                     # Should also delete friend request
                     db.deleteFriendRequest(dbCursor, r[0], settings.signedInUname)
                     dbConnection.commit()
+                    print(f"Request from {r[0]} ignored.")
                     break
                 elif response.upper() == 'Z':
                     return None

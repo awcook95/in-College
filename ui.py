@@ -67,7 +67,7 @@ def enterMainMenu(dbCursor, dbConnection):  # presents the user with an introduc
         if len(friendRequests) > 0:
             if response.upper() == 'Y':
                 utils.handleUserFriendRequests(dbCursor, dbConnection, settings.signedInUname)
-                continue
+                break
         if response.upper() == "A":
             settings.currentState = states.jobMenu
         elif response.upper() == "B":
