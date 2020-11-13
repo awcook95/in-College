@@ -49,7 +49,8 @@ def main(dbCursor, dbConnection):
         states.messageCenter:      messages.messageCenterMenu,
         states.inbox:              messages.inboxMenu,
         states.sendMessage:        messages.sendMessageMenu,
-        states.training:           training.trainingMenu
+        states.training:           training.trainingMenu,
+        states.learning:           training.enterLearningMenu
     }
 
     while settings.currentState != states.quit:  # this while loop handles every state and calls corresponding methods

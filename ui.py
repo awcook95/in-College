@@ -61,6 +61,7 @@ def enterMainMenu(dbCursor, dbConnection):  # presents the user with an introduc
           "F. View Friends\n"
           f"G. Student Profile{profileNotification}\n"
           f"H. Message Center{messages}\n"
+          "I. InCollege Learning\n"
           "Z. Logout")
     if len(friendRequests) > 0:
         print("You have pending friend requests! Enter 'Y' to view them.")
@@ -87,6 +88,8 @@ def enterMainMenu(dbCursor, dbConnection):  # presents the user with an introduc
             settings.currentState = states.profilePage
         elif response.upper() == "H":
             settings.currentState = states.messageCenter
+        elif response.upper() == "I":
+            settings.currentState = states.learning
         elif response.upper() == "Z":
             users.logOutUser()  # logs user out: currentState = loggedOut; signedInUname = None; signedIn = False
         else:
