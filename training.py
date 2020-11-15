@@ -105,7 +105,7 @@ def handleCourse(dbCursor, course_completed, course_name):
         print("You have now completed this training.")
         db.insertUserCompletedCourse(dbCursor, settings.signedInUname, course_name)
     else:
-        choice = input("You have already taken this course, do you want to take it again? Enter 'Y' for yes: ")
+        choice = input("You have already taken this course, do you want to take it again? Enter 'Y' for yes or anything else to cancel: ")
         if choice.upper() == "Y":
             print("You have now completed this training.")
         else:
