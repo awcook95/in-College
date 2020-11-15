@@ -306,22 +306,29 @@ def enterImportantLinksMenu(dbCursor, connection):
         elif response.upper() == "I":
             settings.currentState = states.modifyUserSettings
         elif response.upper() == "J":
-            print("Languages:\n"
+            print("\nLanguages:\n"
                   "A. English\n"
                   "B. Spanish")
             option = input("Choose language preference: ")
-            if option.upper() == "A":
-                settings.language = "English"
-            elif option.upper() == "B":
-                settings.language = "Spanish"
-            else:
-                print(constants.INVALID_INPUT)
-                continue
+            while True:
+                if option.upper() == "A":
+                    settings.language = "English"
+                    break
+                elif option.upper() == "B":
+                    settings.language = "Spanish"
+                    break
+                else:
+                    print(constants.INVALID_INPUT)
+                    continue
 
             if settings.signedIn:
                 db.updateUserLanguage(dbCursor, settings.signedInUname, settings.language)
                 connection.commit()
                 print("Language preference successfully saved.")
+            else:
+                print("Sign in or create an account to be able to save your language preference.")
+
+            break
         elif response.upper() == "Z":
             if settings.signedIn:
                 settings.currentState = states.mainMenu
