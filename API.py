@@ -31,7 +31,7 @@ def createStudentAccounts() :
     # check if file exists
     if not acc_path.exists():
         print("Account file not found! No action required.")
-        return 
+        return False
 
     acc_file = open("studentAccouts.txt", "r")
     # create array to be filled with accounts 
@@ -61,15 +61,20 @@ def createJobs():
     # check if file exists
     if not job_path.exists():
         print("Job file not found! No action required.")
-        return 
+        return False
     
     job_file = open("newJobs.txt", "r")
+
     # create array to be filled with jobs 
     new_jobs = []
+
+    # keep track of potential first char of title to ensure not lost when processing file
+    title_start = ""
+    
     # assume correct formatting of file text, ===== seperators between objects
     while True:
         # get all job attributes then check for eof 
-        title = job_file.readline().split("\n")[0] # remove newline char
+        title = title_start + job_file.readline().split("\n")[0] # remove newline char, add first char that was potentially consumed
 
         lines = []
         # collect first decsription line and add to list of potential multiple lines
@@ -104,13 +109,46 @@ def createJobs():
 
         new_jobs.append(Job(title, desc, emp, loc, sal))
         # check for end of file
-        if job_file.read(1) == '':
+        next_char = job_file.read(1)
+        if next_char == '':
+            print("eof\n")
+            break
+        else: 
+            # if next char isnt eof then need to keep it as part of next job title
+            title_start = next_char 
+    
+    return new_jobs
+
+# Endpoint for creating trainings (GET)
+# This function reads in entire file, account creation limit logic will be handled elsewhere
+# Assuming that if only one record exists it will be terminated by =====
+def createTrainings(): 
+    # assuming that file naming convention should be kept
+    # file will be titled newTrainings, not newtrainings
+    training_path = pathlib.Path("newTrainings.txt")
+    # check if file exists
+    if not training_path.exists():
+        print("Training file not found! No action required.")
+        return False
+
+    train_file = open("newTrainings.txt", "r")
+    # create array to be filled with accounts 
+    trainings = []
+    # assume correct formatting of file text, ===== seperators between objects
+    while True:
+        # get user and password check for eof
+        title = train_file.readline().split("\n")[0] # remove newline char
+        
+        trainings.append(title)
+        # check for end of file
+        if train_file.read(1) == '':
             print("eof\n")
             break
         # consume seperator chars
-        sep = job_file.readline()
+        sep = train_file.readline()
     
-    return new_jobs
+    return trainings
+
 
 
 ##### THIS SECTION USED FOR TESTING ####
@@ -120,9 +158,15 @@ def main():
     #     print(obj.username + " " + obj.password)
     # print("\n")
 
-    new_jobs = createJobs()
-    for obj in new_jobs:
-        print(obj.title + "\n" + obj.description + "\n" + obj.employer_name + "\n" + obj.location + "\n" + obj.salary + "\n")
+    # new_jobs = createJobs()
+    # for obj in new_jobs:
+    #     print(obj.title + "\n" + obj.description + "\n" + obj.employer_name + "\n" + obj.location + "\n" + obj.salary + "\n")
+
+    trainings = createTrainings()
+    if trainings:
+        for obj in trainings:
+            print(obj)
+        print("\n")
 
 
 if __name__ == "__main__":
