@@ -188,7 +188,7 @@ def userIsPlusMember(cursor, uname):
     return user[4] == 1
 
 
-def readUsers(cursor):
+def getAllUsers(cursor):
     cursor.execute("Select * from users")
     return cursor.fetchall()
 
@@ -256,7 +256,7 @@ def getProfileEducation(cursor, uname):
 def profilePageExists(cursor, uname):
     profile = getProfilePage(cursor, uname)
     # MODIFIED EPIC 10
-    return profile != None
+    return not (profile[1] == "" and profile[2] == "" and profile[3] == "")
 
 
 # ========================================= FRIENDS =========================================

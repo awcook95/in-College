@@ -6,6 +6,7 @@ import database as db
 import notifications
 import settings
 import states
+import API
 
 
 def enterJobMenu(dbCursor, dbConnection):
@@ -58,6 +59,7 @@ def postJob(dbCursor, dbConnection):
             db.insertNotification(dbCursor, "new_job", title, user[0])
 
     dbConnection.commit()
+    API.outputJobs(dbCursor)
     print("Job has been posted.")
     settings.currentState = states.jobMenu  # returns to main() w/ currentState = jobMenu
 

@@ -34,27 +34,31 @@ def main(dbCursor, dbConnection):
     # Create users
     user_count = db.getNumUsers(dbCursor)
     student_accounts = API.createStudentAccounts()
-    for obj in student_accounts:
-        # only create up to 10 accounts, don't recreate accounts
-        if user_count <= 10 and db.getUserByFullName(dbCursor, obj.first_name, obj.last_name) == None: 
-            db.insertUser(dbCursor, obj.username, obj.password, obj.first_name, obj.last_name, obj.plus_member, currentDate)
-            user_count += 1
-        else: 
-            break
+    if student_accounts:
+        for obj in student_accounts:
+            # only create up to 10 accounts, don't recreate accounts
+            if user_count < 10 and db.getUserByFullName(dbCursor, obj.first_name, obj.last_name) == None:
+                db.insertUser(dbCursor, obj.username, obj.password, obj.first_name, obj.last_name, obj.plus_member, currentDate)                # add some comment here
+                db.insertUserSettings(dbCursor, obj.username, settings.emailNotif, settings.smsNotif, settings.targetAdvert,settings.language)
+                db.insertProfilePage(dbCursor, obj.username, "", "", "")
+                user_count += 1
     dbConnection.commit() 
 
     # Create jobs
     job_count = db.getNumJobs(dbCursor)
     new_jobs = API.createJobs()
-    for obj in new_jobs:
-        # job limit is 10, don't recreate jobs
-        if job_count <= 10 and db.getJobByTitle(dbCursor, obj.title) == None:
-            # ADDING UNKOWN AUTHOR FOR NOW
-            db.insertJob(dbCursor, obj.title, obj.description, obj.employer_name, obj.location, obj.salary, "Unkown Author")
-        else: 
-            break
+    if new_jobs:
+        for obj in new_jobs:
+            # job limit is 10, don't recreate jobs
+            if job_count < 10 and db.getJobByTitle(dbCursor, obj.title) == None:
+                # ADDING UNKNOWN AUTHOR FOR NOW
+                db.insertJob(dbCursor, obj.title, obj.description, obj.employer_name, obj.location, obj.salary, "Unknown Author")
     dbConnection.commit()
+    API.outputJobs(dbCursor)
+    API.outputProfiles(dbCursor)
+    API.outputUsers(dbCursor)
 
+    # testing training prints
     # trainings = API.createTrainings()
     # if trainings:
     #     for obj in trainings:
