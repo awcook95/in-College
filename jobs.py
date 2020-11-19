@@ -75,7 +75,7 @@ def enterDeleteAJobMenu(dbCursor, dbConnection):
         settings.currentState = states.jobMenu
         return
 
-    print("#. Choose one of the above jobs to delete")
+    print("\n Choose one of the above jobs to delete (job #)")
     print("Z. Return to Previous Menu")
 
     while True:

@@ -52,15 +52,18 @@ def createStudentAccounts() :
         first_name = acc_file.readline().split("\n")[0]
         last_name = acc_file.readline().split("\n")[0]
         plus_member = acc_file.readline().split("\n")[0].strip()
-    
-        student_accounts.append(StudentAccount(username, password, first_name, last_name, plus_member))
+
+        # extra "\n" is automatically inserted by text editor, shouldn't submit this empty record
+        if(username != ""):
+            student_accounts.append(StudentAccount(username, password, first_name, last_name, plus_member))
+
         # check for end of file
         if acc_file.read(1) == '':
             #print("eof\n")
             break
         # consume seperator chars
         sep = acc_file.readline()
-    
+
     return student_accounts
 
 
@@ -118,6 +121,7 @@ def createJobs():
             loc += lines[start + 1]
             sal += lines[start + 2]
 
+       
         new_jobs.append(Job(title, desc, emp, loc, sal))
         # check for end of file
         next_char = job_file.read(1)
@@ -163,21 +167,20 @@ def createTrainings():
 
 
 ##### THIS SECTION USED FOR TESTING ####
-# def main():
-#     student_accounts = createStudentAccounts()
-#     for obj in student_accounts:
-#         print(obj.username + " " + obj.password + " " + obj.first_name  + " " + obj.last_name + " " + obj.plus_member)
-#     print("\n")
+#def main():
+    # student_accounts = createStudentAccounts()
+    # for obj in student_accounts:
+    #     print(obj.username + " " + obj.password + " " + obj.first_name  + " " + obj.last_name + " " + obj.plus_member)
 
-#     new_jobs = createJobs()
-#     for obj in new_jobs:
-#         print(obj.title + "\n" + obj.description + "\n" + obj.employer_name + "\n" + obj.location + "\n" + obj.salary + "\n")
+    # new_jobs = createJobs()
+    # for obj in new_jobs:
+    #     print(obj.title + "\n" + obj.description + "\n" + obj.employer_name + "\n" + obj.location + "\n" + obj.salary + "\n")
 
-#     trainings = createTrainings()
-#     if trainings:
-#         for obj in trainings:
-#             print(obj)
-#         print("\n")
+    # trainings = createTrainings()
+    # if trainings:
+    #     for obj in trainings:
+    #         print(obj)
+    #     print("\n")
 
 
 # if __name__ == "__main__":
