@@ -82,6 +82,7 @@ def enterLearningMenu(dbCursor, dbConnection):
         print(f"C. Gamification of Learning{' (Completed)' if courses_completed[2] else ''}")
         print(f"D. Understanding the Architectural Design Process{' (Completed)' if courses_completed[3] else ''}")
         print(f"E. Project Management Simplified{' (Completed)' if courses_completed[4] else ''}")
+        # insert a more option that includes all of the new trainings or adaptive starting at 6 change original to 1 - 5
         print("Z. Return to Previous Menu")
         response = input("Input: ")
         if response.upper() == "A":

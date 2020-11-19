@@ -6,6 +6,7 @@ import database as db
 import settings
 import states
 import utils
+import API
 
 
 def createUser(dbCursor, connection):
@@ -83,6 +84,8 @@ def createUser(dbCursor, connection):
             db.insertNotification(dbCursor, "new_student", fname + " " + lname, user[0])
 
     connection.commit()  # commits the new account and settings to the database (ensures account and settings are saved)
+    API.outputUsers(dbCursor)
+    API.outputProfiles(dbCursor)
 
     settings.currentState = states.loggedOut  # returns to main() w/ currentState = loggedOut
 
