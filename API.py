@@ -4,9 +4,16 @@ import pathlib
 class StudentAccount:
     username = ""
     password = ""
-    def __init__(self, uname, passwrd):
+    first_name = ""
+    last_name = ""
+    plus_member = 0
+
+    def __init__(self, uname, passwrd, first, last, plus):
         self.username = uname
         self.password = passwrd
+        self.first_name = first
+        self.last_name = last
+        self.plus_member = plus
 
 # Create job class according to epic documentation
 class Job:
@@ -26,6 +33,7 @@ class Job:
 # Endpoint for creating student accounts (GET)
 # This function reads in entire file, account creation limit logic will be handled elsewhere
 # Assuming that if only one record exists it will be terminated by =====
+# Going off response from Dr. Anderson stating all fields requied to create account should be present
 def createStudentAccounts() : 
     acc_path = pathlib.Path("studentAccouts.txt")
     # check if file exists
@@ -41,11 +49,14 @@ def createStudentAccounts() :
         # get user and password check for eof
         username = acc_file.readline().split("\n")[0] # remove newline char
         password = acc_file.readline().split("\n")[0]
+        first_name = acc_file.readline().split("\n")[0]
+        last_name = acc_file.readline().split("\n")[0]
+        plus_member = acc_file.readline().split("\n")[0].strip()
     
-        student_accounts.append(StudentAccount(username, password))
+        student_accounts.append(StudentAccount(username, password, first_name, last_name, plus_member))
         # check for end of file
         if acc_file.read(1) == '':
-            print("eof\n")
+            #print("eof\n")
             break
         # consume seperator chars
         sep = acc_file.readline()
@@ -111,7 +122,7 @@ def createJobs():
         # check for end of file
         next_char = job_file.read(1)
         if next_char == '':
-            print("eof\n")
+            #print("eof\n")
             break
         else: 
             # if next char isnt eof then need to keep it as part of next job title
@@ -142,7 +153,7 @@ def createTrainings():
         trainings.append(title)
         # check for end of file
         if train_file.read(1) == '':
-            print("eof\n")
+            #print("eof\n")
             break
         # consume seperator chars
         sep = train_file.readline()
@@ -152,22 +163,22 @@ def createTrainings():
 
 
 ##### THIS SECTION USED FOR TESTING ####
-def main():
-    # student_accounts = createStudentAccounts()
-    # for obj in student_accounts:
-    #     print(obj.username + " " + obj.password)
-    # print("\n")
+# def main():
+#     student_accounts = createStudentAccounts()
+#     for obj in student_accounts:
+#         print(obj.username + " " + obj.password + " " + obj.first_name  + " " + obj.last_name + " " + obj.plus_member)
+#     print("\n")
 
-    # new_jobs = createJobs()
-    # for obj in new_jobs:
-    #     print(obj.title + "\n" + obj.description + "\n" + obj.employer_name + "\n" + obj.location + "\n" + obj.salary + "\n")
+#     new_jobs = createJobs()
+#     for obj in new_jobs:
+#         print(obj.title + "\n" + obj.description + "\n" + obj.employer_name + "\n" + obj.location + "\n" + obj.salary + "\n")
 
-    trainings = createTrainings()
-    if trainings:
-        for obj in trainings:
-            print(obj)
-        print("\n")
+#     trainings = createTrainings()
+#     if trainings:
+#         for obj in trainings:
+#             print(obj)
+#         print("\n")
 
 
-if __name__ == "__main__":
-    main()
+# if __name__ == "__main__":
+#     main()
