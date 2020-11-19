@@ -1,4 +1,5 @@
 import sqlite3
+from datetime import datetime, date
 
 import database as db
 import jobs
@@ -9,6 +10,7 @@ import states
 import ui
 import users
 import training
+import API
 
 # connect to database
 connection = sqlite3.connect('inCollege.db')
@@ -21,6 +23,44 @@ db.initTables(cursor)
 
 
 def main(dbCursor, dbConnection):
+    # NEED TO CREATE TABLE TO STORE TRAINING DATA 
+
+    today = date.today()  # Get today's date
+    date_format = "%m/%d/%Y"
+    todayDate = today.strftime(date_format)  # Format date mm/dd/yyyy
+    currentDate = datetime.strptime(todayDate, date_format)  # Today's date as a string
+
+    # Run all input API calls
+    # Create users
+    user_count = db.getNumUsers(dbCursor)
+    student_accounts = API.createStudentAccounts()
+    for obj in student_accounts:
+        # only create up to 10 accounts, don't recreate accounts
+        if user_count <= 10 and db.getUserByFullName(dbCursor, obj.first_name, obj.last_name) == None: 
+            db.insertUser(dbCursor, obj.username, obj.password, obj.first_name, obj.last_name, obj.plus_member, currentDate)
+            user_count += 1
+        else: 
+            break
+    dbConnection.commit() 
+
+    # Create jobs
+    job_count = db.getNumJobs(dbCursor)
+    new_jobs = API.createJobs()
+    for obj in new_jobs:
+        # job limit is 10, don't recreate jobs
+        if job_count <= 10 and db.getJobByTitle(dbCursor, obj.title) == None:
+            # ADDING UNKOWN AUTHOR FOR NOW
+            db.insertJob(dbCursor, obj.title, obj.description, obj.employer_name, obj.location, obj.salary, "Unkown Author")
+        else: 
+            break
+    dbConnection.commit()
+
+    # trainings = API.createTrainings()
+    # if trainings:
+    #     for obj in trainings:
+    #         print(obj)
+    #     print("\n")
+
     # This menu will run all main functionality
     print("Welcome to inCollege!")
 

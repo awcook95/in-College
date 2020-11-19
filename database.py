@@ -255,7 +255,8 @@ def getProfileEducation(cursor, uname):
 
 def profilePageExists(cursor, uname):
     profile = getProfilePage(cursor, uname)
-    return not (profile[1] == "" and profile[2] == "" and profile[3] == "")
+    # MODIFIED EPIC 10
+    return profile != None
 
 
 # ========================================= FRIENDS =========================================

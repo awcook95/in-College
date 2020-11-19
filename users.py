@@ -113,12 +113,21 @@ def loginUser(dbCursor, dbConnection):
     # read in user settings on login
     settings.signedInUname = uname  # tracks the logged in user's username
     User = namedtuple('User', 'uname emailnotif smsnotif targetadvert languagepref')
-    currentUser = User._make(db.getUserSettingsByName(dbCursor, settings.signedInUname))
-
-    settings.emailNotif = currentUser.emailnotif
-    settings.smsNotif = currentUser.smsnotif
-    settings.targetAdvert = currentUser.targetadvert
-    settings.language = currentUser.languagepref
+    user_settings = db.getUserSettingsByName(dbCursor, settings.signedInUname)
+    
+    # ADDING THIS IN EPIC 10
+    # Users that get created from file input will not have settings, use defaults
+    if user_settings == None:
+        settings.emailNotif = settings.emailNotif
+        settings.smsNotif = settings.smsNotif
+        settings.targetAdvert = settings.targetAdvert
+        settings.language = settings.language
+    else: 
+        currentUser = User._make(user_settings)
+        settings.emailNotif = currentUser.emailnotif
+        settings.smsNotif = currentUser.smsnotif
+        settings.targetAdvert = currentUser.targetadvert
+        settings.language = currentUser.languagepref
 
     settings.signedIn = True                 # flags that a user is now signed in
     settings.currentState = states.mainMenu  # returns to incollege.py's main() w/ currentState = mainMenu
