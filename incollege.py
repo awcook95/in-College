@@ -61,10 +61,10 @@ def main(dbCursor, dbConnection):
     # testing training prints
     trainings = API.createTrainings()
     if trainings:
-        for training in trainings:
-            print(training)
-            training.insertCourse(dbCursor, training)
+        for obj in trainings:
+            db.insertNewTraining(dbCursor, obj)
         print("\n")
+    dbConnection.commit()
 
 
     # This menu will run all main functionality
