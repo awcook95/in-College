@@ -65,12 +65,15 @@ def main(dbCursor, dbConnection):
     print(db.getAllTrainings(dbCursor))
 
     # Output applied jobs
-    API.outputAppliedJobs(dbCursor)
+    API.outputAppliedJobs(dbCursor) #DONE
     # Output "saved" jobs
-    API.outputSavedJobsByUser(dbCursor)
-    # API.outputJobs(dbCursor)
-    # API.outputProfiles(dbCursor)
-    # API.outputUsers(dbCursor)
+    API.outputSavedJobsByUser(dbCursor)#DONE
+    # Output all jobs
+    API.outputJobs(dbCursor) #DONE
+    # Output user profiles
+    API.outputProfiles(dbCursor) #DONE
+    # Output list of current users
+    API.outputUsers(dbCursor) #DONE
 
 
     # This menu will run all main functionality
