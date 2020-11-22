@@ -59,11 +59,13 @@ def main(dbCursor, dbConnection):
     API.outputUsers(dbCursor)
 
     # testing training prints
-    # trainings = API.createTrainings()
-    # if trainings:
-    #     for obj in trainings:
-    #         print(obj)
-    #     print("\n")
+    trainings = API.createTrainings()
+    if trainings:
+        for training in trainings:
+            print(training)
+            training.insertCourse(dbCursor, training)
+        print("\n")
+
 
     # This menu will run all main functionality
     print("Welcome to inCollege!")

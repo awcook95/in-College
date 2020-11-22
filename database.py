@@ -127,6 +127,12 @@ def initTables(cursor):
         course_name TEXT
     )""")
 
+    cursor.execute("""CREATE TABLE IF NOT EXISTS
+    courses(
+        course_id INTEGER PRIMARY KEY,
+        course_name TEXT,
+        FOREIGN KEY(course_name) REFERENCES user_completed_courses(course_name)
+    )""")
 
 # ========================================= USERS =========================================
 
@@ -430,4 +436,8 @@ def insertUserCompletedCourse(cursor, uname, course_name):
 
 def getUserCompletedCourseByTitle(cursor, uname, course_name):
     cursor.execute("SELECT * FROM user_completed_courses WHERE uname=? AND course_name=?", [uname, course_name])
+    return cursor.fetchall()
+
+def insertNewCourse(cursor, course_name):
+    cursor.execute("INSERT INTO courses VALUES(?, ?)", [None, course_name])
     return cursor.fetchall()
