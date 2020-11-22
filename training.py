@@ -111,3 +111,6 @@ def handleCourse(dbCursor, course_completed, course_name):
             print("You have now completed this training.")
         else:
             print("Course cancelled.")
+
+def insertCourse(dbCursor, course_name):
+    db.insertNewCourse(dbCursor, course_name)
