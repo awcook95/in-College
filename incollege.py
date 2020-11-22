@@ -54,17 +54,20 @@ def main(dbCursor, dbConnection):
                 # ADDING UNKNOWN AUTHOR FOR NOW
                 db.insertJob(dbCursor, obj.title, obj.description, obj.employer_name, obj.location, obj.salary, "Unknown Author")
     dbConnection.commit()
-    API.outputJobs(dbCursor)
-    API.outputProfiles(dbCursor)
-    API.outputUsers(dbCursor)
 
-    # testing training prints
+    # Create trainings
     trainings = API.createTrainings()
     if trainings:
         for obj in trainings:
             db.insertNewTraining(dbCursor, obj)
         print("\n")
     dbConnection.commit()
+
+    # Output applied jobs
+    API.outputAppliedJobs(dbCursor)
+    # API.outputJobs(dbCursor)
+    # API.outputProfiles(dbCursor)
+    # API.outputUsers(dbCursor)
 
 
     # This menu will run all main functionality

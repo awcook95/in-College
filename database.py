@@ -411,6 +411,10 @@ def getJobApplicantsByTitle(cursor, job_title):
     cursor.execute("SELECT applicant_uname FROM user_job_applications WHERE job_title=?", [job_title])
     return cursor.fetchall()
 
+# Used for applied jobs API to pull back username and why they are right for job
+def getJobApplicationDetailsByTitle(cursor, job_title):
+    cursor.execute("SELECT applicant_uname, credentials from user_job_applications WHERE job_title=?", [job_title])
+
 
 # ========================================= NOTIFICATIONS =========================================
 
