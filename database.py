@@ -121,17 +121,17 @@ def initTables(cursor):
     )""")
 
     cursor.execute("""CREATE TABLE IF NOT EXISTS
-    user_completed_courses(
-        course_id INTEGER PRIMARY KEY,
+    user_completed_trainings(
+        training_id INTEGER PRIMARY KEY,
         uname TEXT,
-        course_name TEXT
+        training_name TEXT
     )""")
 
     cursor.execute("""CREATE TABLE IF NOT EXISTS
-    courses(
-        course_id INTEGER PRIMARY KEY,
-        course_name TEXT,
-        FOREIGN KEY(course_name) REFERENCES user_completed_courses(course_name)
+    trainings(
+        training_id INTEGER PRIMARY KEY,
+        training_name TEXT,
+        FOREIGN KEY(training_name) REFERENCES user_completed_trainings(training_name)
     )""")
 
 # ========================================= USERS =========================================
@@ -428,16 +428,20 @@ def getNotificationsForUserByType(cursor, notification_type, receiver):
     return cursor.fetchall()
 
 
-# ========================================= COURSES =========================================
+# ========================================= TRAININGS =========================================
 
-def insertUserCompletedCourse(cursor, uname, course_name):
-    cursor.execute("INSERT INTO user_completed_courses VALUES(?,?,?)", [None, uname, course_name])
+def insertUserCompletedTraining(cursor, uname, training_name):
+    cursor.execute("INSERT INTO user_completed_train VALUES(?,?,?)", [None, uname, training_name])
 
 
-def getUserCompletedCourseByTitle(cursor, uname, course_name):
-    cursor.execute("SELECT * FROM user_completed_courses WHERE uname=? AND course_name=?", [uname, course_name])
+def getUserCompletedTrianingByTitle(cursor, uname, training_name):
+    cursor.execute("SELECT * FROM user_completed_trainings WHERE uname=? AND training_name=?", [uname, training_name])
     return cursor.fetchall()
 
-def insertNewCourse(cursor, course_name):
-    cursor.execute("INSERT INTO courses VALUES(?, ?)", [None, course_name])
+def insertNewTraining(cursor, training_name):
+    cursor.execute("INSERT INTO trainings VALUES(?, ?)", [None, training_name])
+    return cursor.fetchall()
+
+def getAllTrainings(cursor):
+    cursor.execute("SELECT * FROM trainings")
     return cursor.fetchall()
