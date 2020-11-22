@@ -201,6 +201,23 @@ def outputAppliedJobs(dbCursor):
         # write job posting separator 
         f.write("=====\n")
 
+# Outputs saved jobs for each user 
+def outputSavedJobsByUser(dbCursor):
+    f = open("MyCollege_savedJobs.txt","w+")
+
+    # create list of users
+    users = db.getAllUsers(dbCursor)
+
+    for user in users:
+        jobs = db.getFavoriteJobsByUser(dbCursor, user[0]) # get "saved" jobs for user
+        
+        if jobs != None: # should only output users who have saved jobs
+            f.write(f"{user[0]}\n") # username
+            for job in jobs:
+                f.write(f"{job[1]}\n") # job title
+
+        f.write("=====") # output user separator
+
 
 # Outputs the profile pages of students into the "MyCollege_profiles.txt" output API
 def outputProfiles(dbCursor):

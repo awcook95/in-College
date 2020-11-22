@@ -59,12 +59,15 @@ def main(dbCursor, dbConnection):
     trainings = API.createTrainings()
     if trainings:
         for obj in trainings:
-            db.insertNewTraining(dbCursor, obj)
+            if db.getTrainingByTitle(dbCursor, obj) == None:
+                db.insertNewTraining(dbCursor, obj)
         print("\n")
     dbConnection.commit()
 
     # Output applied jobs
     API.outputAppliedJobs(dbCursor)
+    # Output "saved" jobs
+    API.outputSavedJobsByUser(dbCursor)
     # API.outputJobs(dbCursor)
     # API.outputProfiles(dbCursor)
     # API.outputUsers(dbCursor)
