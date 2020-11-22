@@ -61,8 +61,8 @@ def main(dbCursor, dbConnection):
         for obj in trainings:
             if db.getTrainingByTitle(dbCursor, obj) == None:
                 db.insertNewTraining(dbCursor, obj)
-        print("\n")
     dbConnection.commit()
+    print(db.getAllTrainings(dbCursor))
 
     # Output applied jobs
     API.outputAppliedJobs(dbCursor)
