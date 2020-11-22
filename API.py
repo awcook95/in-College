@@ -178,6 +178,30 @@ def outputJobs(dbCursor):
         f.write("=====\n")
     f.close()
 
+# Outputs jobs and their applications into the "MyCollege_appliedJobs.txt output API 
+def outputAppliedJobs(dbCursor):
+    f = open("MyCollege_appliedJobs.txt", "w+")
+
+    # create list to be filled with jobs 
+    jobs = db.getAllJobs(dbCursor)
+
+    for job in jobs:
+        # get all applicants for this job
+        applicants = db.getJobApplicationDetailsByTitle(dbCursor, job[1])
+
+        # print job title and applicant info 
+        f.write(f"{job[1]}\n")      # Title
+
+        # print details of any applicants
+        if applicants != None:
+            for app in applicants:
+                f.write(f"{app[0]}\n") # applicant name 
+                f.write(f"{app[1]}\n") # credentials
+        
+        # write job posting separator 
+        f.write("=====\n")
+
+
 # Outputs the profile pages of students into the "MyCollege_profiles.txt" output API
 def outputProfiles(dbCursor):
     f = open("MyCollege_profiles.txt", "w+")
