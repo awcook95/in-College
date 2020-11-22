@@ -72,15 +72,14 @@ def trainingMenu(dbCursor, dbConnection):
 def enterLearningMenu(dbCursor, dbConnection):
     while settings.currentState == states.learning:
         trainings = db.getAllTrainings(dbCursor)
-        print(trainings)
         trainings_completed = [db.getUserCompletedTrainingByTitle(dbCursor, settings.signedInUname, "How to Use InCollege Learning"),
                              db.getUserCompletedTrainingByTitle(dbCursor, settings.signedInUname, "Train the Trainer"),
                              db.getUserCompletedTrainingByTitle(dbCursor, settings.signedInUname, "Gamification of Learning"),
                              db.getUserCompletedTrainingByTitle(dbCursor, settings.signedInUname, "Understanding the Architectural Design Process"),
                              db.getUserCompletedTrainingByTitle(dbCursor, settings.signedInUname, "Project Management Simplified")]
-        # trainings_completed2 = []
+
+        # appends new trainings from the newTrainings.txt API into the list of trainings
         for obj in trainings:
-            # if db.getTrainingByTitle(dbCursor, obj) == None:
             trainings_completed.append(db.getUserCompletedTrainingByTitle(dbCursor, settings.signedInUname, obj[1]))
 
         print("\nInCollege Learning:")
@@ -90,23 +89,22 @@ def enterLearningMenu(dbCursor, dbConnection):
         print(f"4. Understanding the Architectural Design Process{' (Completed)' if trainings_completed[3] else ''}")
         print(f"5. Project Management Simplified{' (Completed)' if trainings_completed[4] else ''}")
         for obj in trainings:
-            print(f"{obj[0]+5}. {obj[1]}{' (Completed)' if trainings_completed[obj[0]+5] else ''}")
+            print(f"{obj[0]+5}. {obj[1]}{' (Completed)' if trainings_completed[obj[0]+4] else ''}")
         # insert a more option that includes all of the new trainings or adaptive starting at 6 change original to 1 - 5
         print("Z. Return to Previous Menu")
         response = input("Input: ")
-        if response.upper() == 1:
-            handletraining(dbCursor, trainings_completed[0], "How to Use InCollege Learning")
-        elif response.upper() == 2:
-            handletraining(dbCursor, trainings_completed[1], "Train the Trainer")
-        elif response.upper() == 3:
-            handletraining(dbCursor, trainings_completed[2], "Gamification of Learning")
-        elif response.upper() == 4:
-            handletraining(dbCursor, trainings_completed[3], "Understanding the Architectural Design Process")
-        elif response.upper() == 5:
-            handletraining(dbCursor, trainings_completed[4], "Project Management Simplified")
-        elif response.isdigit() and (int(response)) <= len(trainings_completed) and response > 5:
-            handleTraining(dbCursor, (trainings_completed[int(response-1)])[0])
-            # handleTraining(dbCursor, (trainings_completed2[int(response) - 6])[0])
+        if response.upper() == "1":
+            handleTraining(dbCursor, trainings_completed[0], "How to Use InCollege Learning")
+        elif response.upper() == "2":
+            handleTraining(dbCursor, trainings_completed[1], "Train the Trainer")
+        elif response.upper() == "3":
+            handleTraining(dbCursor, trainings_completed[2], "Gamification of Learning")
+        elif response.upper() == "4":
+            handleTraining(dbCursor, trainings_completed[3], "Understanding the Architectural Design Process")
+        elif response.upper() == "5":
+            handleTraining(dbCursor, trainings_completed[4], "Project Management Simplified")
+        elif response.isdigit() and 6 <= (int(response)) <= len(trainings_completed):    # Lists all new training options here
+            handleTraining(dbCursor, (trainings_completed[int(response)-1]), (trainings[int(response)-6])[1])
         elif response.upper() == "Z":
             settings.currentState = states.mainMenu
         else:
@@ -116,10 +114,10 @@ def enterLearningMenu(dbCursor, dbConnection):
 def handleTraining(dbCursor, training_completed, training_name):
     if not training_completed:
         print("You have now completed this training.")
-        db.insertUserCompletedtraining(dbCursor, settings.signedInUname, training_name)
+        db.insertUserCompletedTraining(dbCursor, settings.signedInUname, training_name)
     else:
         choice = input("You have already taken this training, do you want to take it again? Enter 'Y' for yes or anything else to cancel: ")
         if choice.upper() == "Y":
             print("You have now completed this training.")
         else:
-            print("training cancelled.")
+            print("Training cancelled.")
