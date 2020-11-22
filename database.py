@@ -437,8 +437,7 @@ def getNotificationsForUserByType(cursor, notification_type, receiver):
 def insertUserCompletedTraining(cursor, uname, training_name):
     cursor.execute("INSERT INTO user_completed_train VALUES(?,?,?)", [None, uname, training_name])
 
-
-def getUserCompletedTrianingByTitle(cursor, uname, training_name):
+def getUserCompletedTrainingByTitle(cursor, uname, training_name):
     cursor.execute("SELECT * FROM user_completed_trainings WHERE uname=? AND training_name=?", [uname, training_name])
     return cursor.fetchall()
 
@@ -449,3 +448,7 @@ def insertNewTraining(cursor, training_name):
 def getAllTrainings(cursor):
     cursor.execute("SELECT * FROM trainings")
     return cursor.fetchall()
+
+def getTrainingByTitle(cursor, training_name):
+    cursor.execute("SELECT * FROM trainings WHERE training_name=?", [training_name])
+    return  cursor.fetchone()
