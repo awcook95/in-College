@@ -1,4 +1,5 @@
 import pathlib
+import database as db
 
 # Create account class according to epic documentation 
 class StudentAccount:
@@ -33,18 +34,18 @@ class Job:
 # Endpoint for creating student accounts (GET)
 # This function reads in entire file, account creation limit logic will be handled elsewhere
 # Assuming that if only one record exists it will be terminated by =====
-# Going off response from Dr. Anderson stating all fields requied to create account should be present
+# Going off response from Dr. Anderson stating all fields required to create account should be present
 def createStudentAccounts() : 
-    acc_path = pathlib.Path("studentAccouts.txt")
+    acc_path = pathlib.Path("studentAccounts.txt")
     # check if file exists
     if not acc_path.exists():
         print("Account file not found! No action required.")
-        return False
+        return None
 
-    acc_file = open("studentAccouts.txt", "r")
+    acc_file = open("studentAccounts.txt", "r")
     # create array to be filled with accounts 
     student_accounts = []
-    # assume correct formatting of file text, ===== seperators between objects
+    # assume correct formatting of file text, ===== separators between objects
     while True:
         # get user and password check for eof
         username = acc_file.readline().split("\n")[0] # remove newline char
@@ -61,7 +62,7 @@ def createStudentAccounts() :
         if acc_file.read(1) == '':
             #print("eof\n")
             break
-        # consume seperator chars
+        # consume separator chars
         sep = acc_file.readline()
 
     return student_accounts
@@ -75,8 +76,7 @@ def createJobs():
     # check if file exists
     if not job_path.exists():
         print("Job file not found! No action required.")
-        return False
-    
+        return None
     job_file = open("newJobs.txt", "r")
 
     # create array to be filled with jobs 
@@ -85,13 +85,13 @@ def createJobs():
     # keep track of potential first char of title to ensure not lost when processing file
     title_start = ""
     
-    # assume correct formatting of file text, ===== seperators between objects
+    # assume correct formatting of file text, ===== separators between objects
     while True:
         # get all job attributes then check for eof 
         title = title_start + job_file.readline().split("\n")[0] # remove newline char, add first char that was potentially consumed
 
         lines = []
-        # collect first decsription line and add to list of potential multiple lines
+        # collect first description line and add to list of potential multiple lines
         line = job_file.readline().split("\n")[0]
         lines.append(line)
         while line != "=====": # read until end of record  
@@ -99,7 +99,7 @@ def createJobs():
             lines.append(line)
 
         desc_end = -1
-        if "&&&" in lines: # check for multi-line descrition
+        if "&&&" in lines: # check for multi-line description
             desc_end = lines.index("&&&")
         
         desc = ""
@@ -129,7 +129,7 @@ def createJobs():
             #print("eof\n")
             break
         else: 
-            # if next char isnt eof then need to keep it as part of next job title
+            # if next char isn't eof then need to keep it as part of next job title
             title_start = next_char 
     
     return new_jobs
@@ -139,7 +139,7 @@ def createJobs():
 # Assuming that if only one record exists it will be terminated by =====
 def createTrainings(): 
     # assuming that file naming convention should be kept
-    # file will be titled newTrainings, not newtrainings
+    # file will be titled newTrainings, not new trainings
     training_path = pathlib.Path("newTrainings.txt")
     # check if file exists
     if not training_path.exists():
@@ -149,7 +149,7 @@ def createTrainings():
     train_file = open("newTrainings.txt", "r")
     # create array to be filled with accounts 
     trainings = []
-    # assume correct formatting of file text, ===== seperators between objects
+    # assume correct formatting of file text, ===== separators between objects
     while True:
         # get user and password check for eof
         title = train_file.readline().split("\n")[0] # remove newline char
@@ -159,14 +159,104 @@ def createTrainings():
         if train_file.read(1) == '':
             #print("eof\n")
             break
-        # consume seperator chars
+        # consume separator chars
         sep = train_file.readline()
     
     return trainings
 
+# Outputs the jobs into the "MyCollege_jobs.txt" output API
+def outputJobs(dbCursor):
+    f = open("MyCollege_jobs.txt", "w+")
+    # create list to be filled with jobs
+    jobs = db.getAllJobs(dbCursor)
+    for job in jobs:
+        f.write(f"{job[1]}\n")      # Title
+        f.write(f"{job[2]}\n")      # Description
+        f.write(f"{job[3]}\n")      # Employer
+        f.write(f"{job[4]}\n")      # Location
+        f.write(f"{job[5]}\n")      # Author
+        f.write("=====\n")
+    f.close()
+
+# Outputs jobs and their applications into the "MyCollege_appliedJobs.txt output API 
+def outputAppliedJobs(dbCursor):
+    f = open("MyCollege_appliedJobs.txt", "w+")
+
+    # create list to be filled with jobs 
+    jobs = db.getAllJobs(dbCursor)
+
+    for job in jobs:
+        # get all applicants for this job
+        applicants = db.getJobApplicationDetailsByTitle(dbCursor, job[1])
+
+        # print job title and applicant info 
+        f.write(f"{job[1]}\n")      # Title
+
+        # print details of any applicants
+        if applicants != None:
+            for app in applicants:
+                f.write(f"{app[0]}\n") # applicant name 
+                f.write(f"{app[1]}\n") # credentials
+        
+        # write job posting separator 
+        f.write("=====\n")
+
+# Outputs saved jobs for each user 
+def outputSavedJobsByUser(dbCursor):
+    f = open("MyCollege_savedJobs.txt","w+")
+
+    # create list of users
+    users = db.getAllUsers(dbCursor)
+
+    for user in users:
+        jobs = db.getFavoriteJobsByUser(dbCursor, user[0]) # get "saved" jobs for user
+        
+        if len(jobs) > 0: # should only output users who have saved jobs
+            f.write(f"{user[0]}\n") # username
+            for job in jobs:
+                f.write(f"{job[1]}\n") # job title
+            f.write("=====\n")  # output user separator
 
 
-##### THIS SECTION USED FOR TESTING ####
+
+
+# Outputs the profile pages of students into the "MyCollege_profiles.txt" output API
+def outputProfiles(dbCursor):
+    f = open("MyCollege_profiles.txt", "w+")
+    users = db.getAllUsers(dbCursor)
+    for user in users:
+        profile = db.getProfilePage(dbCursor, user[0])
+        jobs = db.getProfileJobs(dbCursor, user[0])
+        education = db.getProfileEducation(dbCursor, user[0])
+        f.write(f"{user[2]} {user[3]}'s Profile Page\n")    # Title
+        f.write(f"Major: {profile[1]}\n")                   # Major
+        f.write(f"University: {profile[2]}\n")              # University Name
+        f.write(f"About: {profile[3]}\n")                   # About
+        f.write("Experience:\n")
+        for job in jobs:                                    # Experience
+            f.write(f"{job[2]}\n")                              # Title
+            f.write(f"\tEmployer: {job[3]}\n")                  # Employer
+            f.write(f"\tDate: {job[4]} - {job[5]}\n")           # Start Date - End Date
+            f.write(f"\tLocation: {job[6]}\n")                  # Location
+            f.write(f"\tDescription: {job[7]}\n")               # Job Description
+        f.write("Education:\n")
+        for edu in education:                               # Education
+            f.write(f"University: {edu[2]}\n")                  # University Name
+            f.write(f"\tDegree: {edu[3]}\n")                    # Degree
+            f.write(f"\tYear: {edu[4]} - {edu[5]}\n")           # Start Year - End Year
+        f.write("=====\n")
+    f.close()
+
+# Outputs the Usernames along with their account type into the "MyCollege_users.txt" output API
+def outputUsers(dbCursor):
+    f = open("MyCollege_users.txt", "w+")
+    users = db.getAllUsers(dbCursor)
+    for user in users:
+        f.write(f"{user[0]} {'plus' if user[4] == 1 else 'standard'}\n")  # Username AccType
+    f.close()
+
+
+        ##### THIS SECTION USED FOR TESTING ####
 #def main():
     # student_accounts = createStudentAccounts()
     # for obj in student_accounts:

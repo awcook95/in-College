@@ -2,14 +2,14 @@ import database as db
 import constants
 import settings
 import states
-
+import API
 
 def enterProfilePageMenu(dbCursor, dbConnection):
     while settings.currentState == states.profilePage:
         major, university, about = printProfilePage(dbCursor, settings.signedInUname)
         print("A. Edit Profile Page")
         print("Z. Return to Previous Menu")
-        response = input("Enter option: ")
+        response = input("Input: ")
         if response.upper() == 'A':
             settings.currentState = states.profilePageEdit
             while settings.currentState == states.profilePageEdit:
@@ -20,7 +20,7 @@ def enterProfilePageMenu(dbCursor, dbConnection):
                 print("D. Add Job")
                 print("E. Education")
                 print("Z. Return to Previous Menu")
-                response = input("Enter option: ")
+                response = input("Input: ")
                 if response.upper() == 'A':
                     major = input("Major: ").title()
                 elif response.upper() == 'B':
@@ -50,6 +50,7 @@ def enterProfilePageMenu(dbCursor, dbConnection):
                     settings.currentState = states.profilePage
                     db.updateProfilePage(dbCursor, settings.signedInUname, major, university, about)
                     dbConnection.commit()
+                    API.outputProfiles(dbCursor)
                 else:
                     print(constants.INVALID_INPUT)
                     continue
@@ -72,9 +73,9 @@ def printProfilePage(dbCursor, uname):
     print(f"University: {page[2]}")               # page[2] = user university
     print(f"About: \n{page[3]}")                  # page[3] = user about
     if jobs is None:
-        print("Career:")
+        print("Experience:")
     else:
-        print("Career:")
+        print("Experience:")
         for job in jobs:
             print(job[2])                          # job[2] = job title
             print(f"\tEmployer: {job[3]}")         # job[3] = job employer

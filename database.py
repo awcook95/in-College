@@ -121,12 +121,18 @@ def initTables(cursor):
     )""")
 
     cursor.execute("""CREATE TABLE IF NOT EXISTS
-    user_completed_courses(
-        course_id INTEGER PRIMARY KEY,
+    user_completed_trainings(
+        training_id INTEGER PRIMARY KEY,
         uname TEXT,
-        course_name TEXT
+        training_name TEXT
     )""")
 
+    cursor.execute("""CREATE TABLE IF NOT EXISTS
+    trainings(
+        training_id INTEGER PRIMARY KEY,
+        training_name TEXT,
+        FOREIGN KEY(training_name) REFERENCES user_completed_trainings(training_name)
+    )""")
 
 # ========================================= USERS =========================================
 
@@ -188,7 +194,7 @@ def userIsPlusMember(cursor, uname):
     return user[4] == 1
 
 
-def readUsers(cursor):
+def getAllUsers(cursor):
     cursor.execute("Select * from users")
     return cursor.fetchall()
 
@@ -256,7 +262,7 @@ def getProfileEducation(cursor, uname):
 def profilePageExists(cursor, uname):
     profile = getProfilePage(cursor, uname)
     # MODIFIED EPIC 10
-    return profile != None
+    return not (profile[1] == "" and profile[2] == "" and profile[3] == "")
 
 
 # ========================================= FRIENDS =========================================
@@ -405,6 +411,10 @@ def getJobApplicantsByTitle(cursor, job_title):
     cursor.execute("SELECT applicant_uname FROM user_job_applications WHERE job_title=?", [job_title])
     return cursor.fetchall()
 
+# Used for applied jobs API to pull back username and why they are right for job
+def getJobApplicationDetailsByTitle(cursor, job_title):
+    cursor.execute("SELECT applicant_uname, credentials from user_job_applications WHERE job_title=?", [job_title])
+
 
 # ========================================= NOTIFICATIONS =========================================
 
@@ -422,12 +432,22 @@ def getNotificationsForUserByType(cursor, notification_type, receiver):
     return cursor.fetchall()
 
 
-# ========================================= COURSES =========================================
+# ========================================= TRAININGS =========================================
 
-def insertUserCompletedCourse(cursor, uname, course_name):
-    cursor.execute("INSERT INTO user_completed_courses VALUES(?,?,?)", [None, uname, course_name])
+def insertUserCompletedTraining(cursor, uname, training_name):
+    cursor.execute("INSERT INTO user_completed_trainings VALUES(?,?,?)", [None, uname, training_name])
 
-
-def getUserCompletedCourseByTitle(cursor, uname, course_name):
-    cursor.execute("SELECT * FROM user_completed_courses WHERE uname=? AND course_name=?", [uname, course_name])
+def getUserCompletedTrainingByTitle(cursor, uname, training_name):
+    cursor.execute("SELECT * FROM user_completed_trainings WHERE uname=? AND training_name=?", [uname, training_name])
     return cursor.fetchall()
+
+def insertNewTraining(cursor, training_name):
+    cursor.execute("INSERT INTO trainings VALUES(?, ?)", [None, training_name])
+
+def getAllTrainings(cursor):
+    cursor.execute("SELECT * FROM trainings")
+    return cursor.fetchall()
+
+def getTrainingByTitle(cursor, training_name):
+    cursor.execute("SELECT * FROM trainings WHERE training_name=?", [training_name])
+    return cursor.fetchone()
