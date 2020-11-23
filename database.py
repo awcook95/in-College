@@ -456,3 +456,8 @@ def getAllTrainings(cursor):
 def getTrainingByTitle(cursor, training_name):
     cursor.execute("SELECT * FROM trainings WHERE training_name=?", [training_name])
     return cursor.fetchone()
+
+
+def getAllUserCompletedTrainings(cursor, uname):
+    cursor.execute("SELECT training_name FROM user_completed_trainings WHERE uname=?", [uname])
+    return cursor.fetchall()

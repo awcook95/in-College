@@ -77,6 +77,7 @@ def main(dbCursor, dbConnection):
     API.outputJobs(dbCursor)             # output all jobs
     API.outputProfiles(dbCursor)         # output user profiles
     API.outputUsers(dbCursor)            # output all users
+    API.outputUserTrainings(dbCursor)
 
     # This menu will run all main functionality
     print("Welcome to inCollege!")

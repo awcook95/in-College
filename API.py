@@ -262,3 +262,15 @@ def outputUsers(dbCursor):
     for user in users:
         f.write(f"{user[0]} {'plus' if user[4] == 1 else 'standard'}\n")  # Username AccType
     f.close()
+
+
+def outputUserTrainings(dbCursor):
+    f = open("MyCollege_training.txt", "w+")
+    users = db.getAllUsers(dbCursor)
+    for user in users:
+        completed_trainings = db.getAllUserCompletedTrainings(dbCursor, user[0])
+        f.write(f"{user[0]}\n")
+        for t in completed_trainings:
+            f.write(f"{t[0]}\n")
+        f.write("=====\n")
+    f.close()

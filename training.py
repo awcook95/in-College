@@ -2,6 +2,7 @@ import database as db
 import settings
 import states
 import constants
+import API
 
 
 def trainingMenu(dbCursor, dbConnection):
@@ -109,11 +110,14 @@ def enterLearningMenu(dbCursor, dbConnection):
         else:
             print(constants.INVALID_INPUT)
 
+        dbConnection.commit()
+
 
 def handleTraining(dbCursor, training_completed, training_name):
     if not training_completed:
         print("You have now completed this training.")
         db.insertUserCompletedTraining(dbCursor, settings.signedInUname, training_name)
+        API.outputUserTrainings(dbCursor)
     else:
         choice = input("You have already taken this training, do you want to take it again? Enter 'Y' for yes or anything else to cancel: ")
         if choice.upper() == "Y":
