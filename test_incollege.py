@@ -1,17 +1,20 @@
 import sqlite3
-from io import StringIO
-import pytest
 from collections import namedtuple
+from io import StringIO
 
+import pytest
+
+import API
 import database as db
+import incollege
+import jobs
 import profiles
 import settings
 import states
+import ui
 import users
 import utils
-import jobs
-import ui
-import API
+
 
 # Notes:
 # StringIO simulates a file to hold simulated inputs (inputs separated by \n)
@@ -420,13 +423,5 @@ def testStudentAccountAPIInput():
     cursor = connection.cursor()
     cursor.execute("DROP TABLE IF EXISTS Users") #delete tables to make sure no conflicts when running test multiple times
     db.initTables(cursor)
-    user_count = db.getNumUsers(cursor)
-    student_accounts = API.createStudentAccounts()
-    for obj in student_accounts:
-        if user_count <= 10 and db.getUserByFullName(cursor, obj.first_name, obj.last_name) == None:
-            db.insertUser(cursor, obj.username, obj.password, obj.first_name, obj.last_name, obj.plus_member, "01/01/2020")
-            user_count += 1
-        else:
-            break
-    connection.commit()
-    assert len(db.readUsers(cursor)) != None
+    incollege.inputAPIUsers(cursor, connection)
+    assert db.getNumUsers(cursor) <= len(API.createStudentAccounts())
