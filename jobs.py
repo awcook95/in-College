@@ -60,6 +60,9 @@ def postJob(dbCursor, dbConnection):
 
     dbConnection.commit()
     API.outputJobs(dbCursor)
+    # call API functions to modify output files 
+    API.outputJobs(dbCursor)
+    API.outputAppliedJobs(dbCursor)
     print("Job has been posted.")
     settings.currentState = states.jobMenu  # returns to main() w/ currentState = jobMenu
 
@@ -95,6 +98,7 @@ def enterDeleteAJobMenu(dbCursor, dbConnection):
 
             db.deleteJob(dbCursor, selectedJob[0])
             dbConnection.commit()
+            API.outputJobs(dbCursor)
             print("Successfully deleted job.")
             break
         elif response.upper() == "Z":
@@ -201,6 +205,8 @@ def viewJobDetails(dbCursor, dbConnection, selectedJob):
                 else:
                     db.insertFavoriteJob(dbCursor, settings.signedInUname, selectedJob[1])
                     print("Job added to favorites.")
+                # if job jets favorited or unfavorited need to update output list 
+                API.outputSavedJobsByUser(dbCursor)
                 break
             elif response.upper() == "Z":
                 return
@@ -226,4 +232,5 @@ def applyForJob(dbCursor, dbConnection, job):
     currentDate = datetime.strptime(todayDate, date_format)  # Today's date as a string
     db.insertUserJobApplication(dbCursor, settings.signedInUname, job[1], grad, start, credentials, currentDate)
     dbConnection.commit()
+    API.outputAppliedJobs(dbCursor)
     print("Successfully applied for job.")
