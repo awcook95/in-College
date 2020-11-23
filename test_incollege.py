@@ -425,3 +425,12 @@ def testStudentAccountAPIInput():
     db.initTables(cursor)
     incollege.inputAPIUsers(cursor, connection)
     assert db.getNumUsers(cursor) <= len(API.createStudentAccounts())
+
+
+def testJobsAPIInput():
+    connection = sqlite3.connect("incollege_test.db")
+    cursor = connection.cursor()
+    cursor.execute("DROP TABLE IF EXISTS jobs")
+    db.initTables(cursor)
+    incollege.inputAPIJobs(cursor, connection)
+    assert db.getNumJobs(cursor) <= len(API.createJobs())
