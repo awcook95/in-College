@@ -42,6 +42,7 @@ def inputAPIUsers(dbCursor, dbConnection):
 
     dbConnection.commit()
 
+
     # Create jobs
 def inputAPIJobs(dbCursor, dbConnection):
     job_count = db.getNumJobs(dbCursor)

@@ -171,7 +171,7 @@ def outputJobs(dbCursor):
     jobs = db.getAllJobs(dbCursor)
     for job in jobs:
         f.write(f"{job[1]}\n")      # Title
-        f.write(f"{job[2]} &&&\n")  # Description
+        f.write(f"{job[2]}\n")      # Description
         f.write(f"{job[3]}\n")      # Employer
         f.write(f"{job[4]}\n")      # Location
         f.write(f"{job[5]}\n")      # Author
@@ -211,12 +211,13 @@ def outputSavedJobsByUser(dbCursor):
     for user in users:
         jobs = db.getFavoriteJobsByUser(dbCursor, user[0]) # get "saved" jobs for user
         
-        if jobs != None: # should only output users who have saved jobs
+        if len(jobs) > 0: # should only output users who have saved jobs
             f.write(f"{user[0]}\n") # username
             for job in jobs:
                 f.write(f"{job[1]}\n") # job title
+            f.write("=====\n")  # output user separator
 
-        f.write("=====") # output user separator
+
 
 
 # Outputs the profile pages of students into the "MyCollege_profiles.txt" output API

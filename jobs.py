@@ -59,7 +59,7 @@ def postJob(dbCursor, dbConnection):
             db.insertNotification(dbCursor, "new_job", title, user[0])
 
     dbConnection.commit()
-    API.outputJobs(dbCursor)
+    #API.outputJobs(dbCursor)
     # call API functions to modify output files 
     API.outputJobs(dbCursor)
     API.outputAppliedJobs(dbCursor)
@@ -93,12 +93,14 @@ def enterDeleteAJobMenu(dbCursor, dbConnection):
             if len(job_applicants) > 0:
                 for applicant in job_applicants:
                     db.insertNotification(dbCursor, "job_deleted", selectedJob[1], applicant[0])
-
             # todo: delete job applications for job to be deleted
 
             db.deleteJob(dbCursor, selectedJob[0])
+
             dbConnection.commit()
             API.outputJobs(dbCursor)
+            API.outputAppliedJobs(dbCursor)
+            API.outputSavedJobsByUser((dbCursor))
             print("Successfully deleted job.")
             break
         elif response.upper() == "Z":
