@@ -34,34 +34,34 @@ def inputAPIUsers(dbCursor, dbConnection):
     if student_accounts:
         for obj in student_accounts:
             # only create up to 10 accounts, don't recreate accounts
-            if user_count < 10 and db.getUserByFullName(dbCursor, obj.first_name, obj.last_name) == None:
-                db.insertUser(dbCursor, obj.username, obj.password, obj.first_name, obj.last_name, obj.plus_member, currentDate)                # add some comment here
-                db.insertUserSettings(dbCursor, obj.username, settings.emailNotif, settings.smsNotif, settings.targetAdvert,settings.language)
+            if user_count < 10 and db.getUserByFullName(dbCursor, obj.first_name, obj.last_name) is None:
+                db.insertUser(dbCursor, obj.username, obj.password, obj.first_name, obj.last_name, obj.plus_member, currentDate)
+                db.insertUserSettings(dbCursor, obj.username, settings.emailNotif, settings.smsNotif, settings.targetAdvert, settings.language)
                 db.insertProfilePage(dbCursor, obj.username, "", "", "")
                 user_count += 1
 
     dbConnection.commit()
 
 
-    # Create jobs
+# Create jobs
 def inputAPIJobs(dbCursor, dbConnection):
     job_count = db.getNumJobs(dbCursor)
     new_jobs = API.createJobs()
     if new_jobs:
         for obj in new_jobs:
             # job limit is 10, don't recreate jobs
-            if job_count < 10 and db.getJobByTitle(dbCursor, obj.title) == None:
+            if job_count < 10 and db.getJobByTitle(dbCursor, obj.title) is None:
                 # ADDING UNKNOWN AUTHOR FOR NOW
                 db.insertJob(dbCursor, obj.title, obj.description, obj.employer_name, obj.location, obj.salary, "Unknown Author")
     dbConnection.commit()
 
 
-    # Create trainings
+# Create trainings
 def inputAPITrainings(dbCursor, dbConnection):
     trainings = API.createTrainings()
     if trainings:
         for obj in trainings:
-            if db.getTrainingByTitle(dbCursor, obj) == None:
+            if db.getTrainingByTitle(dbCursor, obj) is None:
                 db.insertNewTraining(dbCursor, obj)
     dbConnection.commit()
 
@@ -72,17 +72,11 @@ def main(dbCursor, dbConnection):
     inputAPIJobs(dbCursor, dbConnection)
     inputAPITrainings(dbCursor, dbConnection)
 
-    # Output applied jobs
-    API.outputAppliedJobs(dbCursor) #DONE
-    # Output "saved" jobs
-    API.outputSavedJobsByUser(dbCursor)#DONE
-    # Output all jobs
-    API.outputJobs(dbCursor) #DONE
-    # Output user profiles
-    API.outputProfiles(dbCursor) #DONE
-    # Output list of current users
-    API.outputUsers(dbCursor) #DONE
-
+    API.outputAppliedJobs(dbCursor)      # output applied jobs
+    API.outputSavedJobsByUser(dbCursor)  # output saved jobs
+    API.outputJobs(dbCursor)             # output all jobs
+    API.outputProfiles(dbCursor)         # output user profiles
+    API.outputUsers(dbCursor)            # output all users
 
     # This menu will run all main functionality
     print("Welcome to inCollege!")

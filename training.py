@@ -73,10 +73,10 @@ def enterLearningMenu(dbCursor, dbConnection):
     while settings.currentState == states.learning:
         trainings = db.getAllTrainings(dbCursor)
         trainings_completed = [db.getUserCompletedTrainingByTitle(dbCursor, settings.signedInUname, "How to Use InCollege Learning"),
-                             db.getUserCompletedTrainingByTitle(dbCursor, settings.signedInUname, "Train the Trainer"),
-                             db.getUserCompletedTrainingByTitle(dbCursor, settings.signedInUname, "Gamification of Learning"),
-                             db.getUserCompletedTrainingByTitle(dbCursor, settings.signedInUname, "Understanding the Architectural Design Process"),
-                             db.getUserCompletedTrainingByTitle(dbCursor, settings.signedInUname, "Project Management Simplified")]
+                               db.getUserCompletedTrainingByTitle(dbCursor, settings.signedInUname, "Train the Trainer"),
+                               db.getUserCompletedTrainingByTitle(dbCursor, settings.signedInUname, "Gamification of Learning"),
+                               db.getUserCompletedTrainingByTitle(dbCursor, settings.signedInUname, "Understanding the Architectural Design Process"),
+                               db.getUserCompletedTrainingByTitle(dbCursor, settings.signedInUname, "Project Management Simplified")]
 
         # appends new trainings from the newTrainings.txt API into the list of trainings
         for obj in trainings:
@@ -89,22 +89,21 @@ def enterLearningMenu(dbCursor, dbConnection):
         print(f"4. Understanding the Architectural Design Process{' (Completed)' if trainings_completed[3] else ''}")
         print(f"5. Project Management Simplified{' (Completed)' if trainings_completed[4] else ''}")
         for obj in trainings:
-            print(f"{obj[0]+5}. {obj[1]}{' (Completed)' if trainings_completed[obj[0]+4] else ''}")
-        # insert a more option that includes all of the new trainings or adaptive starting at 6 change original to 1 - 5
+            print(f"{obj[0] + 5}. {obj[1]}{' (Completed)' if trainings_completed[obj[0] + 4] else ''}")
         print("Z. Return to Previous Menu")
         response = input("Input: ")
-        if response.upper() == "1":
+        if response == "1":
             handleTraining(dbCursor, trainings_completed[0], "How to Use InCollege Learning")
-        elif response.upper() == "2":
+        elif response == "2":
             handleTraining(dbCursor, trainings_completed[1], "Train the Trainer")
-        elif response.upper() == "3":
+        elif response == "3":
             handleTraining(dbCursor, trainings_completed[2], "Gamification of Learning")
-        elif response.upper() == "4":
+        elif response == "4":
             handleTraining(dbCursor, trainings_completed[3], "Understanding the Architectural Design Process")
-        elif response.upper() == "5":
+        elif response == "5":
             handleTraining(dbCursor, trainings_completed[4], "Project Management Simplified")
-        elif response.isdigit() and 6 <= (int(response)) <= len(trainings_completed):    # Lists all new training options here
-            handleTraining(dbCursor, (trainings_completed[int(response)-1]), (trainings[int(response)-6])[1])
+        elif response.isdigit() and 6 <= int(response) <= len(trainings_completed):    # Lists all new training options here
+            handleTraining(dbCursor, trainings_completed[int(response) - 1], (trainings[int(response) - 6])[1])
         elif response.upper() == "Z":
             settings.currentState = states.mainMenu
         else:

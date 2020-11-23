@@ -134,6 +134,7 @@ def initTables(cursor):
         FOREIGN KEY(training_name) REFERENCES user_completed_trainings(training_name)
     )""")
 
+
 # ========================================= USERS =========================================
 
 def insertUser(cursor, uname, pword, fname, lname, plusMember, date_created):
@@ -411,7 +412,7 @@ def getJobApplicantsByTitle(cursor, job_title):
     cursor.execute("SELECT applicant_uname FROM user_job_applications WHERE job_title=?", [job_title])
     return cursor.fetchall()
 
-# Used for applied jobs API to pull back username and why they are right for job
+
 def getJobApplicationDetailsByTitle(cursor, job_title):
     cursor.execute("SELECT applicant_uname, credentials from user_job_applications WHERE job_title=?", [job_title])
 
@@ -437,16 +438,20 @@ def getNotificationsForUserByType(cursor, notification_type, receiver):
 def insertUserCompletedTraining(cursor, uname, training_name):
     cursor.execute("INSERT INTO user_completed_trainings VALUES(?,?,?)", [None, uname, training_name])
 
+
 def getUserCompletedTrainingByTitle(cursor, uname, training_name):
     cursor.execute("SELECT * FROM user_completed_trainings WHERE uname=? AND training_name=?", [uname, training_name])
     return cursor.fetchall()
 
+
 def insertNewTraining(cursor, training_name):
     cursor.execute("INSERT INTO trainings VALUES(?, ?)", [None, training_name])
+
 
 def getAllTrainings(cursor):
     cursor.execute("SELECT * FROM trainings")
     return cursor.fetchall()
+
 
 def getTrainingByTitle(cursor, training_name):
     cursor.execute("SELECT * FROM trainings WHERE training_name=?", [training_name])

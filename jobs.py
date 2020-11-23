@@ -59,7 +59,6 @@ def postJob(dbCursor, dbConnection):
             db.insertNotification(dbCursor, "new_job", title, user[0])
 
     dbConnection.commit()
-    #API.outputJobs(dbCursor)
     # call API functions to modify output files 
     API.outputJobs(dbCursor)
     API.outputAppliedJobs(dbCursor)
@@ -80,7 +79,7 @@ def enterDeleteAJobMenu(dbCursor, dbConnection):
         settings.currentState = states.jobMenu
         return
 
-    print("\n Choose one of the above jobs to delete (job #)")
+    print("#. Choose one of the above jobs to delete")
     print("Z. Return to Previous Menu")
 
     while True:
@@ -93,14 +92,13 @@ def enterDeleteAJobMenu(dbCursor, dbConnection):
             if len(job_applicants) > 0:
                 for applicant in job_applicants:
                     db.insertNotification(dbCursor, "job_deleted", selectedJob[1], applicant[0])
-            # todo: delete job applications for job to be deleted
 
             db.deleteJob(dbCursor, selectedJob[0])
 
             dbConnection.commit()
             API.outputJobs(dbCursor)
             API.outputAppliedJobs(dbCursor)
-            API.outputSavedJobsByUser((dbCursor))
+            API.outputSavedJobsByUser(dbCursor)
             print("Successfully deleted job.")
             break
         elif response.upper() == "Z":
@@ -207,7 +205,7 @@ def viewJobDetails(dbCursor, dbConnection, selectedJob):
                 else:
                     db.insertFavoriteJob(dbCursor, settings.signedInUname, selectedJob[1])
                     print("Job added to favorites.")
-                # if job jets favorited or unfavorited need to update output list 
+                # if job gets favorited or unfavorited, need to update output list
                 API.outputSavedJobsByUser(dbCursor)
                 break
             elif response.upper() == "Z":

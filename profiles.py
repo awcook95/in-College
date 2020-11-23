@@ -4,6 +4,7 @@ import settings
 import states
 import API
 
+
 def enterProfilePageMenu(dbCursor, dbConnection):
     while settings.currentState == states.profilePage:
         major, university, about = printProfilePage(dbCursor, settings.signedInUname)
